@@ -13,9 +13,62 @@ knitr::opts_chunk$set(echo = TRUE)
 library(here)
 source(here("analysis","check_packages.R"))
 source(here("analysis","useful_functions.R"))
+load(here("analysis","output","models.RData"))
 ```
 
 # Introduction
 <a href="#top">Back to top</a>
 
 Use this R Markdown to perform the main analysis for the project. I use this basically as a lab notebook. It contains the main analysis and a variety of sensitivity analysis. The code in this documents serves as a baseline for the eventual tables and figures that will go into the paper. At the same time it will serve as a record of all supplementary analyses performed. 
+
+
+```{r create-coef-table}
+get_coefs <- function(x) {
+  temp <- coef(x)[,c(1,2)]
+  return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
+}
+coef <- get_coefs(model) |>
+  filter(str_detect(variable, "race_exog")) |>
+  mutate(variable=str_replace(variable, "race_exog",""))
+  
+```
+
+
+```{r}
+# create dataset of single race combos for comparison lines
+temp <- coef |> 
+  filter(!str_detect(variable, "/|Latino")) |>
+  mutate(multiple_race=str_replace(variable, "\\.", "/"),
+         multiple_race=factor(multiple_race,
+                              levels=c("White/Asian","Black/Indig",
+                                       "White/Indig","Indig/Asian",
+                                       "White/Black","Black/Asian")))
+
+coef |>
+  filter(str_detect(variable, "White/Asian|White/Black|White/Indig|Black/Asian|Black/Indig|Indig/Asian")) |>
+  mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
+         multiple_race=str_split(variable, "\\.", simplify=TRUE)[,2],
+         constituent=str_detect(multiple_race, single_race),
+         single_race=factor(single_race, 
+                            levels=c("Latino","Asian","Indig","Black",
+                                     "White")),
+         multiple_race=factor(multiple_race,
+                              levels=c("White/Asian","Black/Indig",
+                                       "White/Indig","Indig/Asian",
+                                       "White/Black","Black/Asian"))) |>
+  ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
+  geom_linerange(size=1.25, 
+                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(size=0.5, 
+                  aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  geom_hline(data=temp, aes(yintercept=exp(coef)), linetype=2, color="red")+
+  geom_hline(yintercept=exp(filter(coef, variable=="Multi/Multi")$coef), 
+             linetype=2, color="blue")+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_y_continuous(limits=c(0,1))+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="single race partner", y="odds relative to endogamy")+
+  theme_bw()
+```
