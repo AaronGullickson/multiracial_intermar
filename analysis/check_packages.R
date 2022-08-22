@@ -5,9 +5,8 @@
 #http://www.vikram-baliga.com/blog/2015/7/19/a-hassle-free-way-to-verify-that-r-packages-are-installed-and-loaded
 
 #add new packages to the chain here
-packages = c("here","readr",
-             "ggplot2","ggalt",
-             "dplyr","tibble","stringr","tidyr","broom",
+packages = c("here","readr","tidyverse",
+             "ggplot2","ggalt","stringr","tidyr","broom",
              "knitr","texreg","kableExtra")
 
 package.check <- lapply(packages, FUN = function(x) {
@@ -16,3 +15,10 @@ package.check <- lapply(packages, FUN = function(x) {
     library(x, character.only = TRUE)
   }
 })
+
+
+#install fakeunion library from GitHub
+if(!require(fakeunion)) {
+  install_github("AaronGullickson/fakeunion")
+  library(fakeunion)
+}
