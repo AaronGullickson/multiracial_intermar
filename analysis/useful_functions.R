@@ -273,3 +273,122 @@ is_single <- function(marst) {
   #I am going to consider separated people as single here
   return(marst!="Married, spouse present" & marst!="Married, spouse absent")
 }
+
+#code variables for the marriage market dataset
+add_vars <- function(market) {
+  #age difference 
+  market$agediff <- market$ageh-market$agew
+  
+  #birthplace endogamy - will produce several alternate specifications
+  market <- code_birthplace_endog(market)
+  
+  #language endogamy 
+  # The -1 cases are NEC languages, so we assume non-endogamous
+  market$language_endog <- ifelse(market$languageh<0 | market$languagew<0, 
+                                   FALSE, market$languageh==market$languagew)
+  
+  #educational hypergamy/hypogamy
+  market$hypergamy <- market$educh > market$educw
+  market$hypogamy <- market$educh < market$educw
+  
+  #educational crossing
+  market$edcross_hs <- (market$educh>="HS" & market$educw<"HS") | 
+    (market$educw>="HS" & market$educh<"HS")
+  market$edcross_sc <- (market$educh>="SC" & market$educw<"SC") | 
+    (market$educw>="SC" & market$educh<"SC")
+  market$edcross_c <- (market$educh>="C" & market$educw<"C") | 
+    (market$educw>="C" & market$educh<"C")
+  
+  # create racial exogamy terms
+  
+  # full racial exogamy blocks
+  market$race_exog_full <- createExogamyTerms(market$raceh, 
+                                               market$racew, 
+                                               symmetric=TRUE)
+  
+  # now collapse multiracial/multiracial cases to a single dummy
+  market$race_exog <- ifelse(str_count(market$race_exog_full, "/")==2,
+                             "Multi/Multi", 
+                             as.character(market$race_exog_full))
+  market$race_exog <- relevel(factor(market$race_exog), 
+                              "Endog")
+  
+  return(market)
+}
+
+#code several different variables that indicate birthplace endogamy
+code_birthplace_endog <- function(market) {
+  # I want to think carefully about how being a member of the 1.75 generation
+  # (0-5 at entry to US), 1.5 generation (6-12 at entry), and 1.25 generation
+  # (13-17 at entry) affect endogamy. I do this by how I consider endogamy, with
+  # three choices:
+  #
+  # USA - this group is considered to be US-born only for purposes of endogamy
+  # Both - this group is considered to be endogamous both with US and birthplace
+  # Birthplace - this group is considered to be endogamous with birthplace only
+  # 
+  # Given these different options, I can construct 10 different possible codings
+  # if we force the codings to be consistent so that a lower generation is never
+  # given a more "assimilated" coding than a higher generation
+  
+  #first create booleans for generations each spouse
+  is_h_1.75 <- market$bplh!=1 & market$age_usah<6
+  is_h_1.5  <- market$bplh!=1 & market$age_usah>5 & market$age_usah<13
+  is_h_1.25 <- market$bplh!=1 & market$age_usah>12 & market$age_usah<18
+  
+  is_w_1.75 <- market$bplw!=1 & market$age_usaw<6
+  is_w_1.5  <- market$bplw!=1 & market$age_usaw>5 & market$age_usaw<13
+  is_w_1.25 <- market$bplw!=1 & market$age_usaw>12 & market$age_usaw<18
+  
+  #now booleans for birthplace endog
+  birthplace_endog <- market$bplh==market$bplw
+  
+  #create switched birthplaces for USA endog, each one inclusive of laters
+  bplh_1.75 <- ifelse(is_h_1.75, 1, market$bplh)
+  bplh_1.5  <- ifelse(is_h_1.75 | is_h_1.5, 1, market$bplh)
+  bplh_1.25 <- ifelse(is_h_1.75 | is_h_1.5 | is_h_1.25, 1, market$bplh)
+  
+  bplw_1.75 <- ifelse(is_w_1.75, 1, market$bplw)
+  bplw_1.5  <- ifelse(is_w_1.75 | is_w_1.5, 1, market$bplw)
+  bplw_1.25 <- ifelse(is_w_1.75 | is_w_1.5 | is_w_1.25, 1, market$bplw)
+  
+  ## Create Variables ##
+  
+  ## All First Gen
+  #strictest coding treats all three cases the same as second gen (birthplace)
+  market$bendog_all_first <- birthplace_endog
+  
+  ## All Second Gen
+  ## all are treated as born in the US
+  market$bendog_all_second <- bplh_1.25==bplw_1.25
+  
+  ## All Flex
+  ## either birthplace or US is treated as endogamous for all
+  market$bendog_all_flex <- bplh_1.25==bplw_1.25 | birthplace_endog
+  
+  ## Steep Grade (1.75): 1.75: USA, 1.5: Birthplace, 1.25: Birthplace
+  market$bendog_steep_grade1.75 <- bplh_1.75==bplw_1.75
+  
+  ## Steep Grade (1.5): 1.75: USA, 1.5: USA, 1.25: Birthplace
+  market$bendog_steep_grade1.5 <- bplh_1.5==bplw_1.5
+  
+  ## Slight Grade (1.75): 1.75: USA, 1.5: Both, 1.25: Both
+  market$bendog_slight_grade1.75 <- market$bendog_steep_grade1.75 | 
+    market$bendog_all_second
+  
+  ## Slight Grade (1.5): 1.75: USA, 1.5: USA, 1.25: Both
+  market$bendog_slight_grade1.5 <- market$bendog_steep_grade1.5 | 
+    market$bendog_all_second
+  
+  ## Full Grade: 1.75: USA, 1.5: Both, 1.25: Birthplace
+  market$bendog_full_grade <-  market$bendog_steep_grade1.5 | 
+    market$bendog_steep_grade1.75
+  
+  ## Partial Flex (1.5): 1.75: Both, 1.5: Birthplace, 1.25: Birthplace
+  market$bendog_partial_flex1.75 <- bplh_1.75==bplw_1.75 | birthplace_endog
+  
+  ## Partial Flex (1.75): 1.75: Both, 1.5: Both, 1.25: Birthplace
+  market$bendog_partial_flex1.5 <- bplh_1.5==bplw_1.5 | birthplace_endog
+  
+  return(market)
+}
