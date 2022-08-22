@@ -1,3 +1,275 @@
 ## useful_functions.R
 
-#Put any functions that might be used across multiple scripts here so that they can be properly sourced in.
+# Functions to code raw data ----------------------------------------------
+
+#I will put all of the coding variable stuff into a function to ensure that we
+#do the same operations on both datasets when we make changes. I will then put
+#each separate variable coding into a sub-function to ensure that we do the same
+#thing for each spouse.
+
+code_census_variables <- function(census) {
+  
+  # Sex of respondent
+  # - Male (sex 1)
+  # - Female (sex 2)
+  census$sex <- ifelse(census$sex==1, "Male",
+                       ifelse(census$sex==2, "Female", NA))
+  
+  # Marital status
+  census$marst <- factor(census$marst,
+                         levels=1:6,
+                         labels=c("Married, spouse present",
+                                  "Married, spouse absent",
+                                  "Separated","Divorced","Widowed",
+                                  "Never married"))
+  
+  # Race - see details in code_race below
+  census$race <- code_race(census$raced, census$hispand)
+  census$race_sp <- code_race(census$raced_sp, census$hispand_sp)
+  
+  # Education - see details in code_educ below
+  census$educ <- code_educ(census$educd)
+  census$educ_sp <- code_educ(census$educd_sp)
+  
+  # Language 
+  # We don't need to code language as a factor variable with labels because
+  # ultimately all we need to know is whether the two partners speak the same
+  # language. We should however code in any missing values (0), although 
+  # there do not appear to be any.
+  census$lang <- code_language(census$languaged)
+  census$lang_sp <- code_language(census$languaged_sp)
+  
+  # Country of Birth 
+  # The general codes are way to general. The detailed codes have some
+  # overspecifity in the codes, but not in the actual data used here.
+  census$bpld <- code_bpl(census$bpld)
+  census$bpld_sp <- code_bpl(census$bpld_sp)
+  
+  #Years living in USA
+  #1n 1980 this is based on intervalled data with the actual value
+  #representing the last year in the interval. In this case we have 
+  #intervals of 1975-1980 (1980) and 1970-1974 (1974) that are relevant.
+  #this means we will not be able to measure timing of years in smaller
+  #than five year increments - which is a good reason for using the marriage
+  #in last five years as a benchmark. 
+  census$yr_usa <- census$year-ifelse(census$yrimmig==0,NA,census$yrimmig)
+  census$yr_usa_sp <- census$year-ifelse(census$yrimmig_sp==0,NA,
+                                         census$yrimmig_sp)
+  
+  # Assign Unique Person ID - we removed the sample number to cut
+  #down on size but year should do the same trick
+  census$id <- census$serial*1000000+census$pernum*10000+census$year
+  if(sum(duplicated(census$id))>0) {
+    stop("Duplicted ids in data")
+  }
+  census$id_sp <- ifelse(is.na(census$pernum_sp),NA,
+                         census$serial*1000000+census$pernum_sp*10000+census$year)
+  if(sum(duplicated(na.omit(census$id_sp)))>0) {
+    stop("Duplicted spousal ids in data")
+  }
+  
+  #combined state and metro area id to get marriage market. Replace state id
+  #with metro id for cases where it is not zero. Multiply by 100 to avoid id
+  #collision
+  census$mar_market <- census$statefip
+  
+  return(census)
+}
+
+code_race <- function(raced, hispand) {
+  # We want to take the raced and hispand variables and code them into a combined
+  # race variable. I am going to use the fullest possible coding here although
+  # only a few of these cases will show up in the 1980 data. I am also going 
+  # to leave out the indigenous population for the moment, due to some issues
+  # with measurement across the two time periods.
+  race <- case_when(
+    # Latino trumps everything, because combined question, sigh
+    hispand>0 & hispand<900 ~ "Latino",
+    # The original ethnoracial triangle - white, black, indigenous
+    raced==100 ~ "White",
+    raced==200 ~ "Black",
+    (raced>=300 & raced<400) ~ "Indig",
+    # Asian
+    # need to do South Asians, then Pac Islander, then E&SE Asian
+    # to simplify coding nightmare
+    # leave out South Asian separation, because we don't have details
+    # for those that check more than one
+    #(raced %in% c(610, 664, 669, 670)) ~ "South Asian",
+    (raced==630 | (raced>=680 & raced<=699)) ~ "Indig",
+    ((raced==400 & raced<=679) | raced %in% c(869, 887)) ~ "Asian",
+    # Multiracial groups
+    raced==801 ~ "White/Black",
+    raced==802 ~ "White/Indig",
+    (raced>=810 & raced<=819) ~ "White/Asian",
+    (raced>=820 & raced<=827) ~ "White/Indig",
+    raced==830 ~ "Black/Indig",
+    (raced>=831 & raced<=838) ~ "Black/Asian",
+    (raced>=840 & raced<=842) ~ "Black/Indig",
+    (raced>=850 & raced<=854) ~ "Indig/Asian",
+    raced==855 ~ "Indig",
+    (raced>=860 & raced<=868) ~ "Indig/Asian",
+    #raced==901 ~ "White/Black/AIAN",
+    TRUE ~ NA_character_
+  )
+  
+  race <- factor(race, 
+                 levels=c("White","Black","Indig","Asian","Latino",
+                          "White/Black","White/Indig","White/Asian",
+                          "Black/Indig","Black/Asian","Indig/Asian"))
+  
+  return(race)
+}
+
+
+code_educ <- function(educd) {
+  # We want to re-code the educd variable into the following simple
+  # categories:
+  # - Less than high school diploma
+  # - High school diploma
+  # - Some college, but less than a four year degree
+  # - Four year college degree or more
+  educ <- ifelse(educd<60, "LHS",
+                 ifelse(educd<=65, "HS",
+                        ifelse(educd<=90, "SC",
+                               ifelse(educd<=999, "C", 
+                                      NA))))
+  educ <- factor(educ,
+                 levels=c("LHS","HS","SC","C"),
+                 ordered=TRUE)
+  return(educ)
+}
+
+code_bpl <- function(bpld) {
+  #recode any one born in the US (99 or less) as a single number. Otherwise
+  #we will be fitting state level endogamy. also code in missing values
+  return(ifelse(bpld>=95000, NA, 
+                ifelse(bpld<10000,1,bpld)))
+}
+
+code_language <- function(language) {
+  #I need to use the detailed language codes as the general language codes 
+  #are too general. However the detailed language codes are too detailed in 
+  #some places, particularly in translating between the two time periods. Thus
+  #I make some corrections to the detailed codes for consistency between the
+  #two time periods.
+  
+  lang_recode <- language
+  
+  #the following cases will be collapsed to the their top two digit codes
+  #(starting at the 100 levels)
+  #1:27 - European language groups (e.g. English, French, German)
+  #35: Uralic
+  #37: Other Altaic
+  #43: Chinese
+  #47: Thai/Siamese/Lao (not separable in 1980)
+  #52: Indonesian
+  #53: Other Malay
+  #58:  Near East Arabic Dialect
+  collapsed_cases <- c(1:24,35,37,43,47,52,53,58)
+  collapsed_language <- floor(language/100)
+  lang_recode <- ifelse(collapsed_language %in% collapsed_cases,
+                        collapsed_language*100, lang_recode)
+  
+  #A couple of cases need to be put back into there other categories
+  #420: Afrikaans
+  #1140: Haitian Creole
+  #1150: Cajun
+  #2310: Croatian
+  #2320: Serbian
+  uncollapsed_cases <- c(420,1140,1150,2310,2320)
+  lang_recode <- ifelse(language %in% uncollapsed_cases,
+                        language, lang_recode)
+  
+  #put malay and other malay together
+  lang_recode <- ifelse(language==5270, 5300, lang_recode)
+  
+  #collapse Hindi and Urdu into 3101 (Hindustani)
+  lang_recode <- ifelse(language>3101 & language<=3104, 3101, lang_recode)
+  
+  #For 1980 consistency put all American Indian languages in one group
+  lang_recode <- ifelse(lang_recode>7000 & lang_recode<=9300, 7000, 
+                        lang_recode)
+  
+  #A few cases are "other" or "nec". These will be recoded as -1 and
+  #not treated as endogamy with each other
+  nec_codes <- c(3140,3150,3190,5290,5590,6200,6390,6400,9400,9410,9420,9500,
+                 9600,9601,9602,9999)
+  lang_recode <- ifelse(lang_recode %in% nec_codes, -1, lang_recode)
+  
+  #code any missing values 
+  lang_recode <- ifelse(lang_recode==0, NA, lang_recode)
+  
+  return(lang_recode)
+  
+}
+
+# Functions for marriage market creation ----------------------------------
+
+#This function will take the given census data, separate out 
+#couples and alternate spouses, and create the marriage market data 
+#for analysis. the second argument gives the time span for consideration
+#of who will be considered. Its important to keep in mind that intervalled
+#nature of years in the USA for the census 1980 data. years_mar that is not
+#consistent with those intervals can create problems
+create_unions <- function(census, years_mar, n_fakes, n_samples=3) {
+  
+  # eliminate individuals who:
+  # a) have been in the USA less than the marriage window
+  # b) are currently married longer than the marriage window
+  # or who have a marriage duration longer than the current window, if any at all
+  census <- subset(census, (is.na(yr_usa) | yr_usa>years_mar) & 
+                     (is.na(yr_usa_sp) | yr_usa_sp>years_mar) &
+                     (is_single(marst) | dur_mar<=years_mar),
+                   select=c("mar_market","sex","hhwt","perwt","dur_mar","marst",
+                            "id","age","race","educ","bpld","lang","marrno","age_usa",
+                            "id_sp","age_sp","race_sp","educ_sp","bpld_sp","lang_sp",
+                            "marrno_sp","age_usa_sp"))
+  
+  # Actual couples who are within the marriage duration window of years_mar
+  # both must be in a first time marriage for consistency with 1980 marriage
+  # duration calculation
+  unions <- subset(census, sex=="Male" & 
+                     !is.na(id_sp) & 
+                     (marrno<2 & marrno_sp<2),
+                   select=c("mar_market","hhwt",
+                            "id","age","race","educ","bpld","lang","age_usa",
+                            "id_sp","age_sp","race_sp","educ_sp","bpld_sp",
+                            "lang_sp","age_usa_sp"))
+  colnames(unions) <- c("mar_market","hhwt",
+                        "idh","ageh","raceh","educh","bplh","languageh","age_usah",
+                        "idw","agew","racew","educw","bplw","languagew","age_usaw")
+  unions <- na.omit(as.data.frame(unions))
+  unions$mar_market <- factor(as.character(unions$mar_market))
+  
+  # Alternate Male Partners
+  male_alternates <- subset(census, sex=="Male",
+                            select=c("mar_market","id","perwt",
+                                     "age","race","educ","bpld","lang","age_usa"))
+  colnames(male_alternates) <- c("mar_market","idh","perwt",
+                                 "ageh","raceh","educh","bplh","languageh","age_usah")
+  male_alternates <- na.omit(as.data.frame(male_alternates))
+  male_alternates$mar_market <- factor(as.character(male_alternates$mar_market))
+  
+  # Alternate Female Partners
+  female_alternates <- subset(census, sex=="Female",
+                              select=c("mar_market","id","perwt",
+                                       "age","race","educ","bpld","lang","age_usa"))
+  colnames(female_alternates) <- c("mar_market","idw", "perwt",
+                                   "agew","racew","educw","bplw","languagew","age_usaw")
+  female_alternates <- na.omit(as.data.frame(female_alternates))
+  female_alternates$mar_market <- factor(as.character(female_alternates$mar_market))
+  
+  # Sample Counterfactual Spouses 
+  markets <- replicate(n_samples,
+                       generateCouples(n_fakes, unions, male_alternates, 
+                                       female_alternates, geo="mar_market", 
+                                       weight="perwt", verbose=FALSE),
+                       simplify=FALSE)
+  
+  return(markets)
+}
+
+is_single <- function(marst) {
+  #I am going to consider separated people as single here
+  return(marst!="Married, spouse present" & marst!="Married, spouse absent")
+}
