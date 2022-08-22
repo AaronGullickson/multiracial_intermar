@@ -4,10 +4,13 @@
 .Rhistory
 .Rdata
 .DS_Store
+# Ignore large files from ipums
+*.dat.gz
 # Constructed files
 *.html
 *.pdf
 *.log
+*.RData
 # Ignore all the junk created by LaTeX
 *.aux
 *.out
