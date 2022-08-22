@@ -24,14 +24,24 @@ acs_names <- c("year","serial","hhwt","statefip","metarea","pernum","perwt",
                "age_sp","marrno_sp","raced_sp","hispand_sp","bpld_sp",
                "yrimmig_sp","languaged_sp","educd_sp")
 
-acs <- read_fwf(here("analysis","input","acs1418","usa_00108.dat.gz"),
-                col_positions = fwf_positions(start = acs_start,
-                                              end   = acs_end,
-                                              col_names = acs_names),
-                col_types = cols(.default = "i"), 
-                progress = FALSE)
-
-
+acs <- rbind(read_fwf(here("analysis","input","acs1418","usa_00106.dat.gz"),
+                      col_positions = fwf_positions(start = acs_start,
+                                                    end   = acs_end,
+                                                    col_names = acs_names),
+                      col_types = cols(.default = "i"), 
+                      progress = FALSE),
+             read_fwf(here("analysis","input","acs1418","usa_00107.dat.gz"),
+                      col_positions = fwf_positions(start = acs_start,
+                                                    end   = acs_end,
+                                                    col_names = acs_names),
+                      col_types = cols(.default = "i"), 
+                      progress = FALSE),
+             read_fwf(here("analysis","input","acs1418","usa_00108.dat.gz"),
+                      col_positions = fwf_positions(start = acs_start,
+                                                    end   = acs_end,
+                                                    col_names = acs_names),
+                      col_types = cols(.default = "i"), 
+                      progress = FALSE))
 
 # Code variables ----------------------------------------------------------
 
@@ -67,6 +77,6 @@ summary(acs$age_usa_sp)
 
 years_mar <- 5
 
-markets <- create_unions(acs, years_mar, 5)
+markets <- create_unions(acs, years_mar, 20)
 
 save(markets, file=here("analysis","output","markets.RData"))

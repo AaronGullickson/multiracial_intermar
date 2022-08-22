@@ -25,3 +25,5 @@ formula_base <- formula(choice~race_exog+agediff+I(agediff^2)+
                           strata(group))
 
 model <- poolChoiceModel(formula_base, data=markets, method="efron")
+
+save(model, file=here("analysis","output","models.RData"))
