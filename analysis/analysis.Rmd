@@ -14,6 +14,7 @@ library(here)
 source(here("analysis","check_packages.R"))
 source(here("analysis","useful_functions.R"))
 load(here("analysis","output","models.RData"))
+load(here("analysis","output","markets.RData"))
 ```
 
 # Introduction
@@ -53,9 +54,9 @@ coef |>
                             levels=c("Latino","Asian","Indig","Black",
                                      "White")),
          multiple_race=factor(multiple_race,
-                              levels=c("White/Asian","Black/Indig",
-                                       "White/Indig","Indig/Asian",
-                                       "White/Black","Black/Asian"))) |>
+                              levels=c("White/Asian","Black/Asian",
+                                       "White/Indig","Black/Indig",
+                                       "White/Black","Indig/Asian"))) |>
   ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
   geom_linerange(size=1.25, 
                   aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
@@ -70,5 +71,72 @@ coef |>
   scale_y_continuous(limits=c(0,1))+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="single race partner", y="odds relative to endogamy")+
+  theme_bw()
+```
+
+
+```{r create-partner-df}
+couples <- markets[[1]] |> filter(choice)
+temp <- couples |>
+  filter(raceh=="White/Black" | racew=="White/Black") |>
+  mutate(race_spouse=ifelse(raceh=="White/Black", 
+                            as.character(racew), as.character(raceh)))
+
+husbands <- couples |>
+  #filter(str_detect(raceh, "/")) |>
+  mutate(race_ego=raceh, 
+         race_spouse=racew,
+         gender="husband") |>
+  select(race_ego, race_spouse, gender)
+
+wives <- couples |>
+  #filter(str_detect(racew, "/")) |>
+  mutate(race_ego=racew, 
+         race_spouse=raceh,
+         gender="wife") |>
+  select(race_ego, race_spouse, gender)
+
+partner_choice <- bind_rows(husbands, wives) |>
+  mutate(race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indig","Asian","Latino","White/Black",
+                                     "White/Indig","White/Asian","Black/Indig","Black/Asian",
+                                     "Indig/Asian")))
+```
+
+```{r}
+partner_choice |>
+  filter(str_detect(race_ego, "/")) |>
+  ggplot(aes(x=fct_rev(race_spouse), y=..prop.., group=1))+
+  geom_bar(position="dodge")+
+  facet_wrap(~race_ego)+
+  scale_y_continuous(labels=scales::percent)+
+  labs(x=NULL, y=NULL)+
+  coord_flip()+
+  theme_bw()
+```
+```{r}
+partner_choice |>
+  filter(str_detect(race_ego, "/")) |>
+  mutate(race_ego=factor(race_ego, 
+                         levels=c("White/Asian","White/Indig","White/Black",
+                                  "Indig/Asian","Black/Asian","Black/Indig"))) |>
+  ggplot(aes(x=fct_rev(race_spouse), y=..prop.., group=race_ego, fill=race_ego))+
+  geom_bar(position="dodge")+
+  scale_y_continuous(labels=scales::percent)+
+  scale_fill_manual(values = pnw_palette("Bay", 6))+
+  labs(x=NULL, y=NULL)+
+  coord_flip()+
+  theme_bw()
+```
+
+
+```{r}
+ggplot(partner_choice,
+       aes(x=fct_rev(race_spouse), y=..prop.., group=gender, fill=gender))+
+  geom_bar(position="dodge")+
+  facet_wrap(~race_ego)+
+  scale_y_continuous(labels=scales::percent)+
+  labs(x=NULL, y=NULL)+
+  coord_flip()+
   theme_bw()
 ```
