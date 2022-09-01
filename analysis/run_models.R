@@ -19,7 +19,11 @@ load(here("analysis","output","markets.RData"))
 
 markets <- lapply(markets, add_vars)
 
-formula_base <- formula(choice~race_exog+agediff+I(agediff^2)+
+formula_base <- formula(choice~race_exog+
+                          multi_white_endog+
+                          multi_black_exclude+
+                          multi_shared_ancestry+
+                          agediff+I(agediff^2)+
                           hypergamy+hypogamy+edcross_hs+edcross_sc+edcross_c+
                           +bendog_partial_flex1.5+language_endog+
                           strata(group))

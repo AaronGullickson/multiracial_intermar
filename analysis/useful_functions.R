@@ -313,6 +313,30 @@ add_vars <- function(market) {
   market$race_exog <- relevel(factor(market$race_exog), 
                               "Endog")
   
+  # now consider other codings of multiple/multiple part of the table
+  # 
+  # part-white to part-white
+  market$multi_white_endog <- ifelse(market$race_exog!="Multi/Multi", FALSE,
+                                   str_detect(market$raceh, "White") &
+                                     str_detect(market$racew, "White"))
+  # part-black to non part-black
+  market$multi_black_exclude <- ifelse(market$race_exog!="Multi/Multi", FALSE,
+                                 (str_detect(market$raceh, "Black") &
+                                    !str_detect(market$racew, "Black")) |
+                                   (str_detect(market$racew, "Black") &
+                                      !str_detect(market$raceh, "Black")))
+  
+  # partial shared ancestry coding
+  groups <- str_split(market$race_exog_full, "\\.")
+  constituent1 <- sapply(groups, function(x) {return(x[1])})
+  constituent2 <- sapply(groups, function(x) {return(x[2])})
+  temp <- str_split(constituent1, "/")
+  constituent1.1 <- sapply(temp, function(x) {return(x[1])})
+  constituent1.2 <- sapply(temp, function(x) {return(x[2])})
+  market$multi_shared_ancestry <- ifelse(market$race_exog!="Multi/Multi", FALSE,
+                                         str_detect(constituent2, constituent1.1) | 
+                                           str_detect(constituent2, constituent1.2))
+
   return(market)
 }
 
