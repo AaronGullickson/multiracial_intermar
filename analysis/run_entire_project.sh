@@ -20,6 +20,8 @@ Rscript check_packages.R
 # Process and clean the raw data and produce analytical dataset(s) and 
 # send output to log directory as HTML
 Rscript -e "rmarkdown::render('organize_data.R',output_file='organize_data.html',output_dir='logs')"
+Rscript -e "rmarkdown::render('run_models.R',output_file='run_models.html',output_dir='logs')"
+
 
 # Run the main analysis
 Rscript -e "rmarkdown::render('analysis.Rmd')"
