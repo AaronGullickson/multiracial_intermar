@@ -1,0 +1,48 @@
+---
+title: "Example R Markdown Document"
+author: "Aaron Gullickson, Sociology, University of Oregon"
+abstract: "abstract here"
+keywords: keyword 1; keyword 2
+description: a description
+thanks: Thanks to everyone.
+execute: 
+  eval: true
+  echo: false
+  warning: false
+  error: false
+format: 
+  pdf:
+    fig-pos: t
+    fig-height: 4
+    keep-md: false
+    keep-tex: false
+    documentclass: scrartcl # LaTeX document class
+    #fontfamily: accanthis   # font family, see below for options
+    fontsize: 12pt          # font size (typically 10pt, 11pt, or 12pt)
+    linestretch: 1          # line spacing (1 for single, 2 for double)
+    geometry: margin=0.5in  # controls the margin size
+    papersize: letter       # controls the paper type
+    include-in-header: 
+      text: |
+        \usepackage{booktabs}
+        \usepackage{dcolumn}
+bibliography: ../project.bib
+csl: resources/asa.csl
+editor: source
+---
+
+# Introduction
+
+* One of the greatest potential catalysts for change in US racial dynamics over the last half century has been the creation of individuals whose parents cross racial lines. Although multiraciality is not a new phenomenon, a "biracial baby boom" from the late 20th century and early 21st century has led to changes in official race reporting in the US and greater questioning of racial categories at large. 
+* However, this biracial baby boom may mislead regarding the long term impact of multiraciality on the US's racial future. Just like the real baby boom, the biracial baby boom is an anomaly driven by rapid historic change in the US. And like the real baby boom, the biracial baby boom distorts the demographic reality from what stable population dynamics would expect. In this case, the biracial baby boom moved the "generational loci" of multiraciality to the immediately preceding generation and thus increased the salience and meaning of what that multiracial identity means for individuals who recognized a multiracial family heritage.
+* The biracial baby boom however creates the conditions for its own demise, however. As the children of that boom continue to grow into adulthood, they form their own families and produce a new generation of children where the generational loci of multiraciality will be more distant and who thus may think about their multiracial ancestry differently. In other words, we will move into a future that looks something more like the past in which variation in generational loci will combine with other social factors to create a tangled and complex web of racial identification and classification, rather than much brighter lines identified by those whose parents belonged to different races. CITE BRATTER'S WORK HERE SOMEWHERE
+* In attempting to untangle this complexity, one of the key issues will be who biracial individuals partner with and have children with. We know that who one partners with is heavily influenced by race, but how will this play out for those with strong racial attachments across traditional racial lines? In this article, I take up that question by examining the patterns of interracial marriage for self-identified multiracial individuals in ACS and Census data.
+* Tease of the results.
+
+# Background
+
+# Data and Methods
+
+# Results
+
+# Conclusions
