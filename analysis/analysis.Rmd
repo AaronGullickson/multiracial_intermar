@@ -58,9 +58,9 @@ coef |>
                                        "White/Indig","Black/Indig",
                                        "White/Black","Indig/Asian"))) |>
   ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
-  geom_linerange(size=1.25, 
+  geom_linerange(linewidth=1.25, 
                   aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
-  geom_linerange(size=0.5, 
+  geom_linerange(linewidth=0.5, 
                   aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
   geom_point(size=2)+
   geom_hline(data=temp, aes(yintercept=exp(coef)), linetype=2, color="red")+
