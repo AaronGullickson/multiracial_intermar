@@ -20,8 +20,8 @@ load(here("analysis","output","markets.RData"))
 markets <- lapply(markets, add_vars)
 
 formula_base <- formula(choice~race_exog+
-                          multi_white_endog+
-                          multi_black_exclude+
+#                          multi_white_endog+
+#                          multi_black_exclude+
                           multi_shared_ancestry+
                           agediff+I(agediff^2)+
                           hypergamy+hypogamy+edcross_hs+edcross_sc+edcross_c+
