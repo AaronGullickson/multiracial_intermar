@@ -1,0 +1,49 @@
+---
+title: "Run models"
+format: html
+---
+
+I move the running of models to a separate script because they take a long time to run. Lets start with a timestamp.
+ 
+```{r}
+#| label: timestamp-start
+timestamp()
+```
+
+```{r}
+#| label: setup
+#| include: false
+library(here)
+source(here("utils","check_packages.R"))
+source(here("utils","functions.R"))
+load(here("data","data_constructed","markets.RData"))
+```
+
+```{r}
+#| label: add-vars
+markets <- lapply(markets, add_vars)
+```
+
+```{r}
+#| label: run-model
+formula_base <- formula(choice~race_exog+
+#                          multi_white_endog+
+#                          multi_black_exclude+
+                          multi_shared_ancestry+
+                          agediff+I(agediff^2)+
+                          hypergamy+hypogamy+edcross_hs+edcross_sc+edcross_c+
+                          +bendog_partial_flex1.5+language_endog+
+                          strata(group))
+model <- poolChoiceModel(formula_base, data=markets, method="efron")
+```
+
+
+```{r}
+#| save-output
+save(model, file=here("data","data_constructed","models.RData"))
+```
+
+```{r}
+#| label: timestamp-end
+timestamp()
+```

@@ -1,0 +1,46 @@
+project:
+  title: "Research Template"
+  pre-render: 
+    - utils/check_packages.R      # install required packages
+    - utils/remove_artifacts.ts   # remove previously constructed files
+  output-dir: _products
+  render:
+    # if analysis is split into multiple docs, add them here
+    - analysis/organize_data.qmd
+    - analysis/run_models.qmd
+    - analysis/analysis.qmd
+    - paper/
+    - presentation/
+    - "!bibliography/"
+
+author:
+  - name: Aaron Gullickson
+    orcid: 0000-0001-7237-8131
+    email: aarong@uoregon.edu
+    url: https://aarongullickson.netlify.app/
+    attributes:
+      corresponding: true
+    affiliations:
+      - id: uo
+        name: University of Oregon
+        department: Sociology
+        address: 727 PLC
+        city: Eugene
+        region: OR
+        country: USA
+        postal-code: 97405
+  - name: Jenifer Bratter
+    orcid: 0000-0003-3855-4124
+    email: jbratter@rice.edu
+    affiliations:
+      - name: Rice University
+        department: Sociology
+      
+  
+execute: 
+  freeze: false
+  
+editor: source
+
+
+

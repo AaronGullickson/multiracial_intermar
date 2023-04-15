@@ -1,29 +1,21 @@
 ---
-title: "Analysis for Project"
-output: 
-  html_document: 
-    fig_height: 6
-    fig_width: 9
-    toc: yes
-    toc_depth: 4
+title: "Research Analysis Notebook"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| label: setup
+#| include: false
 library(here)
-source(here("analysis","check_packages.R"))
-source(here("analysis","useful_functions.R"))
-load(here("analysis","output","models.RData"))
-load(here("analysis","output","markets.RData"))
+source(here("utils","check_packages.R"))
+source(here("utils","functions.R"))
+load(here("data","data_constructed","models.RData"))
+load(here("data","data_constructed","markets.RData"))
 ```
 
-# Introduction
-<a href="#top">Back to top</a>
-
-Use this R Markdown to perform the main analysis for the project. I use this basically as a lab notebook. It contains the main analysis and a variety of sensitivity analysis. The code in this documents serves as a baseline for the eventual tables and figures that will go into the paper. At the same time it will serve as a record of all supplementary analyses performed. 
 
 
-```{r create-coef-table}
+```{r}
+#| label: create-coef-table
 get_coefs <- function(x) {
   temp <- coef(x)[,c(1,2)]
   return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
@@ -36,7 +28,8 @@ coef <- get_coefs(model) |>
 
 
 ```{r}
-# create dataset of single race combos for comparison lines
+#| label: fig-odds-ratios-single
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group
 temp <- coef |> 
   filter(!str_detect(variable, "/|Latino")) |>
   mutate(multiple_race=str_replace(variable, "\\.", "/"),
@@ -44,7 +37,6 @@ temp <- coef |>
                               levels=c("White/Asian","Black/Indig",
                                        "White/Indig","Indig/Asian",
                                        "White/Black","Black/Asian")))
-
 coef |>
   filter(str_detect(variable, "White/Asian|White/Black|White/Indig|Black/Asian|Black/Indig|Indig/Asian")) |>
   mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
@@ -75,27 +67,25 @@ coef |>
 ```
 
 
-```{r create-partner-df}
+```{r}
+#| label: create-partner-df
 couples <- markets[[1]] |> filter(choice)
 temp <- couples |>
   filter(raceh=="White/Black" | racew=="White/Black") |>
   mutate(race_spouse=ifelse(raceh=="White/Black", 
                             as.character(racew), as.character(raceh)))
-
 husbands <- couples |>
   #filter(str_detect(raceh, "/")) |>
   mutate(race_ego=raceh, 
          race_spouse=racew,
          gender="husband") |>
   select(race_ego, race_spouse, gender)
-
 wives <- couples |>
   #filter(str_detect(racew, "/")) |>
   mutate(race_ego=racew, 
          race_spouse=raceh,
          gender="wife") |>
   select(race_ego, race_spouse, gender)
-
 partner_choice <- bind_rows(husbands, wives) |>
   mutate(race_spouse=factor(race_spouse, 
                             levels=c("White","Black","Indig","Asian","Latino","White/Black",
@@ -104,6 +94,8 @@ partner_choice <- bind_rows(husbands, wives) |>
 ```
 
 ```{r}
+#| label: fig-partner-panel
+#| fig-cap: Distribution of partner's race for multiracial respondents, separately by panel
 partner_choice |>
   filter(str_detect(race_ego, "/")) |>
   ggplot(aes(x=fct_rev(race_spouse), y=..prop.., group=1))+
@@ -114,7 +106,10 @@ partner_choice |>
   coord_flip()+
   theme_bw()
 ```
+
 ```{r}
+#| label: fig-partner-color
+#| fig-cap: Distribution of partner's race for multiracial respondents
 partner_choice |>
   filter(str_detect(race_ego, "/")) |>
   mutate(race_ego=factor(race_ego, 
@@ -131,6 +126,8 @@ partner_choice |>
 
 
 ```{r}
+#| label: fig-partner-full
+#| fig-cap: Distribution of partner's race for all respondents, separately by gender and race of ego respondent
 ggplot(partner_choice,
        aes(x=fct_rev(race_spouse), y=..prop.., group=gender, fill=gender))+
   geom_bar(position="dodge")+

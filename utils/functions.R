@@ -1,4 +1,4 @@
-## useful_functions.R
+# functions.R
 
 # Functions to code raw data ----------------------------------------------
 
@@ -285,7 +285,7 @@ add_vars <- function(market) {
   #language endogamy 
   # The -1 cases are NEC languages, so we assume non-endogamous
   market$language_endog <- ifelse(market$languageh<0 | market$languagew<0, 
-                                   FALSE, market$languageh==market$languagew)
+                                  FALSE, market$languageh==market$languagew)
   
   #educational hypergamy/hypogamy
   market$hypergamy <- market$educh > market$educw
@@ -303,8 +303,8 @@ add_vars <- function(market) {
   
   # full racial exogamy blocks
   market$race_exog_full <- createExogamyTerms(market$raceh, 
-                                               market$racew, 
-                                               symmetric=TRUE)
+                                              market$racew, 
+                                              symmetric=TRUE)
   
   # now collapse multiracial/multiracial cases to a single dummy
   market$race_exog <- ifelse(str_count(market$race_exog_full, "/")==2,
@@ -317,14 +317,14 @@ add_vars <- function(market) {
   # 
   # part-white to part-white
   market$multi_white_endog <- ifelse(market$race_exog!="Multi/Multi", FALSE,
-                                   str_detect(market$raceh, "White") &
-                                     str_detect(market$racew, "White"))
+                                     str_detect(market$raceh, "White") &
+                                       str_detect(market$racew, "White"))
   # part-black to non part-black
   market$multi_black_exclude <- ifelse(market$race_exog!="Multi/Multi", FALSE,
-                                 (str_detect(market$raceh, "Black") &
-                                    !str_detect(market$racew, "Black")) |
-                                   (str_detect(market$racew, "Black") &
-                                      !str_detect(market$raceh, "Black")))
+                                       (str_detect(market$raceh, "Black") &
+                                          !str_detect(market$racew, "Black")) |
+                                         (str_detect(market$racew, "Black") &
+                                            !str_detect(market$raceh, "Black")))
   
   # partial shared ancestry coding
   groups <- str_split(market$race_exog_full, "\\.")
@@ -336,7 +336,7 @@ add_vars <- function(market) {
   market$multi_shared_ancestry <- ifelse(market$race_exog!="Multi/Multi", FALSE,
                                          str_detect(constituent2, constituent1.1) | 
                                            str_detect(constituent2, constituent1.2))
-
+  
   return(market)
 }
 

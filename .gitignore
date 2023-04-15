@@ -16,3 +16,5 @@
 *.out
 *.bbl
 *.ent
+
+/.quarto/
