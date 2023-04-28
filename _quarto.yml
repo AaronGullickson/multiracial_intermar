@@ -1,4 +1,5 @@
 project:
+  type: default
   title: "Research Template"
   pre-render: 
     - utils/check_packages.R      # install required packages
