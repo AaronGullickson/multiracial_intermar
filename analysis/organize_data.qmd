@@ -11,35 +11,31 @@ source(here("utils","functions.R"))
 ```
 
 ```{r}
-#| label: read-data
-#ACS data is split into three separate files for size, but the indices are 
-#identical
-acs_start <- c(1, 5,13,23,25,30,34,44,45,48,49,50,51,56,60,66,71,77,83,86,90,93,94,97,100,105,111,115)
-acs_end   <- c(4,12,22,24,29,33,43,44,47,48,49,50,54,58,62,70,74,80,85,89,92,93,96,99,104,108,114,117)
+#| label: create-cols-info
+acs_start <- c(1, 5,13,23,25,30,34,44,45,48,49,50,51,56,60,66,71,77,83,86,90,93,
+               94,97,100,105,111,115)
+acs_end   <- c(4,12,22,24,29,33,43,44,47,48,49,50,54,58,62,70,74,80,85,89,92,93,
+               96,99,104,108,114,117)
 acs_names <- c("year","serial","hhwt","statefip","metarea","pernum","perwt",
                "sex","age","marst","marrno","marrinyr","yrmarr","raced",
                "hispand","bpld","yrimmig","languaged","educd","pernum_sp",
                "age_sp","marrno_sp","raced_sp","hispand_sp","bpld_sp",
                "yrimmig_sp","languaged_sp","educd_sp")
+tibble(variable=acs_names, start=acs_start, end=acs_end) |>
+  gt()
+```
 
-acs <- rbind(read_fwf(here("data","data_raw","acs1418","usa_00106.dat.gz"),
-                      col_positions = fwf_positions(start = acs_start,
-                                                    end   = acs_end,
-                                                    col_names = acs_names),
-                      col_types = cols(.default = "i"), 
-                      progress = FALSE),
-             read_fwf(here("data","data_raw","acs1418","usa_00107.dat.gz"),
-                      col_positions = fwf_positions(start = acs_start,
-                                                    end   = acs_end,
-                                                    col_names = acs_names),
-                      col_types = cols(.default = "i"), 
-                      progress = FALSE),
-             read_fwf(here("data","data_raw","acs1418","usa_00108.dat.gz"),
-                      col_positions = fwf_positions(start = acs_start,
-                                                    end   = acs_end,
-                                                    col_names = acs_names),
-                      col_types = cols(.default = "i"), 
-                      progress = FALSE))
+
+The ACS data is split into separate files for size, but has an identical structure, so I can just feed a vector of file names into the `read_fwf` function.
+
+```{r}
+#| label: read-data
+acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
+                col_positions = fwf_positions(start = acs_start,
+                                              end   = acs_end,
+                                              col_names = acs_names),
+                col_types = cols(.default = "i"), 
+                progress = FALSE)
 ```
 
 ```{r}
