@@ -11,6 +11,146 @@ source(here("utils","functions.R"))
 ```
 
 ```{r}
+
+#| label: coding-functions
+
+# since I have to code the same variable for both spouses, it makes sense to put
+# this coding into a function
+
+code_race <- function(raced, hispand) {
+  # We want to take the raced and hispand variables and code them into a combined
+  # race variable. I am going to use the fullest possible coding here. 
+  race <- case_when(
+    # Latino trumps everything, because combined question, sigh
+    hispand>0 & hispand<900 ~ "Latino",
+    # The original ethnoracial triangle - white, black, indigenous
+    raced==100 ~ "White",
+    raced==200 ~ "Black",
+    (raced>=300 & raced<400) ~ "Indig",
+    # Asian
+    # need to do South Asians, then Pac Islander, then E&SE Asian
+    # to simplify coding nightmare
+    # leave out South Asian separation, because we don't have details
+    # for those that check more than one
+    #(raced %in% c(610, 664, 669, 670)) ~ "South Asian",
+    (raced==630 | (raced>=680 & raced<=699)) ~ "Indig",
+    ((raced==400 & raced<=679) | raced %in% c(869, 887)) ~ "Asian",
+    # Multiracial groups
+    raced==801 ~ "White/Black",
+    raced==802 ~ "White/Indig",
+    (raced>=810 & raced<=819) ~ "White/Asian",
+    (raced>=820 & raced<=827) ~ "White/Indig",
+    raced==830 ~ "Black/Indig",
+    (raced>=831 & raced<=838) ~ "Black/Asian",
+    (raced>=840 & raced<=842) ~ "Black/Indig",
+    (raced>=850 & raced<=854) ~ "Indig/Asian",
+    raced==855 ~ "Indig",
+    (raced>=860 & raced<=868) ~ "Indig/Asian",
+    #raced==901 ~ "White/Black/AIAN",
+    TRUE ~ NA_character_
+  )
+  
+  race <- factor(race, 
+                 levels=c("White","Black","Indig","Asian","Latino",
+                          "White/Black","White/Indig","White/Asian",
+                          "Black/Indig","Black/Asian","Indig/Asian"))
+  
+  return(race)
+}
+
+
+code_educ <- function(educd) {
+  # We want to re-code the educd variable into the following simple
+  # categories:
+  # - Less than high school diploma
+  # - High school diploma
+  # - Some college, but less than a four year degree
+  # - Four year college degree or more
+  educ <- ifelse(educd<60, "LHS",
+                 ifelse(educd<=65, "HS",
+                        ifelse(educd<=90, "SC",
+                               ifelse(educd<=999, "C", 
+                                      NA))))
+  educ <- factor(educ,
+                 levels=c("LHS","HS","SC","C"),
+                 ordered=TRUE)
+  return(educ)
+}
+
+code_bpl <- function(bpld) {
+  #recode any one born in the US (99 or less) as a single number. Otherwise
+  #we will be fitting state level endogamy. also code in missing values
+  
+  # The general codes are way to general. The detailed codes have some
+  # overspecifity in the codes, but not in the actual data used here.
+  return(ifelse(bpld>=95000, NA, 
+                ifelse(bpld<10000,1,bpld)))
+}
+
+code_language <- function(language) {
+  #I need to use the detailed language codes as the general language codes 
+  #are too general. However the detailed language codes are too detailed in 
+  #some places, particularly in translating between the two time periods. Thus
+  #I make some corrections to the detailed codes for consistency between the
+  #two time periods.
+  
+  # We don't need to code language as a factor variable with labels because
+  # ultimately all we need to know is whether the two partners speak the same
+  # language. We should however code in any missing values (0), although 
+  # there do not appear to be any.
+  
+  lang_recode <- language
+  
+  #the following cases will be collapsed to the their top two digit codes
+  #(starting at the 100 levels)
+  #1:27 - European language groups (e.g. English, French, German)
+  #35: Uralic
+  #37: Other Altaic
+  #43: Chinese
+  #47: Thai/Siamese/Lao (not separable in 1980)
+  #52: Indonesian
+  #53: Other Malay
+  #58:  Near East Arabic Dialect
+  collapsed_cases <- c(1:24,35,37,43,47,52,53,58)
+  collapsed_language <- floor(language/100)
+  lang_recode <- ifelse(collapsed_language %in% collapsed_cases,
+                        collapsed_language*100, lang_recode)
+  
+  #A couple of cases need to be put back into there other categories
+  #420: Afrikaans
+  #1140: Haitian Creole
+  #1150: Cajun
+  #2310: Croatian
+  #2320: Serbian
+  uncollapsed_cases <- c(420,1140,1150,2310,2320)
+  lang_recode <- ifelse(language %in% uncollapsed_cases,
+                        language, lang_recode)
+  
+  #put malay and other malay together
+  lang_recode <- ifelse(language==5270, 5300, lang_recode)
+  
+  #collapse Hindi and Urdu into 3101 (Hindustani)
+  lang_recode <- ifelse(language>3101 & language<=3104, 3101, lang_recode)
+  
+  #For 1980 consistency put all American Indian languages in one group
+  lang_recode <- ifelse(lang_recode>7000 & lang_recode<=9300, 7000, 
+                        lang_recode)
+  
+  #A few cases are "other" or "nec". These will be recoded as -1 and
+  #not treated as endogamy with each other
+  nec_codes <- c(3140,3150,3190,5290,5590,6200,6390,6400,9400,9410,9420,9500,
+                 9600,9601,9602,9999)
+  lang_recode <- ifelse(lang_recode %in% nec_codes, -1, lang_recode)
+  
+  #code any missing values 
+  lang_recode <- ifelse(lang_recode==0, NA, lang_recode)
+  
+  return(lang_recode)
+  
+}
+```
+
+```{r}
 #| label: create-cols-info
 acs_start <- c(1, 5,13,23,25,30,34,44,45,48,49,50,51,56,60,66,71,77,83,86,90,93,
                94,97,100,105,111,115)
@@ -40,37 +180,75 @@ acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
 
 ```{r}
 #| label: code-variables
-acs <- code_census_variables(acs)
 
-options(max.print=10000)
-table(acs$race, acs$raced, exclude=NULL)
-table(acs$race, acs$hispand, exclude=NULL)
-options(max.print=99999)
+temp <- acs |> 
+  mutate(
+    ## unique ids for each respondent ##
+    id = serial*1000000+pernum*10000+year,
+    id_sp = ifelse(is.na(pernum_sp),NA,
+                    serial*1000000+pernum_sp*10000+year),
+    ## sex of respondent ##
+    sex = ifelse(sex==1, "Male", ifelse(sex==2, "Female", NA)),
+    # marital status of respondent
+    marst=factor(marst, levels=1:6, 
+                 labels=c("Married, spouse present", "Married, spouse absent",
+                          "Separated","Divorced","Widowed","Never married")),
+    ## race of respondent and spouse - see details in code_race function ##
+    race = code_race(raced, hispand),
+    race_sp = code_race(raced_sp, hispand_sp),
+    ## education of respondent and spouse - see code_educ function for details ##
+    educ = code_educ(educd),
+    educ_sp = code_educ(educd_sp),
+    ## language of respondent and spouse - see code_lang for details ##
+    lang = code_language(languaged),
+    lang_sp = code_language(languaged_sp),
+    ## marriage market id ##
+    # combined state and metro area id to get marriage market. Replace state id
+    # with metro id for cases where it is not zero. Multiply by 100 to avoid id
+    # collision
+    # FIXME: this needs to be implemented correctly
+    mar_market = statefip,
+    ## marriage duration ##
+    dur_mar = ifelse(yrmarr==0, NA, year - yrmarr),
+    ## country of birth of respondent and spouse - see code_bpl for details ##
+    bpl = code_bpl(bpld),
+    bpl_sp = code_bpl(bpld_sp),
+    ## years living in USA for the respondent and spouse ##
+    yr_usa = year-ifelse(yrimmig==0, NA, yrimmig),
+    yr_usa_sp = year-ifelse(yrimmig_sp==0, NA, yrimmig_sp),
+    ## age at migration to USA, respondent and spouse ##
+    # straightforward, but still get some negative values. Most of these are
+    # just -1 values due to calendar year/birth year issues, but a few other 
+    # cases at older ages go back as far as -5. 
+    age_usa = age-yr_usa,
+    age_usa = ifelse(is.na(age_usa) | age_usa<0, 0, age_usa),
+    age_usa_sp = age-yr_usa_sp,
+    age_usa_sp = ifelse(is.na(age_usa_sp) | age_usa_sp<0, 0, age_usa_sp)
+  ) |>
+  select(id, id_sp, mar_market, sex, marst, dur_mar, race, race_sp, educ, 
+         educ_sp, lang, lang_sp, bpl, bpl_sp, yr_usa, yr_usa_sp, age_usa, 
+         age_usa_sp)
 ```
 
 ```{r}
-#| label: code-mar-dur
-acs$dur_mar <- ifelse(acs$yrmarr==0,
-                      NA, acs$year - acs$yrmarr)
+#| label: check-yourself
+
+if(sum(duplicated(acs$id))>0) {
+  stop("Duplicted ids in data")
+}
+if(sum(duplicated(na.omit(acs$id_sp)))>0) {
+  stop("Duplicted spousal ids in data")
+}
+
 tapply(acs$dur_mar, acs$marst, mean)
-```
 
+```
 
 ```{r}
-#| label: age-migration
-#straightforward in ACS, but still get some negative values. Most of these are
-#just -1 values due to calendar year/birth year issues, but a few other cases
-#at older ages go back as far as -5. 
-acs$age_usa <- acs$age-acs$yr_usa
-acs$age_usa <- ifelse(is.na(acs$age_usa) | acs$age_usa<0, 0, acs$age_usa)
-summary(acs$age_usa)
-acs$age_usa_sp <- acs$age-acs$yr_usa_sp
-acs$age_usa_sp <- ifelse(is.na(acs$age_usa_sp) | acs$age_usa_sp<0, 
-                         0, acs$age_usa_sp)
-summary(acs$age_usa_sp)
+#| label: create-groups
 
+# create unions, and alternate partners
 ```
-
 
 ```{r}
 #| label: create-fake-unions
