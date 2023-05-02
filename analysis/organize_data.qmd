@@ -10,6 +10,13 @@ source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
 ```
 
+I set the parameter for the limit on marriage duration I will use to identify new marriages right at the top.
+
+```{r}
+#| label: mar-length-param
+years_mar <- 5
+```
+
 ```{r}
 
 #| label: coding-functions
@@ -150,16 +157,57 @@ code_language <- function(language) {
 }
 ```
 
+Here are the starting and ending values for the ACS 2021 data from the IPUMS codebook. All of the other extracts should be identical in structure.
+
+```
+  Variable                         Columns        Len   2021    
+  YEAR                         H   1-4            4     X       
+  SAMPLE                       H   5-10           6     X       
+  SERIAL                       H  11-18           8     X       
+  CBSERIAL                     H  19-31          13     X       
+  HHWT                         H  32-41          10     X       
+  CLUSTER                      H  42-54          13     X       
+  STATEFIP                     H  55-56           2     X       
+  MET2013                      H  57-61           5     X       
+  STRATA                       H  62-73          12     X       
+  GQ                           H  74              1     X       
+  PERNUM                       P  75-78           4     X       
+  PERWT                        P  79-88          10     X       
+  SEX                          P  89              1     X       
+  AGE                          P  90-92           3     X       
+  MARST                        P  93              1     X       
+  MARRNO                       P  94              1     X       
+  YRMARR                       P  95-98           4     X       
+  RACE                         P  99              1     X       
+  RACED                        P 100-102          3     X       
+  HISPAN                       P 103              1     X       
+  HISPAND                      P 104-106          3     X       
+  BPL                          P 107-109          3     X       
+  BPLD                         P 110-114          5     X       
+  YRIMMIG                      P 115-118          4     X       
+  LANGUAGE                     P 119-120          2     X       
+  LANGUAGED                    P 121-124          4     X       
+  EDUC                         P 125-126          2     X       
+  EDUCD                        P 127-129          3     X       
+  PERNUM_SP                    P 130-133          4     X       
+  SEX_SP                       P 134              1     X       
+  AGE_SP                       P 135-137          3     X       
+  RACED_SP                     P 138-140          3     X       
+  HISPAND_SP                   P 141-143          3     X       
+  BPLD_SP                      P 144-148          5     X       
+  YRIMMIG_SP                   P 149-152          4     X       
+  LANGUAGED_SP                 P 153-156          4     X       
+  EDUCD_SP                     P 157-159          3     X          
+```
+
 ```{r}
 #| label: create-cols-info
-acs_start <- c(1, 5,13,23,25,30,34,44,45,48,49,50,51,56,60,66,71,77,83,86,90,93,
-               94,97,100,105,111,115)
-acs_end   <- c(4,12,22,24,29,33,43,44,47,48,49,50,54,58,62,70,74,80,85,89,92,93,
-               96,99,104,108,114,117)
-acs_names <- c("year","serial","hhwt","statefip","metarea","pernum","perwt",
-               "sex","age","marst","marrno","marrinyr","yrmarr","raced",
+acs_start <- c(1,11,32,55,57,75,89,90,93,94,95,100,104,110,115,121,127,130,134,135,138,141,144,149,153,157)
+acs_end   <- c(4,18,41,56,61,78,89,92,93,94,98,102,106,114,118,124,129,133,134,137,140,143,148,152,156,159)
+acs_names <- c("year","serial","hhwt","statefip","metarea","pernum",
+               "sex","age","marst","marrno","yrmarr","raced",
                "hispand","bpld","yrimmig","languaged","educd","pernum_sp",
-               "age_sp","marrno_sp","raced_sp","hispand_sp","bpld_sp",
+               "sex_sp","age_sp","raced_sp","hispand_sp","bpld_sp",
                "yrimmig_sp","languaged_sp","educd_sp")
 tibble(variable=acs_names, start=acs_start, end=acs_end) |>
   gt()
@@ -180,7 +228,6 @@ acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
 
 ```{r}
 #| label: code-variables
-
 acs <- acs |> 
   mutate(
     ## unique ids for each respondent ##
@@ -224,10 +271,7 @@ acs <- acs |>
     age_usa = ifelse(is.na(age_usa) | age_usa<0, 0, age_usa),
     age_usa_sp = age-yr_usa_sp,
     age_usa_sp = ifelse(is.na(age_usa_sp) | age_usa_sp<0, 0, age_usa_sp)
-  ) |>
-  select(id, id_sp, mar_market, sex, marst, dur_mar, race, race_sp, educ, 
-         educ_sp, lang, lang_sp, bpl, bpl_sp, yr_usa, yr_usa_sp, age_usa, 
-         age_usa_sp)
+  )
 ```
 
 ```{r}
@@ -241,7 +285,26 @@ if(sum(duplicated(na.omit(acs$id_sp)))>0) {
 }
 
 tapply(acs$dur_mar, acs$marst, mean)
+```
 
+Ok, now that I have checked all of the data, lets just restrict to the variables that I need to keep things tidy.
+
+```{r}
+acs <- acs |>
+  select(id, id_sp, mar_market, sex, marst, dur_mar, race, race_sp, educ, 
+         educ_sp, lang, lang_sp, bpl, bpl_sp, yr_usa, yr_usa_sp, age_usa, 
+         age_usa_sp)
+```
+
+I want to eliminate individuals from the analysis who:
+* have been in the USA less than the marriage window
+* are currently married longer than the marriage window or who have a marriage duration longer than the current window, if any at all
+
+```{r}
+acs <- acs |>
+  filter((is.na(yr_usa) | yr_usa>years_mar) & 
+           (is.na(yr_usa_sp) | yr_usa_sp>years_mar) &
+           (is_single(marst) | dur_mar<=years_mar))
 ```
 
 ```{r}

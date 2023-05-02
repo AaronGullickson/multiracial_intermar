@@ -1,48 +1,46 @@
-Description: For multiracial intermarriage analysis ACS 2020-21
+Description: Multiracial Intermarriage Revision 2020
 Samples selected:
       2020 ACS
-      2021 ACS
 File Type:                    rectangular
 Case Selection:               Yes
-  Variable                         Columns        Len   2020    2021    
-  YEAR                         H   1-4            4     X       X       
-  SAMPLE                       H   5-10           6     X       X       
-  SERIAL                       H  11-18           8     X       X       
-  CBSERIAL                     H  19-31          13     X       X       
-  HHWT                         H  32-41          10     X       X       
-  CLUSTER                      H  42-54          13     X       X       
-  STATEFIP                     H  55-56           2     X       X       
-  MET2013                      H  57-61           5     X       X       
-  STRATA                       H  62-73          12     X       X       
-  GQ                           H  74              1     X       X       
-  PERNUM                       P  75-78           4     X       X       
-  PERWT                        P  79-88          10     X       X       
-  SEX                          P  89              1     X       X       
-  AGE                          P  90-92           3     X       X       
-  MARST                        P  93              1     X       X       
-  MARRNO                       P  94              1     X       X       
-  MARRINYR                     P  95              1     X       X       
-  YRMARR                       P  96-99           4     X       X       
-  RACE                         P 100              1     X       X       
-  RACED                        P 101-103          3     X       X       
-  HISPAN                       P 104              1     X       X       
-  HISPAND                      P 105-107          3     X       X       
-  BPL                          P 108-110          3     X       X       
-  BPLD                         P 111-115          5     X       X       
-  YRIMMIG                      P 116-119          4     X       X       
-  LANGUAGE                     P 120-121          2     X       X       
-  LANGUAGED                    P 122-125          4     X       X       
-  EDUC                         P 126-127          2     X       X       
-  EDUCD                        P 128-130          3     X       X       
-  AGE_SP                       P 131-133          3     X       X       
-  MARRNO_SP                    P 134              1     X       X       
-  RACED_SP                     P 135-137          3     X       X       
-  HISPAND_SP                   P 138-140          3     X       X       
-  BPLD_SP                      P 141-145          5     X       X       
-  YRIMMIG_SP                   P 146-149          4     X       X       
-  LANGUAGE_SP                  P 150-151          2     X       X       
-  LANGUAGED_SP                 P 152-155          4     X       X       
-  EDUCD_SP                     P 156-158          3     X       X       
+  Variable                         Columns        Len   2020    
+  YEAR                         H   1-4            4     X       
+  SAMPLE                       H   5-10           6     X       
+  SERIAL                       H  11-18           8     X       
+  CBSERIAL                     H  19-31          13     X       
+  HHWT                         H  32-41          10     X       
+  CLUSTER                      H  42-54          13     X       
+  STATEFIP                     H  55-56           2     X       
+  MET2013                      H  57-61           5     X       
+  STRATA                       H  62-73          12     X       
+  GQ                           H  74              1     X       
+  PERNUM                       P  75-78           4     X       
+  PERWT                        P  79-88          10     X       
+  SEX                          P  89              1     X       
+  AGE                          P  90-92           3     X       
+  MARST                        P  93              1     X       
+  MARRNO                       P  94              1     X       
+  YRMARR                       P  95-98           4     X       
+  RACE                         P  99              1     X       
+  RACED                        P 100-102          3     X       
+  HISPAN                       P 103              1     X       
+  HISPAND                      P 104-106          3     X       
+  BPL                          P 107-109          3     X       
+  BPLD                         P 110-114          5     X       
+  YRIMMIG                      P 115-118          4     X       
+  LANGUAGE                     P 119-120          2     X       
+  LANGUAGED                    P 121-124          4     X       
+  EDUC                         P 125-126          2     X       
+  EDUCD                        P 127-129          3     X       
+  PERNUM_SP                    P 130-133          4     X       
+  SEX_SP                       P 134              1     X       
+  AGE_SP                       P 135-137          3     X       
+  RACED_SP                     P 138-140          3     X       
+  HISPAND_SP                   P 141-143          3     X       
+  BPLD_SP                      P 144-148          5     X       
+  YRIMMIG_SP                   P 149-152          4     X       
+  LANGUAGED_SP                 P 153-156          4     X       
+  EDUCD_SP                     P 157-159          3     X       
 
 Variable Availability Key:
 All Years X - available in this sample
@@ -874,11 +872,6 @@ MARRNO              Times married
 7                   Unknown
 8                   Illegible
 9                   Missing
-
-MARRINYR            Married within the past year
-0                   N/A
-1                   Blank (No)
-2                   Yes
 
 YRMARR              Year married
 0000                N/A
@@ -2895,6 +2888,10 @@ EDUCD               Educational attainment [detailed version]
 116                 Doctoral degree
 999                 Missing
 
+SEX_SP              Sex [of Spouse's location in household]
+1                   Male
+2                   Female
+
 AGE_SP              Age [of Spouse's location in household]
 000                 Less than 1 year old
 001                 1
@@ -3026,18 +3023,6 @@ AGE_SP              Age [of Spouse's location in household]
 129                 129
 130                 130
 135                 135
-
-MARRNO_SP           Times married [of Spouse's location in household]
-0                   Not Applicable
-1                   Married once
-2                   Married twice (or more)
-3                   Married thrice (or more)
-4                   Four times
-5                   Five times
-6                   Six times
-7                   Unknown
-8                   Illegible
-9                   Missing
 
 RACED_SP            Race [of Spouse's location in household; detailed version]
                     ONE MAJOR RACE GROUP
@@ -4162,101 +4147,6 @@ YRIMMIG_SP          Year of immigration [of Spouse's location in household]
 2019                2019
 2020                2020
 0996                Not reported
-
-LANGUAGE_SP         Language spoken [of Spouse's location in household; general version]
-00                  N/A or blank
-01                  English
-02                  German
-03                  Yiddish, Jewish
-04                  Dutch
-05                  Swedish
-06                  Danish
-07                  Norwegian
-08                  Icelandic
-09                  Scandinavian
-10                  Italian
-11                  French
-12                  Spanish
-13                  Portuguese
-14                  Rumanian
-15                  Celtic
-16                  Greek
-17                  Albanian
-18                  Russian
-19                  Ukrainian, Ruthenian, Little Russian
-20                  Czech
-21                  Polish
-22                  Slovak
-23                  Serbo-Croatian, Yugoslavian, Slavonian
-24                  Slovene
-25                  Lithuanian
-26                  Other Balto-Slavic
-27                  Slavic unknown
-28                  Armenian
-29                  Persian, Iranian, Farsi
-30                  Other Persian dialects
-31                  Hindi and related
-32                  Romany, Gypsy
-33                  Finnish
-34                  Magyar, Hungarian
-35                  Uralic
-36                  Turkish
-37                  Other Altaic
-38                  Caucasian, Georgian, Avar
-39                  Basque
-40                  Dravidian
-41                  Kurukh
-42                  Burushaski
-43                  Chinese
-44                  Tibetan
-45                  Burmese, Lisu, Lolo
-46                  Kachin
-47                  Thai, Siamese, Lao
-48                  Japanese
-49                  Korean
-50                  Vietnamese
-51                  Other East/Southeast Asian
-52                  Indonesian
-53                  Other Malayan
-54                  Filipino, Tagalog
-55                  Micronesian, Polynesian
-56                  Hawaiian
-57                  Arabic
-58                  Near East Arabic dialect
-59                  Hebrew, Israeli
-60                  Amharic, Ethiopian, etc.
-61                  Hamitic
-62                  Other Afro-Asiatic languages
-63                  Sub-Saharan Africa
-64                  African, n.s.
-70                  American Indian (all)
-71                  Aleut, Eskimo
-72                  Algonquian
-73                  Salish, Flathead
-74                  Athapascan
-75                  Navajo
-76                  Penutian-Sahaptin
-77                  Other Penutian
-78                  Zuni
-79                  Yuman
-80                  Other Hokan languages
-81                  Siouan languages
-82                  Muskogean
-83                  Keres
-84                  Iroquoian
-85                  Caddoan
-86                  Shoshonean/Hopi
-87                  Pima, Papago
-88                  Yaqui and other Sonoran, nec
-89                  Aztecan, Nahuatl, Uto-Aztecan
-90                  Tanoan languages
-91                  Other Indian languages
-92                  Mayan languages
-93                  American Indian, n.s.
-94                  Native
-95                  No language
-96                  Other or not reported
-99                  Not reported, blank
 
 LANGUAGED_SP        Language spoken [of Spouse's location in household; detailed version]
 0000                N/A or blank
