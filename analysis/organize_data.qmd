@@ -174,7 +174,7 @@ acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
                 col_positions = fwf_positions(start = acs_start,
                                               end   = acs_end,
                                               col_names = acs_names),
-                col_types = cols(.default = "i"), 
+                col_types = cols(.default = "i", hhwt="d"), 
                 progress = FALSE)
 ```
 
