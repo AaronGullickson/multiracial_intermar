@@ -155,6 +155,12 @@ code_language <- function(language) {
   return(lang_recode)
   
 }
+
+# convenience function for getting all the single people
+is_single <- function(marst) {
+  #I am going to consider separated people as single here
+  return(marst!="Married, spouse present" & marst!="Married, spouse absent")
+}
 ```
 
 Here are the starting and ending values for the ACS 2021 data from the IPUMS codebook. All of the other extracts should be identical in structure.
@@ -234,8 +240,9 @@ acs <- acs |>
     id = serial*1000000+pernum*10000+year,
     id_sp = ifelse(is.na(pernum_sp),NA,
                     serial*1000000+pernum_sp*10000+year),
-    ## sex of respondent ##
+    ## sex of respondent and spouse ##
     sex = ifelse(sex==1, "Male", ifelse(sex==2, "Female", NA)),
+    sex_sp = ifelse(sex_sp==1, "Male", ifelse(sex_sp==2, "Female", NA)),
     # marital status of respondent
     marst=factor(marst, levels=1:6, 
                  labels=c("Married, spouse present", "Married, spouse absent",
@@ -284,40 +291,91 @@ if(sum(duplicated(na.omit(acs$id_sp)))>0) {
   stop("Duplicted spousal ids in data")
 }
 
-tapply(acs$dur_mar, acs$marst, mean)
+
 ```
 
 Ok, now that I have checked all of the data, lets just restrict to the variables that I need to keep things tidy.
 
 ```{r}
 acs <- acs |>
-  select(id, id_sp, mar_market, sex, marst, dur_mar, race, race_sp, educ, 
-         educ_sp, lang, lang_sp, bpl, bpl_sp, yr_usa, yr_usa_sp, age_usa, 
-         age_usa_sp)
+  select(year, mar_market, marst, dur_mar, 
+         id, sex, age, race, educ, lang, bpl, yr_usa,
+         id_sp, sex_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, yr_usa_sp)
 ```
 
 I want to eliminate individuals from the analysis who:
-* have been in the USA less than the marriage window
-* are currently married longer than the marriage window or who have a marriage duration longer than the current window, if any at all
+
+* have been in the USA less than the marriage window.
+* Made an interstate move in the last five years <!-- TODO: implement this -->
+* Are currently married longer than the marriage window.
+* Married individuals in same-sex relationships
+* Cohabitors - these are identified by a valid spouse id but not married, spouse present
+
+Therefore, the only remaining people in the dataset are heterosexual married couples married for five years or less and single individuals, all of whom have been in the same "marriage market" for the last five years.
 
 ```{r}
 acs <- acs |>
   filter((is.na(yr_usa) | yr_usa>years_mar) & 
            (is.na(yr_usa_sp) | yr_usa_sp>years_mar) &
-           (is_single(marst) | dur_mar<=years_mar))
+           ((marst!="Married, spouse present" & 
+               marst!="Married, spouse absent") | dur_mar<=years_mar) &
+           !(!is.na(sex_sp) & sex==sex_sp) &
+           !(marst!="Married, spouse present" & !is.na(id_sp)))
+
+# checks
+summary(acs$yr_usa)
+summary(acs$yr_usa_sp)
+tapply(acs$dur_mar, acs$marst, max)
+table(acs$sex, acs$sex_sp, exclude=NULL)
+acs |> 
+  group_by(marst, !is.na(id_sp)) |>
+  summarize(n=n())
 ```
 
 ```{r}
 #| label: create-groups
 
-# create unions, and alternate partners
+# create actual union data
+unions <- acs |>
+  filter(sex=="Male" & sex_sp=="Female" & !is.na(id_sp) & 
+           marst=="Married, spouse present")
+
+# check that they are all hetero
+table(unions$sex, unions$sex_sp, exclude=NULL)
+
+# check the marital status 
+table(unions$marst)
+
+# check marriage duration
+summary(unions$dur_mar)
+
+# check years in the USA is past marriage duration
+summary(unions$yr_usa)
+
+# ok now limit it to only necessary variables and rename
+unions <- unions |>
+  select(mar_market, id, age, race, educ, lang, bpl, id_sp, race_sp, educ_sp, 
+         lang_sp, bpl_sp) |>
+  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl,
+         idw=id_sp, agew=age_sp, racew=race_sp, educw=educ_sp, langw=lang_sp, bplw=bpl_sp) 
+
+# create alternate partner data
+female_alt <- acs |>
+  filter(sex=="Female") |>
+  select(mar_market, id, age, race, educ, lang, bpl) |>
+  rename(idw=id, ageh=age, racew=race, educw=educ, langw=lang, bplw=bpl)
+
+male_alt <- acs |>
+  filter(sex=="Male") |>
+  select(mar_market, id, age, race, educ, lang, bpl) |>
+  rename(idh=id, agew=age, raceh=race, educh=educ, langh=lang, bplh=bpl)
 ```
 
 ```{r}
 #| label: create-fake-unions
-years_mar <- 5
 
-markets <- create_unions(acs, years_mar, 20)
+generateCouples(5, unions, male_alt, female_alt, geo="mar_market", verbose=TRUE)
+
 ```
 
 
