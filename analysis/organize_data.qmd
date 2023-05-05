@@ -308,8 +308,8 @@ I want to eliminate individuals from the analysis who:
 * have been in the USA less than the marriage window.
 * Made an interstate move in the last five years <!-- TODO: implement this -->
 * Are currently married longer than the marriage window.
-* Married individuals in same-sex relationships
-* Cohabitors - these are identified by a valid spouse id but not married, spouse present
+* Are married individuals in same-sex relationships
+* Are cohabitors - these are identified by a valid spouse id but not married, spouse present on `marst`
 
 Therefore, the only remaining people in the dataset are heterosexual married couples married for five years or less and single individuals, all of whom have been in the same "marriage market" for the last five years.
 
@@ -354,8 +354,8 @@ summary(unions$yr_usa)
 
 # ok now limit it to only necessary variables and rename
 unions <- unions |>
-  select(mar_market, id, age, race, educ, lang, bpl, id_sp, race_sp, educ_sp, 
-         lang_sp, bpl_sp) |>
+  select(mar_market, id, age, race, educ, lang, bpl, id_sp, age_sp, race_sp, 
+         educ_sp, lang_sp, bpl_sp) |>
   rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl,
          idw=id_sp, agew=age_sp, racew=race_sp, educw=educ_sp, langw=lang_sp, bplw=bpl_sp) 
 
@@ -363,18 +363,23 @@ unions <- unions |>
 female_alt <- acs |>
   filter(sex=="Female") |>
   select(mar_market, id, age, race, educ, lang, bpl) |>
-  rename(idw=id, ageh=age, racew=race, educw=educ, langw=lang, bplw=bpl)
+  rename(idw=id, agew=age, racew=race, educw=educ, langw=lang, bplw=bpl)
 
 male_alt <- acs |>
   filter(sex=="Male") |>
   select(mar_market, id, age, race, educ, lang, bpl) |>
-  rename(idh=id, agew=age, raceh=race, educh=educ, langh=lang, bplh=bpl)
+  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl)
 ```
 
 ```{r}
 #| label: create-fake-unions
 
-generateCouples(5, unions, male_alt, female_alt, geo="mar_market", verbose=TRUE)
+# fakeunion does not handle tibbles well so convert to vanilla dfs
+mar_market <- generateCouples(5, as.data.frame(unions), as.data.frame(male_alt), 
+                              as.data.frame(female_alt), geo="mar_market", 
+                              verbose=TRUE)
+
+mar_market <- as_tibble(mar_market)
 
 ```
 
