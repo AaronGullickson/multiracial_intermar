@@ -287,11 +287,10 @@ acs <- acs |>
     lang = code_language(LANGUAGED),
     lang_sp = code_language(LANGUAGED_SP),
     ## marriage market id ##
-    # combined state and metro area id to get marriage market. Replace state id
-    # with metro id for cases where it is not zero. Multiply by 100 to avoid id
-    # collision
-    # FIXME: this needs to be implemented correctly
-    mar_market = STATEFIP,
+    # I am going to do marriage markets by state and year. No need to restrict
+    # to metro areas really as the differences are very small and this lets
+    # me maximize sample size
+    mar_market = paste(STATEFIP, YEAR, sep=""),
     ## marriage duration ##
     dur_mar = ifelse(YRMARR==0, NA, YEAR - YRMARR),
     ## country of birth of respondent and spouse - see code_bpl for details ##
@@ -304,7 +303,6 @@ acs <- acs |>
     immig_gen = code_generation(bpl, age, YEAR, yr_usa),
     immig_gen_sp = code_generation(bpl_sp, age_sp, YEAR, yr_usa_sp)
   )
-
 ```
 
 ```{r}
