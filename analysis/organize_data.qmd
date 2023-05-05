@@ -149,6 +149,43 @@ code_language <- function(language) {
   return(lang_recode)
   
 }
+
+code_generation <- function(bpl, age, year, yr_usa) {
+  
+  # first, calculate age of entry into the US, NA for all non-migrants
+  age_usa <- age-yr_usa
+  # check
+  #tapply(age_usa, bpl>1, mean)
+  #summary(age_usa)
+  # some of these responses are as negative as -5. -1 is expected because of
+  # the crudeness of calendar year vs birthdays. Almost all of the values 
+  # greater than -1 are for year of migration prior to 1940, which is top-coded
+  # in the data, so I think those make sense as well. In those cases, we will
+  # just replace with zero.
+  age_usa <- ifelse(age_usa<0, 0, age_usa)
+  
+  # now we can code our generations. All native-borns are 2nd+.
+  generation <- case_when(
+    is.na(bpl) ~ NA_character_,
+    bpl==1 ~ "2nd+",
+    age_usa<6 ~ "1.75",
+    age_usa<13 ~ "1.5",
+    age_usa<18 ~ "1.25",
+    !is.na(age_usa) ~ "1st"
+  )
+  
+  generation <- factor(generation,
+                       levels=c("1st","1.25","1.5","1.75","2nd+"))
+    
+  # checks
+  #summary(generation)
+  #table(bpl>1, generation, exclude=NULL)
+  #tapply(age_usa, generation, min)
+  #tapply(age_usa, generation, max)
+
+  return(generation)
+}
+
 ```
 
 Here are the starting and ending values for the ACS 2021 data from the IPUMS codebook. All of the other extracts should be identical in structure.
@@ -260,18 +297,14 @@ acs <- acs |>
     ## country of birth of respondent and spouse - see code_bpl for details ##
     bpl = code_bpl(BPLD),
     bpl_sp = code_bpl(BPLD_SP),
-    ## years living in USA for the respondent and spouse ##
-    yr_usa = YEAR-ifelse(YRIMMIG==0, NA, YRIMMIG),
-    yr_usa_sp = YEAR-ifelse(YRIMMIG_SP==0, NA, YRIMMIG_SP),
-    ## age at migration to USA, respondent and spouse ##
-    # straightforward, but still get some negative values. Most of these are
-    # just -1 values due to calendar year/birth year issues, but a few other 
-    # cases at older ages go back as far as -5. 
-    age_usa = age-yr_usa,
-    age_usa = ifelse(is.na(age_usa) | age_usa<0, 0, age_usa),
-    age_usa_sp = age-yr_usa_sp,
-    age_usa_sp = ifelse(is.na(age_usa_sp) | age_usa_sp<0, 0, age_usa_sp)
+    ## Years in the USA - missing for natives ##
+    yr_usa = ifelse(YRIMMIG==0, NA, YEAR-YRIMMIG),
+    yr_usa_sp = ifelse(YRIMMIG_SP==0, NA, YEAR-YRIMMIG_SP),
+    ## immigrant generation - see code_generation for details ##
+    immig_gen = code_generation(bpl, age, YEAR, yr_usa),
+    immig_gen_sp = code_generation(bpl_sp, age_sp, YEAR, yr_usa_sp)
   )
+
 ```
 
 ```{r}
@@ -317,9 +350,9 @@ sum(acs$lang_sp==-1)
 # check dur_mar
 summary(acs$dur_mar)
 
-# check age when migrated to the US
-summary(acs$age_usa)
-summary(acs$age_usa_sp)
+# check immigrant generation
+table(acs$bpl>1, acs$immig_gen, exclude=NULL)
+table(acs$bpl_sp>1, acs$immig_gen_sp, exclude=NULL)
 
 options(max.print=99999)
 ```
@@ -331,11 +364,12 @@ acs <- acs |>
   filter(!is.na(race) & !is.na(bpl)) |>
   filter(is.na(id_sp) | (!is.na(race_sp) & !is.na(bpl_sp))) |>
   select(mar_market, mar_stat, dur_mar, 
-         id, sex, age, race, educ, lang, bpl, yr_usa,
-         id_sp, sex_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, yr_usa_sp)
+         id, sex, age, race, educ, lang, bpl, immig_gen, yr_usa,
+         id_sp, sex_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, immig_gen_sp,
+         yr_usa_sp)
 ```
 
-I want to eliminate individuals from the analysis who:
+I also want to eliminate individuals from the analysis who:
 
 * have been in the USA less than the marriage window.
 * Made an interstate move in the last five years <!-- TODO: implement this -->
@@ -386,21 +420,25 @@ summary(unions$yr_usa)
 
 # ok now limit it to only necessary variables and rename
 unions <- unions |>
-  select(mar_market, id, age, race, educ, lang, bpl, id_sp, age_sp, race_sp, 
-         educ_sp, lang_sp, bpl_sp) |>
-  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl,
-         idw=id_sp, agew=age_sp, racew=race_sp, educw=educ_sp, langw=lang_sp, bplw=bpl_sp) 
+  select(mar_market, id, age, race, educ, lang, bpl, immig_gen, 
+         id_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, immig_gen_sp) |>
+  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl, 
+         immig_genh=immig_gen,
+         idw=id_sp, agew=age_sp, racew=race_sp, educw=educ_sp, langw=lang_sp, 
+         bplw=bpl_sp, immig_genw=immig_gen_sp) 
 
 # create alternate partner data
 female_alt <- acs |>
   filter(sex=="Female") |>
-  select(mar_market, id, age, race, educ, lang, bpl) |>
-  rename(idw=id, agew=age, racew=race, educw=educ, langw=lang, bplw=bpl)
+  select(mar_market, id, age, race, educ, lang, bpl, immig_gen) |>
+  rename(idw=id, agew=age, racew=race, educw=educ, langw=lang, bplw=bpl,
+         immig_genw=immig_gen)
 
 male_alt <- acs |>
   filter(sex=="Male") |>
-  select(mar_market, id, age, race, educ, lang, bpl) |>
-  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl)
+  select(mar_market, id, age, race, educ, lang, bpl, immig_gen) |>
+  rename(idh=id, ageh=age, raceh=race, educh=educ, langh=lang, bplh=bpl,
+         immig_genh=immig_gen)
 ```
 
 ```{r}
