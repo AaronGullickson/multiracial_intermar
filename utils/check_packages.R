@@ -11,7 +11,7 @@ packages = c(
   "readr","haven", # I/O
   "tidyverse","lubridate","broom", #tidyverse and friends
   "texreg","gt", "kableExtra", # for table output
-  "PNWColors"
+  "PNWColors","remotes"
 )
 
 package.check <- lapply(packages, FUN = function(x) {
@@ -20,3 +20,9 @@ package.check <- lapply(packages, FUN = function(x) {
     library(x, character.only = TRUE)
   }
 })
+
+#install fakeunion library from GitHub
+if(!require(fakeunion)) {
+  install_github("AaronGullickson/fakeunion")
+  library(fakeunion)
+}
