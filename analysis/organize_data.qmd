@@ -241,7 +241,7 @@ acs <- acs |>
     sex_sp = ifelse(SEX_SP==1, "Male", ifelse(SEX_SP==2, "Female", NA)),
     ## age of respondent and spouse ##
     age=AGE,
-    age=AGE_SP,
+    age_sp=AGE_SP,
     ## marital status of respondent ##
     mar_stat=factor(MARST, levels=1:6, 
                     labels=c("Married, spouse present", "Married, spouse absent",
@@ -283,14 +283,51 @@ acs <- acs |>
 ```{r}
 #| label: check-yourself
 
+options(max.print=10000)
+
 # Do we have any duplicates in our ids?
 sum(duplicated(acs$id))
 sum(duplicated(na.omit(acs$id_sp)))
 
+# check sex
+table(acs$sex, acs$SEX, exclude=NULL)
+table(acs$sex_sp, acs$SEX_SP, exclude=NULL)
+
 # check mar_stat
-table(acs$mar_stat, acs$marst, exclude=NULL)
+table(acs$mar_stat, acs$MARST, exclude=NULL)
 
+# check age
+summary(acs$age)
+summary(acs$age_sp)
 
+# check educ
+table(acs$EDUCD, acs$educ, exclude=NULL)
+table(acs$EDUCD_SP, acs$educ_sp, exclude=NULL)
+
+# check race
+table(acs$RACED, acs$race, exclude=NULL)
+table(acs$HISPAND, acs$race, exclude=NULL)
+table(acs$RACED_SP, acs$race_sp, exclude=NULL)
+table(acs$HISPAND_SP, acs$race_sp, exclude=NULL)
+
+# check birthplace
+summary(acs$bpl)
+summary(acs$bpl_sp)
+
+# check language
+summary(acs$lang)
+sum(acs$lang==-1)
+summary(acs$lang_sp)
+sum(acs$lang_sp==-1)
+
+# check dur_mar
+summary(acs$dur_mar)
+
+# check age when migrated to the US
+summary(acs$age_usa)
+summary(acs$age_usa_sp)
+
+options(max.print=99999)
 ```
 
 Ok, now that I have checked all of the data, lets just restrict to the variables that I need to keep things tidy.
