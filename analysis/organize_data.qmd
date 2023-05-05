@@ -324,10 +324,12 @@ summary(acs$age_usa_sp)
 options(max.print=99999)
 ```
 
-Ok, now that I have checked all of the data, lets just restrict to the variables that I need to keep things tidy.
+Ok, now that I have checked all of the data, lets just restrict to the variables that I need to keep things tidy. I will also remove cases that are missing on `race` or `race_sp` because those are individuals who had a race outside of what I am considering here (other single or in combination and more than two races). I will also drop the relatively few cases that were missing birthplace. Dropping on spouse `race_sp` and `bpl_sp` has to first check to make sure its a valid case otherwise (given by a non-missing id).
 
 ```{r}
 acs <- acs |>
+  filter(!is.na(race) & !is.na(bpl)) |>
+  filter(is.na(id_sp) | (!is.na(race_sp) & !is.na(bpl_sp))) |>
   select(mar_market, mar_stat, dur_mar, 
          id, sex, age, race, educ, lang, bpl, yr_usa,
          id_sp, sex_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, yr_usa_sp)
