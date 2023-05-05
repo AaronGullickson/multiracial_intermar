@@ -30,37 +30,31 @@ code_race <- function(raced, hispand) {
   race <- case_when(
     # Latino trumps everything, because combined question, sigh
     hispand>0 & hispand<900 ~ "Latino",
-    # The original ethnoracial triangle - white, black, indigenous
+    # white and black are easy
     raced==100 ~ "White",
     raced==200 ~ "Black",
-    (raced>=300 & raced<400) ~ "Indig",
-    # Asian
-    # need to do South Asians, then Pac Islander, then E&SE Asian
-    # to simplify coding nightmare
-    # leave out South Asian separation, because we don't have details
-    # for those that check more than one
-    #(raced %in% c(610, 664, 669, 670)) ~ "South Asian",
-    (raced==630 | (raced>=680 & raced<=699)) ~ "Indig",
-    ((raced==400 & raced<=679) | raced %in% c(869, 887)) ~ "Asian",
-    # Multiracial groups
+    # for indigenous we get all AIAN, Pacific Islanders, and the one multiracial
+    # combo of them (855)
+    (raced>=300 & raced<400) | (raced==630 | (raced>=680 & raced<=699)) | 
+      raced==855 ~ "Indigenous",
+    # Asian - also need to grab a couple of multiracial response which are 
+    # really multiethnic Asian
+    ((raced>=400 & raced<=679) | raced %in% c(869, 887)) ~ "Asian",
+    # Biracial groups
     raced==801 ~ "White/Black",
-    raced==802 ~ "White/Indig",
     (raced>=810 & raced<=819) ~ "White/Asian",
-    (raced>=820 & raced<=827) ~ "White/Indig",
-    raced==830 ~ "Black/Indig",
     (raced>=831 & raced<=838) ~ "Black/Asian",
-    (raced>=840 & raced<=842) ~ "Black/Indig",
-    (raced>=850 & raced<=854) ~ "Indig/Asian",
-    raced==855 ~ "Indig",
-    (raced>=860 & raced<=868) ~ "Indig/Asian",
-    #raced==901 ~ "White/Black/AIAN",
+    # for all part Indigenous groups we need to get the part AIAN and part PI
+    raced==802 | (raced>=820 & raced<=825) ~ "White/Indigenous",
+    raced==830 | (raced>=840 & raced<=842) ~ "Black/Indigenous",
+    (raced>=850 & raced<=854) | (raced>=860 & raced<=868) ~ "Indigenous/Asian",
     TRUE ~ NA_character_
   )
   
   race <- factor(race, 
-                 levels=c("White","Black","Indig","Asian","Latino",
-                          "White/Black","White/Indig","White/Asian",
-                          "Black/Indig","Black/Asian","Indig/Asian"))
+                 levels=c("White","Black","Indigenous","Asian","Latino",
+                          "White/Black","White/Indigenous","White/Asian",
+                          "Black/Indigenous","Black/Asian","Indigenous/Asian"))
   
   return(race)
 }
