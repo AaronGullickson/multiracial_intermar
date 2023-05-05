@@ -155,12 +155,6 @@ code_language <- function(language) {
   return(lang_recode)
   
 }
-
-# convenience function for getting all the single people
-is_single <- function(marst) {
-  #I am going to consider separated people as single here
-  return(marst!="Married, spouse present" & marst!="Married, spouse absent")
-}
 ```
 
 Here are the starting and ending values for the ACS 2021 data from the IPUMS codebook. All of the other extracts should be identical in structure.
@@ -206,15 +200,17 @@ Here are the starting and ending values for the ACS 2021 data from the IPUMS cod
   EDUCD_SP                     P 157-159          3     X          
 ```
 
+I create the starting and ending indices as well as the variable names for what I will pull from the fixed-width data below. These numbers should correspond to those above. I capitalize all variables from the original data to distinguish my constructed variables (always lower case) from variables directly in the original data.
+
 ```{r}
 #| label: create-cols-info
 acs_start <- c(1,11,32,55,57,75,89,90,93,94,95,100,104,110,115,121,127,130,134,135,138,141,144,149,153,157)
 acs_end   <- c(4,18,41,56,61,78,89,92,93,94,98,102,106,114,118,124,129,133,134,137,140,143,148,152,156,159)
-acs_names <- c("year","serial","hhwt","statefip","metarea","pernum",
-               "sex","age","marst","marrno","yrmarr","raced",
-               "hispand","bpld","yrimmig","languaged","educd","pernum_sp",
-               "sex_sp","age_sp","raced_sp","hispand_sp","bpld_sp",
-               "yrimmig_sp","languaged_sp","educd_sp")
+acs_names <- c("YEAR","SERIAL","HHWT","STATEFIP","METAREA","PERNUM",
+               "SEX","AGE","MARST","MARRNO","YRMARR","RACED",
+               "HISPAND","BPLD","YRIMMIG","LANGUAGED","EDUCD","PERNUM_SP",
+               "SEX_SP","AGE_SP","RACED_SP","HISPAND_SP","BPLD_SP",
+               "YRIMMIG_SP","LANGUAGED_SP","EDUCD_SP")
 tibble(variable=acs_names, start=acs_start, end=acs_end) |>
   gt()
 ```
@@ -228,7 +224,7 @@ acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
                 col_positions = fwf_positions(start = acs_start,
                                               end   = acs_end,
                                               col_names = acs_names),
-                col_types = cols(.default = "i", hhwt="d"), 
+                col_types = cols(.default = "i", HHWT="d"), 
                 progress = FALSE)
 ```
 
@@ -237,39 +233,42 @@ acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
 acs <- acs |> 
   mutate(
     ## unique ids for each respondent ##
-    id = serial*1000000+pernum*10000+year,
-    id_sp = ifelse(is.na(pernum_sp),NA,
-                    serial*1000000+pernum_sp*10000+year),
+    id = SERIAL*1000000+PERNUM*10000+YEAR,
+    id_sp = ifelse(is.na(PERNUM_SP),NA,
+                    SERIAL*1000000+PERNUM_SP*10000+YEAR),
     ## sex of respondent and spouse ##
-    sex = ifelse(sex==1, "Male", ifelse(sex==2, "Female", NA)),
-    sex_sp = ifelse(sex_sp==1, "Male", ifelse(sex_sp==2, "Female", NA)),
-    # marital status of respondent
-    marst=factor(marst, levels=1:6, 
-                 labels=c("Married, spouse present", "Married, spouse absent",
-                          "Separated","Divorced","Widowed","Never married")),
+    sex = ifelse(SEX==1, "Male", ifelse(SEX==2, "Female", NA)),
+    sex_sp = ifelse(SEX_SP==1, "Male", ifelse(SEX_SP==2, "Female", NA)),
+    ## age of respondent and spouse ##
+    age=AGE,
+    age=AGE_SP,
+    ## marital status of respondent ##
+    mar_stat=factor(MARST, levels=1:6, 
+                    labels=c("Married, spouse present", "Married, spouse absent",
+                             "Separated","Divorced","Widowed","Never married")),
     ## race of respondent and spouse - see details in code_race function ##
-    race = code_race(raced, hispand),
-    race_sp = code_race(raced_sp, hispand_sp),
+    race = code_race(RACED, HISPAND),
+    race_sp = code_race(RACED_SP, HISPAND_SP),
     ## education of respondent and spouse - see code_educ function for details ##
-    educ = code_educ(educd),
-    educ_sp = code_educ(educd_sp),
+    educ = code_educ(EDUCD),
+    educ_sp = code_educ(EDUCD_SP),
     ## language of respondent and spouse - see code_lang for details ##
-    lang = code_language(languaged),
-    lang_sp = code_language(languaged_sp),
+    lang = code_language(LANGUAGED),
+    lang_sp = code_language(LANGUAGED_SP),
     ## marriage market id ##
     # combined state and metro area id to get marriage market. Replace state id
     # with metro id for cases where it is not zero. Multiply by 100 to avoid id
     # collision
     # FIXME: this needs to be implemented correctly
-    mar_market = statefip,
+    mar_market = STATEFIP,
     ## marriage duration ##
-    dur_mar = ifelse(yrmarr==0, NA, year - yrmarr),
+    dur_mar = ifelse(YRMARR==0, NA, YEAR - YRMARR),
     ## country of birth of respondent and spouse - see code_bpl for details ##
-    bpl = code_bpl(bpld),
-    bpl_sp = code_bpl(bpld_sp),
+    bpl = code_bpl(BPLD),
+    bpl_sp = code_bpl(BPLD_SP),
     ## years living in USA for the respondent and spouse ##
-    yr_usa = year-ifelse(yrimmig==0, NA, yrimmig),
-    yr_usa_sp = year-ifelse(yrimmig_sp==0, NA, yrimmig_sp),
+    yr_usa = YEAR-ifelse(YRIMMIG==0, NA, YRIMMIG),
+    yr_usa_sp = YEAR-ifelse(YRIMMIG_SP==0, NA, YRIMMIG_SP),
     ## age at migration to USA, respondent and spouse ##
     # straightforward, but still get some negative values. Most of these are
     # just -1 values due to calendar year/birth year issues, but a few other 
@@ -284,12 +283,12 @@ acs <- acs |>
 ```{r}
 #| label: check-yourself
 
-if(sum(duplicated(acs$id))>0) {
-  stop("Duplicted ids in data")
-}
-if(sum(duplicated(na.omit(acs$id_sp)))>0) {
-  stop("Duplicted spousal ids in data")
-}
+# Do we have any duplicates in our ids?
+sum(duplicated(acs$id))
+sum(duplicated(na.omit(acs$id_sp)))
+
+# check mar_stat
+table(acs$mar_stat, acs$marst, exclude=NULL)
 
 
 ```
@@ -298,7 +297,7 @@ Ok, now that I have checked all of the data, lets just restrict to the variables
 
 ```{r}
 acs <- acs |>
-  select(year, mar_market, marst, dur_mar, 
+  select(mar_market, mar_stat, dur_mar, 
          id, sex, age, race, educ, lang, bpl, yr_usa,
          id_sp, sex_sp, age_sp, race_sp, educ_sp, lang_sp, bpl_sp, yr_usa_sp)
 ```
@@ -309,7 +308,7 @@ I want to eliminate individuals from the analysis who:
 * Made an interstate move in the last five years <!-- TODO: implement this -->
 * Are currently married longer than the marriage window.
 * Are married individuals in same-sex relationships
-* Are cohabitors - these are identified by a valid spouse id but not married, spouse present on `marst`
+* Are cohabitors - these are identified by a valid spouse id but not married, spouse present on `mar_stat`
 
 Therefore, the only remaining people in the dataset are heterosexual married couples married for five years or less and single individuals, all of whom have been in the same "marriage market" for the last five years.
 
@@ -317,18 +316,18 @@ Therefore, the only remaining people in the dataset are heterosexual married cou
 acs <- acs |>
   filter((is.na(yr_usa) | yr_usa>years_mar) & 
            (is.na(yr_usa_sp) | yr_usa_sp>years_mar) &
-           ((marst!="Married, spouse present" & 
-               marst!="Married, spouse absent") | dur_mar<=years_mar) &
+           ((mar_stat!="Married, spouse present" & 
+               mar_stat!="Married, spouse absent") | dur_mar<=years_mar) &
            !(!is.na(sex_sp) & sex==sex_sp) &
-           !(marst!="Married, spouse present" & !is.na(id_sp)))
+           !(mar_stat!="Married, spouse present" & !is.na(id_sp)))
 
 # checks
 summary(acs$yr_usa)
 summary(acs$yr_usa_sp)
-tapply(acs$dur_mar, acs$marst, max)
+tapply(acs$dur_mar, acs$mar_stat, max)
 table(acs$sex, acs$sex_sp, exclude=NULL)
 acs |> 
-  group_by(marst, !is.na(id_sp)) |>
+  group_by(mar_stat, !is.na(id_sp)) |>
   summarize(n=n())
 ```
 
@@ -338,13 +337,13 @@ acs |>
 # create actual union data
 unions <- acs |>
   filter(sex=="Male" & sex_sp=="Female" & !is.na(id_sp) & 
-           marst=="Married, spouse present")
+           mar_stat=="Married, spouse present")
 
 # check that they are all hetero
 table(unions$sex, unions$sex_sp, exclude=NULL)
 
 # check the marital status 
-table(unions$marst)
+table(unions$mar_stat)
 
 # check marriage duration
 summary(unions$dur_mar)
@@ -380,7 +379,6 @@ mar_market <- generateCouples(5, as.data.frame(unions), as.data.frame(male_alt),
                               verbose=TRUE)
 
 mar_market <- as_tibble(mar_market)
-
 ```
 
 
