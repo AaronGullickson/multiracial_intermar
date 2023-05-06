@@ -34,21 +34,21 @@ temp <- coef |>
   filter(!str_detect(variable, "/|Latino")) |>
   mutate(multiple_race=str_replace(variable, "\\.", "/"),
          multiple_race=factor(multiple_race,
-                              levels=c("White/Asian","Black/Indig",
-                                       "White/Indig","Indig/Asian",
+                              levels=c("White/Asian","Black/Indigenous",
+                                       "White/Indigenous","Indigenous/Asian",
                                        "White/Black","Black/Asian")))
 coef |>
-  filter(str_detect(variable, "White/Asian|White/Black|White/Indig|Black/Asian|Black/Indig|Indig/Asian")) |>
+  filter(str_detect(variable, "White/Asian|White/Black|White/Indigenous|Black/Asian|Black/Indigenous|Indigenous/Asian")) |>
   mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
          multiple_race=str_split(variable, "\\.", simplify=TRUE)[,2],
          constituent=str_detect(multiple_race, single_race),
          single_race=factor(single_race, 
-                            levels=c("Latino","Asian","Indig","Black",
+                            levels=c("Latino","Asian","Indigenous","Black",
                                      "White")),
          multiple_race=factor(multiple_race,
                               levels=c("White/Asian","Black/Asian",
-                                       "White/Indig","Black/Indig",
-                                       "White/Black","Indig/Asian"))) |>
+                                       "White/Indigenous","Black/Indigenous",
+                                       "White/Black","Indigenous/Asian"))) |>
   ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
   geom_linerange(linewidth=1.25, 
                   aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
@@ -56,8 +56,8 @@ coef |>
                   aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
   geom_point(size=2)+
   geom_hline(data=temp, aes(yintercept=exp(coef)), linetype=2, color="red")+
-  geom_hline(yintercept=exp(filter(coef, variable=="Multi/Multi")$coef), 
-             linetype=2, color="blue")+
+  #geom_hline(yintercept=exp(filter(coef, variable=="Multi/Multi")$coef), 
+  #           linetype=2, color="blue")+
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
   scale_y_continuous(limits=c(0,1))+
@@ -69,7 +69,7 @@ coef |>
 
 ```{r}
 #| label: create-partner-df
-couples <- markets[[1]] |> filter(choice)
+couples <- mar_markets[[1]] |> filter(choice)
 temp <- couples |>
   filter(raceh=="White/Black" | racew=="White/Black") |>
   mutate(race_spouse=ifelse(raceh=="White/Black", 
@@ -88,9 +88,9 @@ wives <- couples |>
   select(race_ego, race_spouse, gender)
 partner_choice <- bind_rows(husbands, wives) |>
   mutate(race_spouse=factor(race_spouse, 
-                            levels=c("White","Black","Indig","Asian","Latino","White/Black",
-                                     "White/Indig","White/Asian","Black/Indig","Black/Asian",
-                                     "Indig/Asian")))
+                            levels=c("White","Black","Indigenous","Asian","Latino","White/Black",
+                                     "White/Indigenous","White/Asian","Black/Indigenous","Black/Asian",
+                                     "Indigenous/Asian")))
 ```
 
 ```{r}
@@ -98,7 +98,7 @@ partner_choice <- bind_rows(husbands, wives) |>
 #| fig-cap: Distribution of partner's race for multiracial respondents, separately by panel
 partner_choice |>
   filter(str_detect(race_ego, "/")) |>
-  ggplot(aes(x=fct_rev(race_spouse), y=..prop.., group=1))+
+  ggplot(aes(x=fct_rev(race_spouse), y=after_stat(prop), group=1))+
   geom_bar(position="dodge")+
   facet_wrap(~race_ego)+
   scale_y_continuous(labels=scales::percent)+
@@ -113,8 +113,8 @@ partner_choice |>
 partner_choice |>
   filter(str_detect(race_ego, "/")) |>
   mutate(race_ego=factor(race_ego, 
-                         levels=c("White/Asian","White/Indig","White/Black",
-                                  "Indig/Asian","Black/Asian","Black/Indig"))) |>
+                         levels=c("White/Asian","White/Indigenous","White/Black",
+                                  "Indigenous/Asian","Black/Asian","Black/Indigenous"))) |>
   ggplot(aes(x=fct_rev(race_spouse), y=..prop.., group=race_ego, fill=race_ego))+
   geom_bar(position="dodge")+
   scale_y_continuous(labels=scales::percent)+
