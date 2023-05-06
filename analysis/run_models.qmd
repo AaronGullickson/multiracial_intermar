@@ -3,6 +3,11 @@ title: "Model Running Notebook"
 ---
 
 ```{r}
+#| label: timestamp-start
+timestamp()
+```
+
+```{r}
 #| label: setup
 #| include: false
 library(here)
@@ -13,12 +18,7 @@ load(here("data","data_constructed","markets.RData"))
 
 # Introduction
 
-I move the running of the models to a dedicated script because they can take a long time to run. Lets start with a timestamp.
- 
-```{r}
-#| label: timestamp-start
-timestamp()
-```
+I move the running of the models to a dedicated script because they can take a long time to run.
 
 ## Create variables
 
@@ -95,8 +95,7 @@ add_vars <- function(market) {
 
 ```{r}
 #| label: add-vars
-#markets <- lapply(markets, add_vars)
-mar_market <- add_vars(mar_market)
+mar_markets <- lapply(mar_markets, add_vars)
 ```
 
 TODO: Check yourself on coding
@@ -111,8 +110,7 @@ formula_base <- formula(choice~race_exog+
                           hypergamy+hypogamy+edcross_hs+edcross_sc+edcross_c+
                           +birth_endog+language_endog+
                           strata(group))
-model <- clogit(formula_base, data=mar_market, method="efron")
-#model <- poolChoiceModel(formula_base, data=markets, method="efron")
+model <- poolChoiceModel(formula_base, data=mar_markets, method="efron")
 ```
 
 

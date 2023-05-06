@@ -18,11 +18,13 @@ This notebook documents the process of reading American Community Survey data fr
 2. A dataset of potential male partners that is made up of those recently married (from 1) and currently single people (those not in cohabitation or less recent marriages). This dataset should contain all the same information about these men as the husbands from (1).
 3. A dataset identical to (2) but for potential female partners.
 
-I need to decide my criteria for a recent marriage. I set this parameter for the limit on marriage duration right at the top of this document so that it is easy to change and adjust later..
+I set up a few key parameters right at the top of the document
 
 ```{r}
-#| label: mar-length-param
-years_mar <- 5
+#| label: set-params
+years_mar <- 5  # limit on the duration of marriages that will be identified
+n_samples <- 2  # number of separate marriage markets to construct
+n_fakes   <- 5  # number of fake unions to generate for each real one
 ```
 
 Next, I set up several functions that will be useful for coding the data. Since I have to repeat the same coding for several variables on both partners in a union, it makes sense to put that coding into a function to minimize code and the risk of error.
@@ -468,7 +470,7 @@ male_alt <- acs |>
          immig_genh=immig_gen)
 ```
 
-Now, that I have these datasets, I can feed them into the `generateCouples` function to create my marriage market data. Eventually, I will replicate five separate marriage market datasets to handle potential variability in randomizing fake unions, but for now I am just loading one.
+Now, that I have these datasets, I can feed them into the `generateCouples` function to create my marriage market data. I use the replicate function to create multiple marriage markets so I can pool results across multiple random imputations of fake partners.
 
 Note that the `generateCouples` data cannot handle tibbles properly so I am casting these back to vanilla data.frames and then re-tibblizing the end product. 
 
@@ -476,23 +478,27 @@ Note that the `generateCouples` data cannot handle tibbles properly so I am cast
 #| label: create-fake-unions
 
 # fakeunion does not handle tibbles well so convert to vanilla dfs
-mar_market <- generateCouples(5, as.data.frame(unions), as.data.frame(male_alt), 
-                              as.data.frame(female_alt), geo="mar_market", 
-                              verbose=TRUE)
+mar_markets <- replicate(n_samples,
+                         generateCouples(n_fakes, as.data.frame(unions), 
+                                         as.data.frame(male_alt), 
+                                         as.data.frame(female_alt), 
+                                         geo="mar_market", 
+                                         verbose=FALSE),
+                         simplify=FALSE)
 
-mar_market <- as_tibble(mar_market)
+mar_markets <- lapply(mar_markets, as_tibble)
 ```
 
-Lets do a summary on this just to make sure it all looks good.
+Lets do a summary on the first one just to make sure it all looks good.
 
 ```{r}
 #| label: check-mar-market-data
-summary(mar_market)
+summary(mar_markets[[1]])
 ```
 
 It should be all good to go. Lets save it.
 
 ```{r}
 #| label: save-data
-save(mar_market, file=here("data","data_constructed","markets.RData"))
+save(mar_markets, file=here("data","data_constructed","markets.RData"))
 ```
