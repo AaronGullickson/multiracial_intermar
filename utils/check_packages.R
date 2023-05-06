@@ -11,7 +11,8 @@ packages = c(
   "readr","haven", # I/O
   "tidyverse","lubridate","broom", #tidyverse and friends
   "texreg","gt", "kableExtra", # for table output
-  "PNWColors","remotes"
+  "PNWColors",
+  "remotes","survival"
 )
 
 package.check <- lapply(packages, FUN = function(x) {
