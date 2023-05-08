@@ -18,7 +18,28 @@ load(here("data","data_constructed","markets.RData"))
 
 # Introduction
 
-I move the running of the models to a dedicated script because they can take a long time to run.
+This script is used to run the counterfactual marriage models for the analysis. I move the running of these models to a dedicated script because they can take a long time to run. 
+
+## Model structure
+
+All models will include the following control variables:
+
+Age difference between spouses and its square
+: This is coded as husband's age minus wife's age. The parabola allows us to identify a peak age difference for the likelihood of a marriage with symmetric fall-off in the probability from that point.
+
+Language endogamy
+: This is a simple boolean variable indicating whether the potential partners share the same primary language.
+
+Birthplace endogamy
+: This is a simple boolean variable indicating whether the potential partners share the same birthplace. However, I do make some adjustments for the 1.5 (arrived in US 6-12 years of age), and 1.75 (arrived in US 13-17 years of age) generations. In both of these cases, a person is considered birthplace endogamous if they have the same actual birthplace as the potential partner or if the other partner was born in the US. This is based on prior work that shows this model fits the data best.
+
+Eduational hypergamy and hypogamy
+: These are two simple boolean variables that indicate whether the husband has more education than the wife (hypergamy) or the wife has more education than the husband (hypogamy). Interestingly, hypogamy is now more likely to lead to an actual union than hypergamy. 
+
+Educational crossing parameters
+: These are the standard educational crossing parameters to model educational assortative mating. Each level of difference between potential partners is coded with a symmetric boolean variable.
+
+
 
 ## Create variables
 
