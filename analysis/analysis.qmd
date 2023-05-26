@@ -20,7 +20,7 @@ get_coefs <- function(x) {
   temp <- coef(x)[,c(1,2)]
   return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
 }
-coef <- get_coefs(model) |>
+coef <- get_coefs(model_short_sym) |>
   filter(str_detect(variable, "race_exog")) |>
   mutate(variable=str_replace(variable, "race_exog",""))
   
@@ -73,6 +73,77 @@ coef |>
   theme(legend.position = "none")
 ```
 
+```{r}
+#| label: heat-map
+
+#get or matrix
+coef_full <- get_coefs(model_full_sym) |>
+  filter(str_detect(variable, "race_exog_full")) |>
+  mutate(variable=str_replace(variable, "race_exog_full",""))
+
+coef_full <- str_split_fixed(coef_full$variable, "\\.", 2) |>
+  bind_cols(coef_full) |>
+  rename(race1=...1, race2=...2) |>
+  select(race1, race2, coef)
+
+races <- unique(c(coef_full$race1, coef_full$race2)) 
+or <- matrix(NA, length(races), length(races))
+rownames(or) <- colnames(or) <- races
+
+for(i in 1:nrow(coef_full)) {
+  or[coef_full$race2[i], coef_full$race1[i]] <- exp(-1 * coef_full$coef[i])
+  or[coef_full$race1[i], coef_full$race2[i]] <- exp(-1 * coef_full$coef[i])
+}
+hc <- hclust(as.dist(or), method = "average")
+or <- or[hc$order, rev(hc$order)]
+
+gg.heat <- ggplot(melt(or, na.rm=TRUE), aes(Var2, Var1, fill = value))+
+    geom_tile(color = NA)+
+    scale_fill_gradient2(high = "#276419", low = "#8e0152", mid = "#f7f7f7", 
+                         midpoint = 1, limit = c(0, max(or)),
+                         name="odds ratio")+
+    geom_text(aes(label=paste(round(value,2))), size=2)+
+    labs(x=NULL, y=NULL)+
+    theme_minimal()+
+    theme(legend.position = "left", 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.text.x = element_text(angle = 45, hjust = 1))
+
+dendro <- as.dendrogram(hc)
+gg.dendro <- ggdendrogram(data = dendro, rotate = TRUE, labels = FALSE)+theme_void()
+
+grid.newpage()
+print(gg.heat, vp = viewport(x = 0.4, y = 0.5, width = 0.8, height = 1.0))
+print(gg.dendro, vp = viewport(x = 0.9, y = 0.6, width = 0.2, height = 0.76))
+```
+
+```{r}
+#| label: create-distance-matrix
+coef_full <- get_coefs(model_full_sym) |>
+  filter(str_detect(variable, "race_exog_full")) |>
+  mutate(variable=str_replace(variable, "race_exog_full",""))
+
+coef_full <- str_split_fixed(coef_full$variable, "\\.", 2) |>
+  bind_cols(coef_full) |>
+  rename(race1=...1, race2=...2) |>
+  select(race1, race2, coef)
+
+races <- unique(c(coef_full$race1, coef_full$race2)) 
+
+distances <- matrix(NA, length(races), length(races))
+rownames(distances) <- colnames(distances) <- races
+
+for(i in 1:nrow(coef_full)) {
+  distances[coef_full$race2[i], coef_full$race1[i]] <- coef_full$coef[i]
+}
+
+# Indigenous/Asian group is too small to estimate well at the moment, so drop
+#distances <- distances[-11,-11]
+
+hc <- hclust(as.dist(1/exp(distances)), "complete")
+plot(hc)
+```
 
 ```{r}
 #| label: create-partner-df
