@@ -124,20 +124,37 @@ TODO: Check yourself on coding
 # Run the models
 
 ```{r}
-#| label: run-model
-formula_base <- formula(choice~race_exog+
-                          multi_shared_ancestry+
-                          agediff+I(agediff^2)+
+#| label: create-formulae
+
+# formula base with control variables
+formula_base <- formula(choice~agediff+I(agediff^2)+
                           hypergamy+hypogamy+edcross_hs+edcross_sc+edcross_c+
                           +birth_endog+language_endog+
                           strata(group))
-model <- poolChoiceModel(formula_base, data=mar_markets, method="efron")
+
+# full racial exogamy
+formula_full_sym <- update(formula_base, .~.+race_exog_full)
+
+
+# constrained racial exogamy
+formula_short_sym <- update(formula_base, .~.+
+                                    race_exog+multi_shared_ancestry)
+
+
+```
+
+```{r}
+#| label: run-models
+model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets, 
+                                  method="efron")
+model_short_sym <- poolChoiceModel(formula_short_sym, data=mar_markets, 
+                                   method="efron")
 ```
 
 
 ```{r}
 #| label: save-output
-save(model, file=here("data","data_constructed","models.RData"))
+save(model_short_sym, model_full_sym, file=here("data","data_constructed","models.RData"))
 ```
 
 ```{r}
