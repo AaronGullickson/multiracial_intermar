@@ -1,4 +1,4 @@
-Description: Multiracial Intermarriage Revision 2010-2019
+Description: Revision of Multiracial Intermarriage Revision 2010-2019 (forgot pernum of spouse)
 Samples selected:
       2010 ACS
       2011 ACS
@@ -41,14 +41,15 @@ Case Selection:               Yes
   LANGUAGED                    P 121-124          4     X       X       X       X       X       X       X       X       X       X       
   EDUC                         P 125-126          2     X       X       X       X       X       X       X       X       X       X       
   EDUCD                        P 127-129          3     X       X       X       X       X       X       X       X       X       X       
-  SEX_SP                       P 130              1     X       X       X       X       X       X       X       X       X       X       
-  AGE_SP                       P 131-133          3     X       X       X       X       X       X       X       X       X       X       
-  RACED_SP                     P 134-136          3     X       X       X       X       X       X       X       X       X       X       
-  HISPAND_SP                   P 137-139          3     X       X       X       X       X       X       X       X       X       X       
-  BPLD_SP                      P 140-144          5     X       X       X       X       X       X       X       X       X       X       
-  YRIMMIG_SP                   P 145-148          4     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGED_SP                 P 149-152          4     X       X       X       X       X       X       X       X       X       X       
-  EDUCD_SP                     P 153-155          3     X       X       X       X       X       X       X       X       X       X       
+  PERNUM_SP                    P 130-133          4     X       X       X       X       X       X       X       X       X       X       
+  SEX_SP                       P 134              1     X       X       X       X       X       X       X       X       X       X       
+  AGE_SP                       P 135-137          3     X       X       X       X       X       X       X       X       X       X       
+  RACED_SP                     P 138-140          3     X       X       X       X       X       X       X       X       X       X       
+  HISPAND_SP                   P 141-143          3     X       X       X       X       X       X       X       X       X       X       
+  BPLD_SP                      P 144-148          5     X       X       X       X       X       X       X       X       X       X       
+  YRIMMIG_SP                   P 149-152          4     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGED_SP                 P 153-156          4     X       X       X       X       X       X       X       X       X       X       
+  EDUCD_SP                     P 157-159          3     X       X       X       X       X       X       X       X       X       X       
 
 Variable Availability Key:
 All Years X - available in this sample
