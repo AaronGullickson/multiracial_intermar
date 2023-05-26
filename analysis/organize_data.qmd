@@ -262,16 +262,29 @@ tibble(variable=acs_names, start=acs_start, end=acs_end) |>
 ```
 
 
-Now, I am ready to read the data in. I can use some nice features of `readr` to read all of the datasets in with a single call to `read_fwf`.
+
+
+Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted. To access the data, you will need to first authenticate with google interactively using `googledrive::drive_auth()`. 
+
+
 
 ```{r}
 #| label: read-data
-acs <- read_fwf(fs::dir_ls(here("data","data_raw","acs"), glob = "*.dat.gz"),
+
+# where the downloaded data will live (temporarily)
+file_path <- here("data","data_raw","acs.dat.gz")
+
+drive_download(as_id("11CsNYkl1AlB2NCW4UCMo1aGyaBTn7Pwz"), path=file_path)
+
+acs <- read_fwf(file_path,
                 col_positions = fwf_positions(start = acs_start,
                                               end   = acs_end,
                                               col_names = acs_names),
                 col_types = cols(.default = "i", HHWT="d"), 
                 progress = FALSE)
+
+# now that the data are loaded, delete
+file.remove(file_path)
 ```
 
 # Code variables
