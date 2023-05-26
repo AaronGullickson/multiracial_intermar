@@ -3,6 +3,11 @@ title: "Organize Data Notebook"
 ---
 
 ```{r}
+#| label: timestamp-start
+timestamp()
+```
+
+```{r}
 #| label: setup
 #| include: false
 library(here)
@@ -514,4 +519,9 @@ It should be all good to go. Lets save it.
 ```{r}
 #| label: save-data
 save(mar_markets, file=here("data","data_constructed","markets.RData"))
+```
+
+```{r}
+#| label: timestamp-end
+timestamp()
 ```
