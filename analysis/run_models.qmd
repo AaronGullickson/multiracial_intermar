@@ -215,11 +215,11 @@ formula_full_sym <- update(formula_base, .~.+race_exog_full)
 
 # constrained racial exogamy
 formula_short_sym <- update(formula_base, .~.+
-                                    race_exog+!multi_shared_ancestry)
+                                    race_exog+multi_shared_ancestry)
 
 # constrained but asymmetric racial exogamy
 formula_short_asym <- update(formula_base, .~.+
-                                    race_exog_asym+!multi_shared_ancestry)
+                                    race_exog_asym+multi_shared_ancestry)
 
 
 ```
