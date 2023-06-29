@@ -39,8 +39,6 @@ Eduational hypergamy and hypogamy
 Educational crossing parameters
 : These are the standard educational crossing parameters to model educational assortative mating. Each level of difference between potential partners is coded with a symmetric boolean variable.
 
-
-
 ## Create variables
 
 I need to actually create the variables that the models will use. Because these will be applied to a list of market data, I am going to do this variable creation in a function.
@@ -99,6 +97,16 @@ add_vars <- function(market) {
   market$race_exog <- relevel(factor(market$race_exog), 
                               "Endog")
   
+  # now get gender asymmetric terms for the non-Multi/Multi cases
+  market$race_exog_asym <- createExogamyTerms(market$raceh, 
+                                              market$racew, 
+                                              symmetric=FALSE)
+  market$race_exog_asym <- ifelse(str_count(market$race_exog_asym, "/")==2,
+                                  "Multi/Multi", 
+                                  as.character(market$race_exog_asym))
+  market$race_exog_asym <- relevel(factor(market$race_exog_asym), 
+                                   "Endog")
+  
   # partial shared ancestry coding
   groups <- str_split(market$race_exog_full, "\\.")
   constituent1 <- sapply(groups, function(x) {return(x[1])})
@@ -138,7 +146,11 @@ formula_full_sym <- update(formula_base, .~.+race_exog_full)
 
 # constrained racial exogamy
 formula_short_sym <- update(formula_base, .~.+
-                                    race_exog+multi_shared_ancestry)
+                                    race_exog+!multi_shared_ancestry)
+
+# constrained but asymmetric racial exogamy
+formula_short_asym <- update(formula_base, .~.+
+                                    race_exog_asym+!multi_shared_ancestry)
 
 
 ```
@@ -149,12 +161,15 @@ model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets,
                                   method="efron")
 model_short_sym <- poolChoiceModel(formula_short_sym, data=mar_markets, 
                                    method="efron")
+model_short_asym <- poolChoiceModel(formula_short_asym, data=mar_markets, 
+                                   method="efron")
 ```
 
 
 ```{r}
 #| label: save-output
-save(model_short_sym, model_full_sym, file=here("data","data_constructed","models.RData"))
+save(model_full_sym, model_short_sym, model_short_asym,
+     file=here("data","data_constructed","models.RData"))
 ```
 
 ```{r}
