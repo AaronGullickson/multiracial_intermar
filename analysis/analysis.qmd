@@ -25,9 +25,9 @@ coef_short_sym <- get_coefs(model_short_sym) |>
   filter(str_detect(variable, "race_exog")) |>
   mutate(variable=str_replace(variable, "race_exog",""))
 
-coef_short_asym <- get_coefs(model_short_sym) |>
-  filter(str_detect(variable, "race_exog")) |>
-  mutate(variable=str_replace(variable, "race_exog",""))
+coef_short_asym <- get_coefs(model_short_asym) |>
+  filter(str_detect(variable, "race_exog_asym")) |>
+  mutate(variable=str_replace(variable, "race_exog_asym",""))
 
 
 coef_full <- get_coefs(model_full_sym) |>
@@ -145,7 +145,53 @@ ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
   theme(legend.position = "none")
 ```
 
+```{r}
+#| label: fig-gender-asymmetric
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group, separately by the gender combination of the partners. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The dashed grey lines indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy. Indigenous+Black/Indigenous and Indigenous+Black/Asian pairings have been removed due to very large confidence intervals.
 
+# before period is husband, after period is wife
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "/") & !str_detect(variable, "Multi")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         race_label=ifelse(str_detect(race_husband, "/"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep="")),
+         multiple_race=ifelse(str_detect(race_husband, "/"), race_husband,
+                            race_wife),
+         single_race=ifelse(str_detect(race_husband, "/"), race_wife,
+                            race_husband),
+         race_group=paste(single_race, ".", multiple_race, sep=""),
+         single_race=factor(single_race, 
+                            levels=c("Latino","Asian","Indigenous","Black",
+                                     "White")),
+         multiple_race=factor(multiple_race,
+                              levels=c("White/Asian","Black/Asian",
+                                       "White/Indigenous","Black/Indigenous",
+                                       "White/Black","Indigenous/Asian")),
+         ) |>
+  arrange(multiple_race, single_race, race_label)
+
+temp |>
+  filter(race_group!="Indigenous.Black/Indigenous" &  # CIs too big
+           race_group!="Indigenous.Black/Asian") |>
+  ggplot(aes(x=fct_inorder(race_label), y=exp(coef), color=single_race))+
+  geom_hline(yintercept=1, linetype=5, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_color_viridis_d(direction=-1, end=1)+
+  theme_bw()+
+  labs(color="Single race partner",
+       x="single race partner", 
+       y="odds of marriage with single race partner relative to multiracial endogamy")
+```
 
 ```{r}
 #| label: create-partner-df
