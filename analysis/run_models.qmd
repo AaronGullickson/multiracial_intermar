@@ -170,7 +170,9 @@ mar_markets[[1]] |>
             mean_hypogamy=mean(hypogamy),
             mean_edcross_hs=mean(edcross_hs),
             mean_edcross_sc=mean(edcross_sc),
-            mean_edcross_c=mean(edcross_c))
+            mean_edcross_c=mean(edcross_c)) |>
+  ungroup() |>
+  gt()
 ```
 
 These all look correct.
@@ -189,7 +191,9 @@ mar_markets[[1]] |>
 mar_markets[[1]] |>
   filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
   group_by(raceh, racew) |>
-  summarize(mean_shared_ancestry=mean(multi_shared_ancestry))
+  summarize(mean_shared_ancestry=mean(multi_shared_ancestry)) |>
+  ungroup() |>
+  gt()
 ```
 
 The variable is behaving as expected.
