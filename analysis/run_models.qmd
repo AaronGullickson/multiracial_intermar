@@ -57,9 +57,9 @@ add_vars <- function(market) {
   # first the strict birthplace endogamy
   birth_endog <- market$bplh==market$bplw
   # now create switches to the USA for 1.5 and 1.75 generation group
-  bplh_flex <- ifelse(market$immig_genh=="1.75" | market$immig_genh=="1.75", 
+  bplh_flex <- ifelse(market$immig_genh=="1.75" | market$immig_genh=="1.5", 
                       1, market$bplh)
-  bplw_flex <- ifelse(market$immig_genw=="1.75" | market$immig_genw=="1.75", 
+  bplw_flex <- ifelse(market$immig_genw=="1.75" | market$immig_genw=="1.5", 
                       1, market$bplw)
   
   market$birth_endog <- birth_endog | (bplh_flex==bplw_flex)
@@ -127,7 +127,72 @@ add_vars <- function(market) {
 mar_markets <- lapply(mar_markets, add_vars)
 ```
 
-TODO: Check yourself on coding
+## Check coding
+
+Lets start by checking the age difference coding.
+
+```{r}
+#| label: check-agediff
+
+summary(mar_markets[[1]]$agediff)
+summary(subset(mar_markets[[1]], choice)$agediff)
+```
+
+This all looks good. The differences in age are of course much smaller when we look at actual unions rather than all possible unions because age is a very important factor. A few extreme age differences even among actual unions, but who are we to judge?
+
+Next lets look at the birth endogamy variable. 
+
+```{r}
+#| label: check-bendog
+
+table(mar_markets[[1]]$birth_endog, 
+      mar_markets[[1]]$bplh==mar_markets[[1]]$bplw)
+```
+
+No cases of birth endogamy coded as zero when actual birthplaces are the same. The cases of birth endogamy zero when actual birthplaces are different should be isolated to the 1.5 and 1.75 generation cases. Lets check that.
+
+```{r}
+#| label: check-immig-gen-bendog
+mar_markets[[1]] |>
+  filter(birth_endog & (bplh!=bplw)) |>
+  tabyl(immig_genh, immig_genw)
+```
+
+These results makes sense. The only cases where you can get birth endogamy without actual share birthplace is intermarriage between 1.5, 1.75, and 2nd+ generations. 2nd+/2nd+ has zero because by definition these cases always equal on actual birthplace (i.e. USA).
+
+Now lets check the educational coding.
+
+```{r}
+#| label: check-educ-vars
+mar_markets[[1]] |>
+  group_by(educh, educw) |>
+  summarize(mean_hypergamy=mean(hypergamy),
+            mean_hypogamy=mean(hypogamy),
+            mean_edcross_hs=mean(edcross_hs),
+            mean_edcross_sc=mean(edcross_sc),
+            mean_edcross_c=mean(edcross_c))
+```
+
+These all look correct.
+
+Finally lets check the shared ancestry coding.
+
+```{r}
+#| label: check-shared-ancestry
+
+# for non multiracial-to-multiracial marriage it should always be zero
+mar_markets[[1]] |>
+  filter(!(str_detect(raceh, "/") & str_detect(racew, "/"))) |>
+  summarize(max_shared_ancestry=max(multi_shared_ancestry))
+
+# for multiracial-to-multiracial marriage, lets check each combo
+mar_markets[[1]] |>
+  filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
+  group_by(raceh, racew) |>
+  summarize(mean_shared_ancestry=mean(multi_shared_ancestry))
+```
+
+The variable is behaving as expected.
 
 # Run the models
 

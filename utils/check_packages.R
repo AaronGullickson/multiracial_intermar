@@ -9,7 +9,7 @@ packages = c(
   "here", # absolute requirement always
   "knitr", # for processing quarto
   "readr","haven", "googledrive", # I/O
-  "tidyverse","lubridate","broom",#tidyverse and friends
+  "tidyverse","lubridate","broom", "janitor", #tidyverse and friends
   "ggdendro", "grid", #extra graphics
   "texreg","gt", "kableExtra", # for table output
   "PNWColors",
