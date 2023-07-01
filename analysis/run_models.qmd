@@ -85,7 +85,7 @@ add_vars <- function(market) {
   
   ## Racial Exogamy Terms ##
   
-  # full racial exogamy blocks
+  # full racial exogamy blocks, symmetric
   market$race_exog_full <- createExogamyTerms(market$raceh, 
                                               market$racew, 
                                               symmetric=TRUE)
@@ -97,6 +97,23 @@ add_vars <- function(market) {
   market$race_exog <- relevel(factor(market$race_exog), 
                               "Endog")
   
+  # simplify Latino for race_exog_full and create a simple race_exog with
+  # Latino also collapsed
+  market$race_exog_full <- as.character(market$race_exog_full)
+  market$race_exog_full <- str_replace(market$race_exog_full, 
+                                       "Latino, Single Race|Latino, Multiple Race", 
+                                       "Latino")
+  market$race_exog_full <- relevel(factor(market$race_exog_full), 
+                                   "Endog")
+  
+  market$race_exog_lsplit <- market$race_exog
+  market$race_exog <- as.character(market$race_exog)
+  market$race_exog <- str_replace(market$race_exog, 
+                                       "Latino, Single Race|Latino, Multiple Race", 
+                                       "Latino")
+  market$race_exog <- relevel(factor(market$race_exog), 
+                              "Endog")
+  
   # now get gender asymmetric terms for the non-Multi/Multi cases
   market$race_exog_asym <- createExogamyTerms(market$raceh, 
                                               market$racew, 
@@ -104,6 +121,9 @@ add_vars <- function(market) {
   market$race_exog_asym <- ifelse(str_count(market$race_exog_asym, "/")==2,
                                   "Multi/Multi", 
                                   as.character(market$race_exog_asym))
+  market$race_exog_asym <- str_replace(market$race_exog_asym, 
+                                       "Latino, Single Race|Latino, Multiple Race", 
+                                       "Latino")
   market$race_exog_asym <- relevel(factor(market$race_exog_asym), 
                                    "Endog")
   
@@ -217,6 +237,11 @@ formula_full_sym <- update(formula_base, .~.+race_exog_full)
 formula_short_sym <- update(formula_base, .~.+
                                     race_exog+multi_shared_ancestry)
 
+
+# constrained racial exogamy, with latinos split
+formula_short_sym_lsplit <- update(formula_base, .~.+
+                                     race_exog_lsplit+multi_shared_ancestry)
+
 # constrained but asymmetric racial exogamy
 formula_short_asym <- update(formula_base, .~.+
                                     race_exog_asym+multi_shared_ancestry)
@@ -230,6 +255,8 @@ model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets,
                                   method="efron")
 model_short_sym <- poolChoiceModel(formula_short_sym, data=mar_markets, 
                                    method="efron")
+model_short_sym_lsplit <- poolChoiceModel(formula_short_sym_lsplit, 
+                                          data=mar_markets, method="efron")
 model_short_asym <- poolChoiceModel(formula_short_asym, data=mar_markets, 
                                    method="efron")
 ```
@@ -237,7 +264,7 @@ model_short_asym <- poolChoiceModel(formula_short_asym, data=mar_markets,
 
 ```{r}
 #| label: save-output
-save(model_full_sym, model_short_sym, model_short_asym,
+save(model_full_sym, model_short_sym, model_short_sym_lsplit, model_short_asym,
      file=here("data","data_constructed","models.RData"))
 ```
 

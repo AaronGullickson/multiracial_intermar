@@ -45,7 +45,10 @@ code_race <- function(raced, hispand) {
   # race variable. I am going to use the fullest possible coding here. 
   race <- case_when(
     # Latino trumps everything, because combined question, sigh
-    hispand>0 & hispand<900 ~ "Latino",
+    # However, we will split them into Latino, Single Race and Latino, 
+    # Multiple Race
+    hispand>0 & hispand<900 & raced>=800 ~ "Latino, Multiple Race",
+    hispand>0 & hispand<900 & raced<800 ~ "Latino, Single Race",
     # white and black are easy
     raced==100 ~ "White",
     raced==200 ~ "Black",
@@ -68,7 +71,8 @@ code_race <- function(raced, hispand) {
   )
   
   race <- factor(race, 
-                 levels=c("White","Black","Indigenous","Asian","Latino",
+                 levels=c("White","Black","Indigenous","Asian",
+                          "Latino, Single Race", "Latino, Multiple Race",
                           "White/Black","White/Indigenous","White/Asian",
                           "Black/Indigenous","Black/Asian","Indigenous/Asian"))
   

@@ -25,10 +25,13 @@ coef_short_sym <- get_coefs(model_short_sym) |>
   filter(str_detect(variable, "race_exog")) |>
   mutate(variable=str_replace(variable, "race_exog",""))
 
+coef_short_sym_lsplit <- get_coefs(model_short_sym_lsplit) |>
+  filter(str_detect(variable, "race_exog_lsplit")) |>
+  mutate(variable=str_replace(variable, "race_exog_lsplit",""))
+
 coef_short_asym <- get_coefs(model_short_asym) |>
   filter(str_detect(variable, "race_exog_asym")) |>
   mutate(variable=str_replace(variable, "race_exog_asym",""))
-
 
 coef_full <- get_coefs(model_full_sym) |>
   filter(str_detect(variable, "race_exog_full")) |>
@@ -76,6 +79,41 @@ coef_short_sym |>
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
   #scale_y_continuous(limits=c(0,1.2))+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="single race partner", y="odds of marriage with single race partner relative to multiracial endogamy")+
+  theme_bw()+
+  theme(legend.position = "none")
+```
+
+```{r}
+#| label: fig-odds-ratios-single-lsplit
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group. The purple dots indicate cases where the single race group is constituent of the multiracial group, while the green dots indicate cases where the single race group is not constituent of the multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The red dashed line indicates the corresponding odds of intermarriage for single race groups constituent of the multiracial group (e.g. White and Black couples for the White/Black multiracial group). The dashed grey lines indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+
+# the somewhat odd regular expression \\..*/ will identify all the names with a 
+# period followed by some characters followed by a forward slash. This will give
+# me all cases of a single race/multiple race marriage
+coef_short_sym_lsplit |>
+  filter(str_detect(variable, "\\..*/")) |>
+  mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
+         multiple_race=str_split(variable, "\\.", simplify=TRUE)[,2],
+         constituent=str_detect(multiple_race, single_race),
+         single_race=factor(single_race, 
+                            levels=c("Latino, Multiple Race","Latino, Single Race","Asian","Indigenous","Black",
+                                     "White")),
+         multiple_race=factor(multiple_race,
+                              levels=c("White/Asian","Black/Asian",
+                                       "White/Indigenous","Black/Indigenous",
+                                       "White/Black","Indigenous/Asian"))) |>
+  ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
+  geom_linerange(linewidth=1.25, 
+                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(linewidth=0.5, 
+                  aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  geom_hline(yintercept=1, linetype=5, linewidth=0.5, color="grey30")+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_y_continuous(limits=c(0,3.75))+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="single race partner", y="odds of marriage with single race partner relative to multiracial endogamy")+
   theme_bw()+
