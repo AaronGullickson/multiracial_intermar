@@ -1,0 +1,248 @@
+---
+title: "Test Odds Ratios"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(here)
+source(here("utils","check_packages.R"))
+source(here("utils","functions.R"))
+```
+
+The purpose of this document is to examine how the results from the conditional logit models compare to more traditional log-linear results or even simple cross-products from a contingency table of marriages. We know they differ for two important reasons:
+
+* Specification of a tighter marriage market from which to draw alternatives
+* Inclusion of non-married population as potential alternatives
+
+These are both clear advantages of the conditional logit approach. However, what if we were just to naively use only existing partners as alternatives and sample alternates from a single pool, and we fit a model only with the racial exogamy terms? Intuitively, we would expect this to resemble the cross-products from a contingency model.
+
+To test this out I am going to use fake simulated data with only two groups. For simplicity, I assume gender symmetry such that I get a table like:
+
+|                 | Group A Wife | Group B Wife |
+|-----------------|--------------|--------------|
+| Group A Husband | x            |       y      | 
+| Group B Husband | y            |       z      |
+
+Where $A$ and $B$ are the size of groups A and B size, respectively. Thus, $A=x+2y$ and $B=z+2y$. I also assume that group A's size is some multiple $D$ of group B such that $A=DB$.
+
+Technically, I want the to take reverse cross-products rather than cross-products because I want the odds of exogamy not endogamy. So:
+
+$$\frac{y^2}{xz}=O$$
+
+Where $O$ is the odds ratio of exogamy. This means:
+
+$$y^2=Oxz$$
+
+and I also know that:
+
+$$z=B-2y$$
+
+$$x=DB-2y$$
+
+So, 
+
+$$y^2=O(DB-2y)(B-2y)$$
+
+
+$$y^2=O(4y^2+(-2D-2)By+DB^2)$$
+
+$$0=(4-\frac{1}{O})y^2+(-2D-2)By+DB^2$$
+
+This allows me to quadratic things up to get:
+
+$$y=\frac{(2D+2)B-\sqrt{((-2D-2)B)^2-4*(4-\frac{1}{O})DB^2}}{8-\frac{2}{O}}$$
+
+$$y=\frac{(2D+2)B-B\sqrt{4D^2+8D+4-16D+\frac{4D}{O}}}{8-\frac{2}{O}}$$
+$$y=\frac{(2D+2)B-B\sqrt{4D^2-8D+4+\frac{4D}{O}}}{8-\frac{2}{O}}$$
+This means that I should be able to specify tables entirely in terms of $B$, $D$, and $O$ and use these to calculate $x$, $y$, and $z$, although I will have to round to whole numbers.
+
+```{r}
+solve_y <- function(B,D,O) {
+  ((2*D+2)*B-B*sqrt(4*D^2-8*D+4+4*D/O))/(8-2/O)
+}
+
+```
+
+
+## Creating functions
+
+To run the models, I create a function that will take the values of $x$, $y$, and $z$ and use them to create a counterfactual union dataset, run the model, and extract the exogamy coefficient. 
+
+```{r}
+#| label: create-functions
+calculate_model_coef <- function(x, y, z, nalts=25) {
+  
+  maraa <- data.frame(idh=1:x, idw=1:x, raceh="A", racew="A", 
+                      market="A")
+  marbb <- data.frame(idh=(x+1):(x+z), 
+                      idw=(x+1):(x+z), 
+                      raceh="B", racew="B", market="A")
+  marba <- data.frame(idh=(x+z+1):(x+z+y), 
+                      idw=(x+z+1):(x+z+y), 
+                      raceh="B", racew="A", market="A")
+  marab <- data.frame(idh=(x+z+y+1):(x+z+2*y), 
+                      idw=(x+z+y+1):(x+z+2*y), 
+                      raceh="A", racew="B", market="A")
+  
+  marriages <- bind_rows(maraa, marbb, marba, marab) |>
+    mutate(raceh=factor(raceh, levels=c("A","B")),
+           racew=factor(racew, levels=c("A","B")))
+  
+  men <- marriages |>
+    select(idh, raceh, market)
+  women <- marriages |>
+    select(idw, racew, market)
+  
+  market <- generateCouples(nalts, marriages, men, women, "market",
+                            verbose = FALSE)
+  
+  market$rexog <- createExogamyTerms(market$raceh, market$racew, 
+                                     symmetric=TRUE)
+  
+  model <- clogit(choice~rexog+strata(group), data=market)
+  
+  return(coef=coef(model))
+}
+
+
+create_scenarios <- function(B, D, O) {
+  tibble(y=floor(solve_y(B,D,O)), x=D*B-2*y, z=B-2*y, 
+         lor=2*log(y)-log(x)-log(z))
+}
+```
+
+By default, I use 25 alternates. I will test whether this issue has any effect below.
+
+I will set a group of default odds ratios for each scenario I test based on log-odds:
+
+```{r}
+#| label: set-odds-ratios
+lor <- c(-12, -9, -8, -6, -5, -4, -3, -2, -1, -0.5, 0)
+default_or <- exp(lor)
+```
+
+## Even group size
+
+I start with a case where population sizes are even
+
+````{r}
+#| label: tbl-scenario-even
+#| tbl-cap: Scenarios with very even group sizes (1:1)
+scenarios_even <- create_scenarios(10000, 1, default_or) |>
+  rowwise() |>
+  mutate(coef=calculate_model_coef(x, y, z))
+
+scenarios_even |>
+  gt() |>
+  cols_label(lor="cross-product log odds ratio", 
+             coef="conditional logit model coefficient") |>
+  fmt_number(columns=c(lor, coef), decimals=3)
+```
+
+Let's compare the model coefficients from the conditional logit model to the log odds ratios from the contingency table.
+
+```{r}
+#| label: fig-even-scenario
+#| fig-cap: Relationship between cross-product log odds ratio predicting exogamy and counterfactual union conditional logit model coefficient based on simulated data with two groups of equal size. Blue line shows linear fit with a forced y-intercept of zero.
+scenarios_even |>
+  ggplot(aes(lor, coef))+
+  geom_smooth(method="lm",  se=FALSE, formula=y~-1+x)+
+  geom_point()+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_vline(xintercept = 0, linetype=2)+
+  labs(x="log odds ratio from cross product", 
+       y="conditional logit coefficient")+
+  theme_bw()
+```
+
+The result is a perfect linear fit in which the conditional logit coefficients are half the value of the log odds ratio. I confirm this with a linear model:
+
+```{r}
+#| label: model-even
+
+summary(lm(coef~-1+lor, data=scenarios_even))
+```
+
+I suspect the reason that this does not fit 0.5 exactly is the slightly stochastic nature of the conditional logit approach.
+
+## Very uneven group size
+
+I now take a case with very uneven group sizes of 40:1 to see how this affects the results.
+
+````{r}
+#| label: tbl-scenario-very-uneven
+#| tbl-cap: Scenarios with very uneven group sizes (40:1)
+scenarios_very_uneven <- create_scenarios(500, 40, default_or) |>
+  rowwise() |>
+  mutate(coef=calculate_model_coef(x, y, z))
+
+scenarios_very_uneven |>
+  gt() |>
+  cols_label(lor="cross-product log odds ratio", 
+             coef="conditional logit model coefficient") |>
+  fmt_number(columns=c(lor, coef), decimals=3)
+```
+
+
+```{r}
+#| label: fig-uneven-scenario
+#| fig-cap: Relationship between cross-product log odds ratio predicting exogamy and counterfactual union conditional logit model coefficient based on simulated data with two groups of unequal size (40:1). Blue line shows linear fit with a forced y-intercept of zero.
+
+scenarios_very_uneven |>
+  ggplot(aes(lor, coef))+
+  geom_smooth(method="lm",  se=FALSE, formula=y~-1+x)+
+  geom_smooth(se=FALSE, color="red")+
+  geom_point()+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_vline(xintercept = 0, linetype=2)+
+  labs(x="log odds ratio from cross product", 
+       y="conditional logit coefficient")+
+  theme_bw()
+```
+
+The results here are clearly nonlinear. At some point we get a crossover so that the conditional logit model leads to much smaller log-odds than the cross-product at low log odds (> -6), and larger log-odds than the cross-product at high log odds (< -7). 
+
+To explore how severe this difference is, I want to test this at multiple values of $D$ whilst holding everything else the same.
+
+$$20000=B(1+D)$$
+
+$$\frac{20000}{1+D}$$
+
+```{r}
+#| label: scenarios-full
+scenarios_even <- scenarios_even |>
+  mutate(D=1)
+
+scenarios_very_uneven <- scenarios_very_uneven |>
+  mutate(D=40)
+
+scenarios <- bind_rows(scenarios_even, scenarios_very_uneven)
+
+D <- c(10, 5, 2)
+for(d in D) {
+  scenarios <- create_scenarios(floor(20000/(1+d)), d, default_or) |>
+    rowwise() |>
+    mutate(coef=calculate_model_coef(x, y, z), D=d) |>
+    bind_rows(scenarios)
+}
+
+```
+
+
+```{r}
+scenarios |>
+  ggplot(aes(lor, coef, color=factor(D)))+
+  geom_smooth(se=FALSE)+
+  geom_point()+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_vline(xintercept = 0, linetype=2)+
+  scale_color_viridis_d()+
+  labs(x="log odds ratio from cross product", 
+       y="conditional logit coefficient",
+       color="Group size ratio")+
+  theme_bw()
+```
+
+The differences are pretty minor for the 2:1 and 5:1 group size ratio. Even for the 10:1 case its reasonably good. By 40:1 the skew is pretty important though.
+
