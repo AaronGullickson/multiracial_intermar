@@ -85,6 +85,12 @@ add_vars <- function(market) {
   
   ## Racial Exogamy Terms ##
   
+  # I need to also control for the race of the alternate partner
+  market$race_alt <- ifelse(market$sampled=="h", as.character(market$racew),
+                            as.character(market$raceh))
+  market$race_alt <- factor(market$race_alt, levels=levels(market$racew))
+  
+  
   # full racial exogamy blocks, symmetric
   market$race_exog_full_sym <- createExogamyTerms(market$raceh, market$racew, 
                                                   symmetric=TRUE)
@@ -214,15 +220,15 @@ formula_base <- formula(choice~agediff+I(agediff^2)+
                           strata(group))
 
 # full racial exogamy
-formula_full_sym <- update(formula_base, .~.+race_exog_full_sym)
+formula_full_sym <- update(formula_base, .~.+race_alt+race_exog_full_sym)
 
 
 # constrained racial exogamy
-formula_short_sym <- update(formula_base, .~.+race_exog_short_sym+
+formula_short_sym <- update(formula_base, .~.+race_alt+race_exog_short_sym+
                               multi_shared_ancestry)
 
 # constrained but asymmetric racial exogamy
-formula_short_asym <- update(formula_base, .~.+race_exog_short_asym+
+formula_short_asym <- update(formula_base, .~.+race_alt+race_exog_short_asym+
                                multi_shared_ancestry)
 ```
 
