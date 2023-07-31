@@ -10,7 +10,7 @@ packages = c(
   "knitr", # for processing quarto
   "readr","haven", "googledrive", # I/O
   "tidyverse","lubridate","broom", "janitor", #tidyverse and friends
-  "ggdendro", "grid", #extra graphics
+  "ggdendro", "grid", "ggrepel", #extra graphics
   "texreg","gt", "kableExtra", # for table output
   "PNWColors",
   "remotes","survival","reshape2"

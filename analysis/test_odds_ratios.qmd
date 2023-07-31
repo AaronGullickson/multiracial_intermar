@@ -100,9 +100,9 @@ calculate_model_coef <- function(x, y, z, nalts=25) {
   market$rexog <- createExogamyTerms(market$raceh, market$racew, 
                                      symmetric=TRUE)
   
-  model <- clogit(choice~rexog+strata(group), data=market)
+  model <- clogit(choice~raceh+racew+rexog+strata(group), data=market)
   
-  return(coef=coef(model))
+  return(coef=coef(model)[3])
 }
 
 
@@ -201,9 +201,11 @@ scenarios_very_uneven |>
   theme_bw()
 ```
 
-The results here are clearly nonlinear. At some point we get a crossover so that the conditional logit model leads to much smaller log-odds than the cross-product at low log odds (> -6), and larger log-odds than the cross-product at high log odds (< -7). 
+~~The results here are clearly nonlinear. At some point we get a crossover so that the conditional logit model leads to much smaller log-odds than the cross-product at low log odds (> -6), and larger log-odds than the cross-product at high log odds (< -7).
 
-To explore how severe this difference is, I want to test this at multiple values of $D$ whilst holding everything else the same.
+To explore how severe this difference is, I want to test this at multiple values of $D$ whilst holding everything else the same.~~
+
+**UPDATE: adding in a control for the race of the alternate partner fixed this problem as the updated figure shows.**
 
 $$20000=B(1+D)$$
 
@@ -244,5 +246,123 @@ scenarios |>
   theme_bw()
 ```
 
-The differences are pretty minor for the 2:1 and 5:1 group size ratio. Even for the 10:1 case its reasonably good. By 40:1 the skew is pretty important though.
+~~The differences are pretty minor for the 2:1 and 5:1 group size ratio. Even for the 10:1 case its reasonably good. By 40:1 the skew is pretty important though.~~
 
+**UPDATE: As noted above, adding in a control for the race of the alternate partner fixed this problem as the figure shows.**
+
+## Changes depending on other groups
+
+First lets load the markets data and make a function to create a model using a subset of groups.
+
+```{r}
+#| label: load-markets
+load(here("data","data_constructed","markets.RData"))
+
+# built model from actual marriages
+# * restrict to 2018-19 so models run faster
+actual <- mar_markets[[1]] |>
+  mutate(year=as.numeric(str_sub(idh, -2, -1))) |>
+  filter(choice & year>17)
+```
+
+```{r}
+#| label: function-gen-subset
+
+run_subset <- function(groups, nfakes=20) {
+  
+  marriages <- actual |>
+    mutate(mar_market=1) |>
+    filter((raceh %in% groups & racew %in% groups) & year>17) |>
+    mutate(raceh=droplevels(raceh), racew=droplevels(racew)) |>
+    select(idh, idw, raceh, racew, mar_market)
+  
+  men <- marriages |>
+    select(idh, raceh, mar_market)
+  women <- marriages |>
+    select(idw, racew, mar_market)
+  
+  market<- generateCouples(nfakes, as.data.frame(marriages), 
+                           as.data.frame(men), as.data.frame(women), 
+                           "mar_market", verbose = FALSE)
+  
+  market$rexog <- createExogamyTerms(market$raceh, market$racew, 
+                                     symmetric=TRUE)
+  
+  market <- market |>
+    filter(!choice) |>
+    filter(!duplicated(group)) |>
+    mutate(whose=ifelse(group==idh, "husband", "wife")) |>
+    select(group, whose) |>
+    right_join(market)
+
+  
+  market$race_alt <- ifelse(market$whose=="wife", as.character(market$raceh), 
+                            as.character(market$racew))
+  
+  model <- clogit(choice~race_alt+rexog+strata(group), data=market, method="efron")
+
+  return(model)
+}
+```
+
+```{r}
+#| label: mono-compare
+
+# how does this affect monoracial groups
+mono_groups <- c("White","Black","Asian","Latino, Single Race", "Indigenous")
+model_mono <- run_subset(mono_groups)
+
+model_wb <- run_subset(c("White","Black"))
+model_wa <- run_subset(c("White","Asian"))
+model_wl <- run_subset(c("White","Latino, Single Race"))
+model_wi <- run_subset(c("White","Indigenous"))
+model_ba <- run_subset(c("Black","Asian"))
+model_bl <- run_subset(c("Black","Latino, Single Race"))
+model_bi <- run_subset(c("Black","Indigenous"))
+model_al <- run_subset(c("Asian","Latino, Single Race"))
+model_ai <- run_subset(c("Asian","Indigenous"))
+model_li <- run_subset(c("Latino, Single Race","Indigenous"))
+
+coef_bi <- sapply(list(model_wb, model_wi, model_wa, model_wl, model_bi, 
+                       model_ba, model_bl, model_ai, model_li, model_al), 
+                  function(x) {coef(x)[2]}) |>
+  enframe(name = "rexog", value="coef_bi") |>
+  mutate(rexog=str_replace(rexog, "rexog", ""))
+
+coef_compare <- coef(model_mono) |>
+  enframe(name="rexog", value="coef_full") |>
+  filter(str_detect(rexog, "rexog")) |>
+  mutate(rexog=str_replace(rexog, "rexog", "")) |>
+  full_join(coef_bi)
+
+ggplot(coef_compare, aes(x=coef_full, y=coef_bi))+
+  geom_abline(yintercept=0, slope=1, linetype=2)+
+  geom_point()+
+  geom_text_repel(aes(label=rexog))+
+  theme_bw()
+
+tab <- table(actual$raceh, actual$racew)[mono_groups, mono_groups]
+
+lor <- tibble()
+gr <- c("White","Black","Indigenous","Asian","Latino, Single Race")
+for(i in 1:(length(gr)-1)) {
+  group1 <- gr[i]
+  for(j in (i+1):length(gr)) {
+    group2 <- gr[j]
+    cp <- tab[c(group1, group2), c(group1, group2)]
+    x <- tibble(rexog=paste(group1, group2, sep="."),
+                lor=log(cp[1,2])+log(cp[2,1])-log(cp[1,1])-log(cp[2,2]))
+    lor <- bind_rows(lor, x)
+  }
+}
+
+coef_compare |>
+  right_join(lor) |>
+  ggplot(aes(x=lor, y=coef_full))+
+  geom_smooth(method="lm", se=FALSE, formula=y~-1+x)+
+  geom_point()+
+  theme_bw()
+```
+~~Results are solid except for three of the four cases involving indigenous populations. The one that is fine is White/Indigenous. This suggests that the results are biased for small groups (in this case Indigenous) when including a very large group (in this case Whites) except for the comparison that directly involves the large group.~~ 
+
+**Update: these problems were fixed by controlling for the race of the alternate partner**
