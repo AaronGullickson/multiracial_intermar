@@ -124,7 +124,7 @@ ggplot(partner_choice,
 #| label: fig-odds-ratios-single
 #| fig-cap: Odds of interracial marriage with single race groups for each multiracial group. The purple dots indicate cases where the single race group is constituent of the multiracial group, while the green dots indicate cases where the single race group is not constituent of the multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The red dashed line indicates the corresponding odds of intermarriage for single race groups constituent of the multiracial group (e.g. White and Black couples for the White/Black multiracial group). The dashed grey lines indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 
-max_upper <- 2
+max_upper <- 1.1
 
 single_race <- coef_short_sym |> 
   filter(!str_detect(variable, "/|Latino")) |>
@@ -232,7 +232,8 @@ ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
   #           linetype=2, color="blue")+
   coord_flip()+
   facet_wrap(~race_ego, ncol=2)+
-  scale_y_log10()+
+  scale_y_continuous(limits=c(0, max_upper))+
+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="multiple race partner", 
        y="odds of marriage with multiple race partner relative to multiracial endogamy")+
