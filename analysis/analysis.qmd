@@ -104,23 +104,6 @@ partner_choice |>
 ```
 
 ```{r}
-#| label: fig-partner-panel
-#| fig-cap: Distribution of partner's race for multiracial respondents, separately by panel
-partner_choice |>
-  filter(str_detect(race_ego, "/") & str_detect(race_spouse, "/")) |>
-  ggplot(aes(x=fct_rev(race_spouse), y=after_stat(prop), group=1))+
-  geom_bar(position="dodge")+
-  facet_wrap(~race_ego)+
-  scale_y_continuous(labels=scales::percent)+
-  labs(x=NULL, y=NULL)+
-  coord_flip()+
-  theme_bw()
-```
-
-
-
-
-```{r}
 #| label: fig-partner-full
 #| fig-cap: Distribution of partner's race for all respondents, separately by gender and race of ego respondent
 ggplot(partner_choice,
