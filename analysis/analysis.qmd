@@ -29,7 +29,7 @@ coef_short_asym <- get_coefs(model_short_asym) |>
   filter(str_detect(variable, "race_exog_short_asym")) |>
   mutate(variable=str_replace(variable, "race_exog_short_asym",""))
 
-coef_full <- get_coefs(model_full_sym) |>
+coef_full <- get_coefs(model_full_sym_multi) |>
   filter(str_detect(variable, "race_exog_full")) |>
   mutate(variable=str_replace(variable, "race_exog_full_sym",""))
 

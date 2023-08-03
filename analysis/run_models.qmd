@@ -212,6 +212,18 @@ The variable is behaving as expected.
 
 # Run the models
 
+I am setting up three model formulae here:
+
+full_sym
+: Fit dummies for every possible exogamous union, but use gender symmetry.
+
+short_sym
+: Fit dummies for every possible monoracial-to-monoracial and multiracial-to-monoracial exogamous unions using gender symmetry. For the multiracial-to-multiracial exogamous unions, I use two dummies variable that indicate partial shared ancestry or no shared ancestry.
+
+short_asym
+: This is like `short_sym` but I allow for gender asymmetry in the monoracial-to-monoracial and multiracial-to-monoracial cases. 
+
+
 ```{r}
 #| label: create-formulae
 
@@ -234,6 +246,8 @@ formula_short_asym <- update(formula_base, .~.+race_alt+race_exog_short_asym+
                                multi_shared_ancestry)
 ```
 
+First, I run the short models on the full dataset.
+
 ```{r}
 #| label: run-short-models
 
@@ -244,15 +258,21 @@ model_short_asym <- poolChoiceModel(formula_short_asym, data=mar_markets,
                                    method="efron", parallel=FALSE)
 ```
 
+I found that running the full models on the full dataset leads to model convergence problems, so I estimate them only on the multiracial-to-multiracial subset, since that is what they are designed to estimate. I estimate bot the full and short to see how they do.
+
 ```{r}
 #| label: run-full-models
-model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets_multi, 
+model_full_sym_multi <- poolChoiceModel(formula_full_sym, data=mar_markets_multi, 
+                                  method="efron", parallel=FALSE)
+
+model_short_sym_multi <- poolChoiceModel(formula_short_sym, data=mar_markets_multi, 
                                   method="efron", parallel=FALSE)
 ```
 
 ```{r}
 #| label: save-output
-save(model_full_sym, model_short_sym, model_short_asym,
+save(model_full_sym_multi, model_short_sym_multi, 
+     model_short_sym, model_short_asym,
      file=here("data","data_constructed","models.RData"))
 ```
 
