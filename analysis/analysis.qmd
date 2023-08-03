@@ -33,9 +33,8 @@ coef_full <- get_coefs(model_full_sym_multi) |>
   filter(str_detect(variable, "race_exog_full")) |>
   mutate(variable=str_replace(variable, "race_exog_full_sym",""))
 
-multi_noshare <- exp(model_short_sym$coefficients["race_exog_short_symMulti/Multi",1])
-multi_share <- multi_noshare*
-  exp(model_short_sym$coefficients["multi_shared_ancestryTRUE",1])
+coef_multi <- coef_short_sym |>
+  filter(str_detect(variable, "Multi/Multi"))
 ```
 
 # Raw differences in partner selection
@@ -198,8 +197,6 @@ To get another view of the results, lets line them all up from highest to lowest
 #| label: fig-odds-ratios-multi-ordered
 #| fig-cap: Odds of interracial marriage with other multiracial groups for each multiracial group, ordered from highest to lowest. The purple dots indicate cases where the ego multiracial group has overlapping partial ancestry with the other multiracial group, while the green dots indicate cases where is no overlap. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy (e.g. White/Black person marrying White/Black person). The dashed colored lines indicate the results from a model with two parameters for shared and not shared ancestry.
 
-means <- tibble(value=c(multi_share, multi_noshare), overlap=c(TRUE, FALSE))
-
 coef_full |>
   mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
@@ -209,7 +206,6 @@ coef_full |>
            str_detect(race_choice, race_cons2),
          variable=str_replace(variable, "\\.","+")) |>
   ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
-  geom_hline(data=means, aes(yintercept=value, color=overlap), linetype=2)+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
   geom_linerange(linewidth=0.5, 
@@ -251,13 +247,13 @@ coef_short_sym |>
                               levels=c("White/Asian","Black/Asian",
                                        "White/Indigenous","Black/Indigenous",
                                        "White/Black","Indigenous/Asian")),
-         upper84=pmin(exp(coef+1.386*se), max_upper),
-         upper95=pmin(exp(coef+1.96*se), max_upper),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
          lower95=exp(coef-1.96*se)) |>
   ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
-  geom_hline(yintercept=multi_noshare, color="orange", linetype=2)+
-  geom_hline(yintercept=multi_share, color="royalblue", linetype=2)+
+  geom_hline(data=coef_multi, aes(yintercept=exp(coef), linetype=variable),
+             color="red")+
   geom_linerange(linewidth=1.25, 
                   aes(ymax=upper84, ymin=lower84))+
   geom_linerange(linewidth=0.5, 
@@ -311,8 +307,8 @@ temp <- coef_short_asym |>
                               levels=c("White/Asian","Black/Asian",
                                        "White/Indigenous","Black/Indigenous",
                                        "White/Black","Indigenous/Asian")),
-         upper84=pmin(exp(coef+1.386*se), max_upper),
-         upper95=pmin(exp(coef+1.96*se), max_upper),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
          lower95=exp(coef-1.96*se)) |>
   arrange(multiple_race, single_race, race_label)
@@ -321,7 +317,7 @@ temp |>
   #filter(race_group!="Indigenous.Black/Indigenous" &  # CIs too big
   #         race_group!="Indigenous.Black/Asian") |>
   ggplot(aes(x=fct_inorder(race_label), y=exp(coef), color=single_race))+
-  geom_hline(yintercept=1, linetype=5, linewidth=0.5, color="grey30")+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=upper84, ymin=lower84))+
   geom_linerange(linewidth=0.5, 
@@ -330,7 +326,6 @@ temp |>
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
   scale_color_viridis_d(direction=-1, end=0.9)+
-  scale_y_continuous(limits=c(0, max_upper))+
   theme_bw()+
   labs(color="Single race partner",
        x="single race partner", 
@@ -344,3 +339,70 @@ What do we note from @fig-gender-asymmetric?
 
 # Monoracial-to-monoracial intermarriage
 
+We don't care as much about the monoracial-to-monoracial comparisons, but lets go ahead and plot those out since we have them.
+
+```{r}
+#| label: fig-odds-ratios-mono-to-mono
+#| fig-cap: Odds of interracial marriage between single race groups. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+
+coef_short_sym |>
+  filter(!str_detect(variable, "/")) |> 
+  mutate(variable=str_replace(variable, "\\.","+"),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se)) |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef)))+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=1.25, color="grey20",
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, color="grey20",
+                 aes(ymax=upper95, ymin=lower95))+
+  geom_point(color="grey20")+
+  coord_flip()+
+  theme_bw()+
+  labs(x=NULL, 
+       y="odds of interracial union relative to endogamy")
+```
+
+A few things worth nothing:
+
+1. All of the least likely cases involve a Black partner, except for Black+Latino intermarriage. 
+2. White/Latino is far the most likely combo, but only for Latino, Single Race.
+3. In general, Latino multiple race partners are less exogamous than Latino single race respondents.
+
+
+For a better comparison across all cases, lets do a megaplot to get everything on the board at once:
+
+```{r}
+#| label: fig-megaplot
+#| fig-cap: Later
+#| fig-height: 10
+
+coef_short_sym |>
+  mutate(variable=str_replace(variable, "\\.","+"),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se),
+         type=case_when(
+           str_detect(variable, "Multi/Multi") ~ "Multi-to-Multi",
+           str_count(variable, "/")>0 ~ "Multi-to-Mono",
+           TRUE ~ "Mono-to-Mono"
+         )) |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=type))+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=1.25,
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5,
+                 aes(ymax=upper95, ymin=lower95))+
+  geom_point()+
+  coord_flip()+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  theme_bw()+
+  labs(x=NULL, 
+       y="odds of interracial union relative to endogamy")
+
+```
+
+# Full Models
