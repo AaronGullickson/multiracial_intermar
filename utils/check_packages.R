@@ -13,7 +13,7 @@ packages = c(
   "ggdendro", "grid", "ggrepel", #extra graphics
   "texreg","gt", "kableExtra", # for table output
   "PNWColors",
-  "remotes","survival","reshape2"
+  "remotes","survival","reshape2","parallel"
 )
 
 package.check <- lapply(packages, FUN = function(x) {
