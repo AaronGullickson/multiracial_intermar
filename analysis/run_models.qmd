@@ -134,7 +134,9 @@ add_vars <- function(market) {
 
 ```{r}
 #| label: add-vars
-mar_markets <- mclapply(mar_markets, add_vars)
+mar_markets <- lapply(mar_markets, add_vars)
+
+mar_markets_multi <- lapply(mar_markets_multi, add_vars)
 ```
 
 ## Check coding
@@ -233,16 +235,20 @@ formula_short_asym <- update(formula_base, .~.+race_alt+race_exog_short_asym+
 ```
 
 ```{r}
-#| label: run-models
+#| label: run-short-models
 
-model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets, 
-                                  method="efron", parallel=FALSE)
+
 model_short_sym <- poolChoiceModel(formula_short_sym, data=mar_markets, 
                                    method="efron", parallel=FALSE)
 model_short_asym <- poolChoiceModel(formula_short_asym, data=mar_markets, 
                                    method="efron", parallel=FALSE)
 ```
 
+```{r}
+#| label: run-full-models
+model_full_sym <- poolChoiceModel(formula_full_sym, data=mar_markets_multi, 
+                                  method="efron", parallel=FALSE)
+```
 
 ```{r}
 #| label: save-output

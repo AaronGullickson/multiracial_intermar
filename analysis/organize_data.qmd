@@ -512,6 +512,8 @@ mar_markets <- replicate(n_samples,
 mar_markets <- lapply(mar_markets, as_tibble)
 ```
 
+
+
 Lets do a summary on the first one just to make sure it all looks good.
 
 ```{r}
@@ -519,11 +521,49 @@ Lets do a summary on the first one just to make sure it all looks good.
 summary(mar_markets[[1]])
 ```
 
-It should be all good to go. Lets save it.
+It should be all good to go.
+
+I have also found that fitting the fullest model of multiracial-to-multiracial intermarriage is proving difficult and takes a long time. So, we are going to estimate this model using a reduced marriage market of just multiracial individuals. That model will only be different than a full model because the control variables will be estimated differently, but should be otherwise quite close. 
+
+```{r}
+#| label: create-fake-union-multi
+
+unions_multi <- unions |>
+  filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
+  mutate(raceh=fct_drop(raceh), racew=fct_drop(racew))
+
+male_alt_multi <- male_alt |>
+  filter(str_detect(raceh, "/")) |>
+  mutate(raceh=fct_drop(raceh))
+
+female_alt_multi <- female_alt |>
+  filter(str_detect(racew, "/")) |>
+  mutate(racew=fct_drop(racew))
+
+mar_markets_multi <- replicate(n_samples,
+                         generateCouples(n_fakes, 
+                                         as.data.frame(unions_multi), 
+                                         as.data.frame(male_alt_multi), 
+                                         as.data.frame(female_alt_multi), 
+                                         geo="mar_market", 
+                                         verbose=FALSE),
+                         simplify=FALSE)
+
+mar_markets_multi <- lapply(mar_markets_multi, as_tibble)
+
+```
+
+Check that we have no monoracial people here:
+
+```{r}
+summary(mar_markets_multi[[1]]$raceh)
+summary(mar_markets_multi[[1]]$racew)
+```
 
 ```{r}
 #| label: save-data
-save(mar_markets, file=here("data","data_constructed","markets.RData"))
+save(mar_markets, mar_markets_multi, 
+     file=here("data","data_constructed","markets.RData"))
 ```
 
 ```{r}
