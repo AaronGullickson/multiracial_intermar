@@ -133,7 +133,7 @@ The data for part-black multiracial individuals are generally consistent with th
 
 Ok, now lets move to the actual model results. The first thing we want to explore is multiracial-to-multiracial intermarriage. To analyze this, we use a model that fits gender-symmetric dummies for every single multiracial-to-multiracial exogamous union. This model was difficult to fit on the full data because the size of these cells is so small, resulting in some convergence problems in the model. To resolve this issue, we created separate marriage market data only using multiracial individuals to estimate the full terms. If the models only included the racial exogamy terms, then this model would give use identical results to a model with the full data. However, because we will get slightly different estimates on the control variables in this model versus the full model, the results will differ slightly. However, they should be sufficiently close to allow us to determine a more reduced form multiracial-to-multiracial coding we can use in the full data models.
 
-@fig-odds-ratios-mult below shows the odds ratios of outmarriage to each other multiracial group for each ego multiracial group, separately by panel.
+@fig-odds-ratios-multi below shows the odds ratios of outmarriage to each other multiracial group for each ego multiracial group, separately by panel.
 
 ```{r}
 #| label: fig-odds-ratios-multi
@@ -400,9 +400,21 @@ coef_short_sym |>
   coord_flip()+
   scale_color_viridis_d(direction=-1, end=0.75)+
   theme_bw()+
+  theme(legend.position = "bottom")+
   labs(x=NULL, 
        y="odds of interracial union relative to endogamy")
 
 ```
 
 # Full Models
+
+```{r}
+#| label: tbl-full-models
+#| tbl-cap: test
+#| results: asis
+htmlreg(lapply(list(model_full_sym_multi, model_short_sym_multi,
+                      model_short_sym, model_short_asym), convertModel),
+        digits=3,
+        caption="Model predicting union formation",
+        caption.above=TRUE)
+```
