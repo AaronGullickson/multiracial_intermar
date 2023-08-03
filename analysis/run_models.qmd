@@ -95,13 +95,13 @@ add_vars <- function(market) {
   market$race_exog_full_sym <- createExogamyTerms(market$raceh, market$racew, 
                                                   symmetric=TRUE)
   
-  # now collapse multiracial/multiracial cases to a single dummy with a 
-  # separate dummy for shared multiracial ancestry
+  # now collapse multiracial/multiracial cases to two cases:
+  #  - multi/multi, no shared ancestry
+  #  - multi/multi, shared ancestry
   market$race_exog_short_sym <- ifelse(str_count(market$race_exog_full_sym, "/")==2,
-                                       "Multi/Multi", 
+                                       "Multi/Multi, no shared ancestry", 
                                        as.character(market$race_exog_full_sym))
-  market$race_exog_short_sym <- relevel(factor(market$race_exog_short_sym), 
-                              "Endog")
+ 
   
   # partial shared ancestry coding for multiracial-to-multiracial intermarriage
   groups <- str_split(market$race_exog_full_sym, "\\.")
@@ -110,21 +110,22 @@ add_vars <- function(market) {
   temp <- str_split(constituent1, "/")
   constituent1.1 <- sapply(temp, function(x) {return(x[1])})
   constituent1.2 <- sapply(temp, function(x) {return(x[2])})
-  market$multi_shared_ancestry <- ifelse(market$race_exog_short_sym!="Multi/Multi", 
-                                         FALSE,
-                                         str_detect(constituent2, constituent1.1) | 
-                                           str_detect(constituent2, constituent1.2))
-  
+  market$race_exog_short_sym <- ifelse(market$race_exog_short_sym=="Multi/Multi, no shared ancestry" & 
+                                         (str_detect(constituent2, constituent1.1) | 
+                                            str_detect(constituent2, constituent1.2)), 
+                                       "Multi/Multi, shared ancestry",
+                                       market$race_exog_short_sym)
+   
+  market$race_exog_short_sym <- relevel(factor(market$race_exog_short_sym), 
+                                        "Endog")
   
   # now do short coding, but gender asymmetric
   market$race_exog_short_asym <- createExogamyTerms(market$raceh, market$racew, 
                                                     symmetric=FALSE)
+  # replace with multi/multi coding where needed
   market$race_exog_short_asym <- ifelse(str_count(market$race_exog_short_asym, "/")==2,
-                                        "Multi/Multi", 
+                                        as.character(market$race_exog_short_sym), 
                                         as.character(market$race_exog_short_asym))
-  #market$race_exog_short_asym <- str_replace(market$race_exog_short_asym, 
-  #                                           "Latino, Single Race|Latino, Multiple Race", 
-  #                                           "Latino")
   market$race_exog_short_asym <- relevel(factor(market$race_exog_short_asym), 
                                    "Endog")
   
@@ -197,13 +198,15 @@ Finally lets check the shared ancestry coding.
 # for non multiracial-to-multiracial marriage it should always be zero
 mar_markets[[1]] |>
   filter(!(str_detect(raceh, "/") & str_detect(racew, "/"))) |>
-  summarize(max_shared_ancestry=max(multi_shared_ancestry))
+  summarize(prop_noshared=mean(race_exog_short_sym=="Multi/Multi, no shared ancestry"),
+            prop_shared=mean(race_exog_short_sym=="Multi/Multi, shared ancestry"))
 
 # for multiracial-to-multiracial marriage, lets check each combo
 mar_markets[[1]] |>
   filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
   group_by(raceh, racew) |>
-  summarize(mean_shared_ancestry=mean(multi_shared_ancestry)) |>
+  summarize(prop_noshared=mean(race_exog_short_sym=="Multi/Multi, no shared ancestry"),
+            prop_shared=mean(race_exog_short_sym=="Multi/Multi, shared ancestry")) |>
   ungroup() |>
   gt()
 ```
@@ -238,19 +241,16 @@ formula_full_sym <- update(formula_base, .~.+race_alt+race_exog_full_sym)
 
 
 # constrained racial exogamy
-formula_short_sym <- update(formula_base, .~.+race_alt+race_exog_short_sym+
-                              multi_shared_ancestry)
+formula_short_sym <- update(formula_base, .~.+race_alt+race_exog_short_sym)
 
 # constrained but asymmetric racial exogamy
-formula_short_asym <- update(formula_base, .~.+race_alt+race_exog_short_asym+
-                               multi_shared_ancestry)
+formula_short_asym <- update(formula_base, .~.+race_alt+race_exog_short_asym)
 ```
 
 First, I run the short models on the full dataset.
 
 ```{r}
 #| label: run-short-models
-
 
 model_short_sym <- poolChoiceModel(formula_short_sym, data=mar_markets, 
                                    method="efron", parallel=FALSE)
