@@ -277,6 +277,40 @@ A few things I note about @fig-odds-ratios-single:
 3. For most groups the odds of multiracial-to-multiracial intermarriage with shared ancestry are close to the odds for the highest single race group, but not substantially higher. For White/Asians, they are substantially lower.
 
 
+fig-odds-ratios-latino takes a closer look at the results for Latinos.
+
+```{r}
+#| label: fig-odds-ratios-latino
+#| fig-cap: Odds of interracial marriage with single and multiracial race groups for Latinos Results are shown separately for Latinos who selected a single race and those who selected multiple races. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+#| 
+coef_short_sym |>
+  filter(str_detect(variable, "Latino")) |>
+  mutate(multiple=case_when(
+    str_detect(variable, "Multiple Race") ~ "Multiple race",
+    TRUE ~ "Single race"),
+    str_detect(variable, "Multiple Race"),
+    variable=str_replace(variable, "Latino,\\s.+\\sRace",""),
+    variable=str_replace(variable, "\\.", ""),
+    type=case_when(
+      str_count(variable, "/")>0 ~ "Multiracial partner",
+      TRUE ~ "Monoracial partner"
+    )) |>
+  filter(variable!="") |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), 
+             shape=multiple, color=type))+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_point()+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="Race of non-Latino partner",
+       y="odds of intermarriage for Latino partners relative to endogamy",
+    color="non-latino partner", shape="Latino partner")+
+  coord_flip()+
+  theme_bw()
+  
+```
+
+In general, multiracial Latino partner were slightly more likely to intermarry with all of the multiracial groups (except Black/Indigenous) than single race Latino partners, and vice versa for single race groups. However, these differences were not large in most cases. The exception is intermarriage with Whites which is far less common among multiple race Latinos. Aside from intermarriage with whites, Latino intermarriage is more likely to non-Latino multiracial groups than non-Latino single race groups. 
+
 To get at potentially gender differences, @fig-gender-asymmetric displays a similar graph but with separate results depending on the gender combination from a model that allows for gender asymmetry.
 
 ```{r}
