@@ -1,0 +1,10 @@
+---
+title: "Site Index, Multiracial Intermarriage Project"
+---
+
+
+| Document                |
+|------------------------|
+| [Organizing Data Script](analysis/organize_data.html)     |
+| [Model Estimation](analysis/run_models.html) |
+| [Analysis](analysis/analysis.html)   |
