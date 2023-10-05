@@ -7,7 +7,7 @@
 # Ignore large files from ipums
 *.dat.gz
 # Constructed files
-*.html
+#*.html
 *.pdf
 *.log
 *.RData
