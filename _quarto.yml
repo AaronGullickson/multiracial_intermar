@@ -11,6 +11,7 @@ project:
     - analysis/organize_data.qmd
     - analysis/run_models.qmd
     - analysis/analysis.qmd
+    - analysis/index.qmd
     - paper/
     - presentation/
     - "!bibliography/"
