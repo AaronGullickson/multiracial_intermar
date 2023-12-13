@@ -47,9 +47,12 @@ code_race <- function(raced, hispand) {
   race <- case_when(
     # Latino trumps everything, because combined question, sigh
     # However, we will split them into Latino, Single Race and Latino, 
-    # Multiple Race
-    hispand>0 & hispand<900 & raced>=800 ~ "Latino, Multiple Race",
-    hispand>0 & hispand<900 & raced<800 ~ "Latino, Single Race",
+    # Multiple Race - CORRECTION, we will do this as a sensitivity analysis
+    # but its not showing any real differences, so we will leave as one to 
+    # simplify main analysis
+    #hispand>0 & hispand<900 & raced>=800 ~ "Latino, Multiple Race",
+    #hispand>0 & hispand<900 & raced<800 ~ "Latino, Single Race",
+    hispand>0 & hispand<900 ~ "Latino",
     # white and black are easy
     raced==100 ~ "White",
     raced==200 ~ "Black",
@@ -72,8 +75,7 @@ code_race <- function(raced, hispand) {
   )
   
   race <- factor(race, 
-                 levels=c("White","Black","Indigenous","Asian",
-                          "Latino, Single Race", "Latino, Multiple Race",
+                 levels=c("White","Black","Indigenous","Asian", "Latino",
                           "White/Black","White/Indigenous","White/Asian",
                           "Black/Indigenous","Black/Asian","Indigenous/Asian"))
   
