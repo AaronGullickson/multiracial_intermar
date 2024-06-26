@@ -55,6 +55,7 @@ wives <- couples |>
          race_spouse=raceh,
          gender="wife") |>
   select(race_ego, race_spouse, gender)
+
 partner_choice <- bind_rows(husbands, wives) |>
   mutate(race_spouse=factor(race_spouse, 
                             levels=c("White","Black","Indigenous","Asian",
@@ -66,7 +67,7 @@ partner_choice <- bind_rows(husbands, wives) |>
 
 ```{r}
 #| label: fig-partner-color
-#| fig-cap: Distribution of partner's race for multiracial respondents
+#| fig-cap: Distribution of other partner's race for multiracial respondents
 partner_choice |>
   filter(str_detect(race_ego, "/")) |>
   mutate(race_ego=factor(race_ego, 
@@ -146,7 +147,10 @@ temp <- coef_full |>
          race_cons1=str_split(race_ego, "/", simplify=TRUE)[,1],
          race_cons2=str_split(race_ego, "/", simplify=TRUE)[,2],
          overlap=str_detect(race_choice, race_cons1) | 
-           str_detect(race_choice, race_cons2)) |>
+           str_detect(race_choice, race_cons2),
+         overlap = factor(overlap, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap"))) |>
   select(race_ego, race_choice, overlap, coef, se)
          
 # this needs to be duplicated so that each possibility is both ego and choice.
@@ -179,14 +183,14 @@ ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="multiple race partner", 
        y="odds of marriage with multiple race partner relative to multiracial endogamy",
-       color="partial noverlap")+
+       color="overlap")+
   theme_bw()
 ```
 
 As expected, some of the confidence intervals are pretty large because we have smaller samples of these types of marriages. I notice two things:
 
 1. None of these odds ratios are particularly high. The point estimates never break the 0.25 level. Below, we will calculate some of these same odds for multiracial-to-monoracial and for monoracial-to-monoracial. These odds are consistent with some of the higher monoracial-to-monoracial odds ratios but not outstanding. Thus, there is no evidence of breaking through to some sort of post-racial multiracial eve utopia here. Race still matters even if in combination.
-2. The results tend to show that when the two multiracial have a partial overlap in ancestry (e.g. White/Asian and White/Black share White), as indicated by the coloring, the odds tend to be higher.
+2. The results tend to show that when the two multiracial partners have a partial overlap in ancestry (e.g. White/Asian and White/Black share White), as indicated by the coloring, the odds tend to be higher.
 
 To get another view of the results, lets line them all up from highest to lowest on the same plot.
 
@@ -201,6 +205,9 @@ coef_full |>
          race_cons2=str_split(race_ego, "/", simplify=TRUE)[,2],
          overlap=str_detect(race_choice, race_cons1) | 
            str_detect(race_choice, race_cons2),
+         overlap = factor(overlap, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap")),
          variable=str_replace(variable, "\\.","+")) |>
   ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
   geom_linerange(linewidth=1.25, 
@@ -219,6 +226,14 @@ coef_full |>
 ```
 
 The three non-overlapping cases are at the bottom, although Black/Indigenous+Indigenous/Asian is also there (with huge error bars). A simple way to reduce the terms for this part of the model would just be to separate non-overlapping from overlapping cases, which would reduce us from 15 terms to 2 terms. Although there is some substantial variation in addition to this, I cannot see a simple pattern that could account for it, especially with the error bars.
+
+```{r}
+#| label: compare-bic
+
+bic_diff <- mean(model_short_sym_multi$bic) - mean(model_full_sym_multi$bic)
+```
+
+To test this out, we tried an alternate model which reduced all of these specific parameters to two parameters: a multiracial-to-multiracial intermarriage with no shared ancestry and a multiracial-to-multiracial intermarriage with shared ancestry. The BIC statistic was `r bic_diff` lower in this more parsimonious model indicating a strong preference for this model over the full model. According to this model, the odds relative to endogamy of an interracial marriage with a multiracial partner with partial overlap are `r round(exp(coef_multi$coef[2]), 3)`. The corresponding relative odds for a multiracial partner without partial overlap are `r round(exp(coef_multi$coef[1]), 3)`. The difference between these two parameters is highly statistically significant. Partial overlap is important, but partial overlap is still far less likely to lead to a union than full overlap.
 
 # Multiracial-to-monoracial intermarriage
 
@@ -243,6 +258,9 @@ coef_short_sym |>
                               levels=c("White/Asian","Black/Asian",
                                        "White/Indigenous","Black/Indigenous",
                                        "White/Black","Indigenous/Asian")),
+         constituent = factor(constituent, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap")),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
@@ -260,7 +278,8 @@ coef_short_sym |>
   facet_wrap(~multiple_race, ncol=2)+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="single race partner", 
-       y="odds of marriage with single race partner relative to multiracial endogamy")+
+       y="odds of marriage with single race partner relative to multiracial endogamy",
+       color = "overlap")+
   theme_bw()
 ```
 
@@ -277,24 +296,28 @@ fig-odds-ratios-latino takes a closer look at the results for Latinos.
 
 ```{r}
 #| label: fig-odds-ratios-latino
-#| fig-cap: Odds of interracial marriage with single and multiracial race groups for Latinos Results are shown separately for Latinos who selected a single race and those who selected multiple races. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+#| fig-cap: Odds of interracial marriage with single and multiracial race groups for Latinos. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 #| 
 coef_short_sym |>
   filter(str_detect(variable, "Latino")) |>
-  mutate(multiple=case_when(
-    str_detect(variable, "Multiple Race") ~ "Multiple race",
-    TRUE ~ "Single race"),
-    str_detect(variable, "Multiple Race"),
-    variable=str_replace(variable, "Latino,\\s.+\\sRace",""),
+  mutate(
+    variable=str_replace(variable, "Latino",""),
     variable=str_replace(variable, "\\.", ""),
     type=case_when(
       str_count(variable, "/")>0 ~ "Multiracial partner",
-      TRUE ~ "Monoracial partner"
-    )) |>
+      TRUE ~ "Monoracial partner"),
+    upper84=exp(coef+1.386*se),
+    upper95=exp(coef+1.96*se),
+    lower84=exp(coef-1.386*se),
+    lower95=exp(coef-1.96*se)) |>
   filter(variable!="") |>
   ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=type))+
   geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
   geom_point()+
+  geom_linerange(linewidth=1.25, 
+                  aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                  aes(ymax=upper95, ymin=lower95))+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="Race of non-Latino partner",
        y="odds of intermarriage for Latino partners relative to endogamy",
@@ -304,40 +327,7 @@ coef_short_sym |>
   
 ```
 
-In general, multiracial Latino partner were slightly more likely to intermarry with all of the multiracial groups (except Black/Indigenous) than single race Latino partners, and vice versa for single race groups. However, these differences were not large in most cases. The exception is intermarriage with Whites which is far less common among multiple race Latinos. Aside from intermarriage with whites, Latino intermarriage is more likely to non-Latino multiracial groups than non-Latino single race groups. 
-
-```{r}
-coef_short_sym |>
-  mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
-         multiple_race=str_split(variable, "\\.", simplify=TRUE)[,2],
-         constituent=str_detect(multiple_race, single_race),
-         single_race=factor(single_race, 
-                            levels=c("Latino","Asian","Indigenous",
-                                     "Black","White")),
-         multiple_race=factor(multiple_race,
-                              levels=c("White/Asian","Black/Asian",
-                                       "White/Indigenous","Black/Indigenous",
-                                       "White/Black","Indigenous/Asian")),
-         upper84=exp(coef+1.386*se),
-         upper95=exp(coef+1.96*se),
-         lower84=exp(coef-1.386*se),
-         lower95=exp(coef-1.96*se)) |>
-  ggplot(aes(x=multiple_race, y=exp(coef), color=constituent))+
-  geom_hline(data=coef_multi, aes(yintercept=exp(coef), linetype=variable),
-             color="red")+
-  geom_linerange(linewidth=1.25, 
-                  aes(ymax=upper84, ymin=lower84))+
-  geom_linerange(linewidth=0.5, 
-                  aes(ymax=upper95, ymin=lower95))+
-  geom_point(size=2)+
-  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
-  coord_flip()+
-  facet_wrap(~single_race, ncol=2)+
-  scale_color_viridis_d(direction=-1, end=0.75)+
-  labs(x="single race partner", 
-       y="odds of marriage with single race partner relative to multiracial endogamy")+
-  theme_bw()
-```
+Aside from intermarriage with whites, Latino intermarriage is more likely to most non-Latino multiracial groups than non-Latino single race groups. 
 
 To get at potentially gender differences, @fig-gender-asymmetric displays a similar graph but with separate results depending on the gender combination from a model that allows for gender asymmetry.
 
