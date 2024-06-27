@@ -127,6 +127,56 @@ ggplot(partner_choice,
 
 The data for part-black multiracial individuals are generally consistent with the gender pattern for black individuals - part-Black men are more likely to outmarry, particularly with Whites. For part-Asian individuals who are not also part-Black, the gender pattern seems consistent with that for Asian individuals - women are more likely than men to outmarry with Whites and less likely to marry endogamously. Its notable that the Black/Asian pattern tends to follow the Black pattern. However, its not surprising that Blackness trumps everything else.
 
+I also want to try a panel model that adds some color, although its a little tricky to get conditional distributions in `dplyr`. 
+
+```{r}
+#| label: fig-partner-choice-panel-color
+#| fig-cap: Distribution of partner's race for multiracial spouses, separately for each multiracial group.
+#| warning: false
+partner_choice |>
+  filter(str_detect(race_ego, "/")) |>
+  group_by(race_ego, race_spouse) |>
+  summarize(n = n()) |>
+  pivot_wider(id_cols = race_ego, names_from = race_spouse, values_from = n,
+              names_prefix = "n_") |>
+  ungroup() %>%
+  mutate(total = rowSums(select(., starts_with("n_")))) |>
+  pivot_longer(cols=starts_with("n_"), names_prefix="n_", names_to="race_spouse",
+               values_to = "n") |>
+  mutate(prop = n/total,
+         race_ego = as.character(race_ego),
+         spouse_multi = str_detect(race_spouse, "/"),
+         spouse_const1 = str_split(race_spouse, "/", simplify = TRUE)[,1],
+         spouse_const2 = str_split(race_spouse, "/", simplify = TRUE)[,2],
+         overlap = case_when(
+           race_ego == race_spouse ~ "Perfect overlap (endogamy)",
+           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial overlap",
+           spouse_multi & 
+             (str_detect(race_ego, spouse_const1) | 
+                str_detect(race_ego, spouse_const2)) ~ "Partial overlap",
+           TRUE ~ "No overlap"
+         ),
+         overlap = factor(overlap,
+                          levels=c("No overlap", "Partial overlap",
+                                   "Perfect overlap (endogamy)")),
+         race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White/Black","White/Indigenous",
+                                     "White/Asian","Black/Indigenous",
+                                     "Black/Asian","Indigenous/Asian")),
+         race_ego = factor(race_ego,
+                           levels = c("White/Asian", "White/Indigenous", "White/Black",
+                                      "Black/Asian", "Black/Indigenous", "Indigenous/Asian"))) |>
+  ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
+  geom_col()+
+  facet_wrap(~race_ego)+
+  scale_fill_viridis_d(direction = -1, end=0.75)+
+  scale_y_continuous(labels = scales::percent)+
+  coord_flip()+
+  labs(x="race of other spouse", y="percent")+
+  theme_bw()
+```
+
 # Multiracial-to-multiracial intermarriage
 
 Ok, now lets move to the actual model results. The first thing we want to explore is multiracial-to-multiracial intermarriage. To analyze this, we use a model that fits gender-symmetric dummies for every single multiracial-to-multiracial exogamous union. This model was difficult to fit on the full data because the size of these cells is so small, resulting in some convergence problems in the model. To resolve this issue, we created separate marriage market data only using multiracial individuals to estimate the full terms. If the models only included the racial exogamy terms, then this model would give use identical results to a model with the full data. However, because we will get slightly different estimates on the control variables in this model versus the full model, the results will differ slightly. However, they should be sufficiently close to allow us to determine a more reduced form multiracial-to-multiracial coding we can use in the full data models.
