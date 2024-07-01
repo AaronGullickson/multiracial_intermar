@@ -9,7 +9,7 @@ bibliography: ../bibliography/project.bib
 csl: ../bibliography/chicago-parenthetical.csl
 format:
   aog-article-pdf:
-    keep-tex: false
+    keep-tex: true
     include-in-header: 
       text: |
         \usepackage{dcolumn}
@@ -28,6 +28,31 @@ format:
 library(here)
 source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
+load(here("data","data_constructed","models.RData"))
+load(here("data","data_constructed","markets.RData"))
+```
+
+```{r}
+#| label: create-coef-table
+get_coefs <- function(x) {
+  temp <- coef(x)[,c(1,2)]
+  return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
+}
+
+coef_short_sym <- get_coefs(model_short_sym) |>
+  filter(str_detect(variable, "race_exog")) |>
+  mutate(variable=str_replace(variable, "race_exog_short_sym",""))
+
+coef_short_asym <- get_coefs(model_short_asym) |>
+  filter(str_detect(variable, "race_exog_short_asym")) |>
+  mutate(variable=str_replace(variable, "race_exog_short_asym",""))
+
+coef_full <- get_coefs(model_full_sym_multi) |>
+  filter(str_detect(variable, "race_exog_full")) |>
+  mutate(variable=str_replace(variable, "race_exog_full_sym",""))
+
+coef_multi <- coef_short_sym |>
+  filter(str_detect(variable, "Multi/Multi"))
 ```
 
 # Introduction
@@ -39,5 +64,254 @@ This quarto doc is for writing the manuscript. This is a test citation [@alba199
 # Data and Methods
 
 # Results
+
+```{r}
+#| label: fig-partner-choice-panel-color
+#| fig-cap: Distribution of partner's race for multiracial spouses, separately for each multiracial group.
+#| warning: false
+
+couples <- mar_markets[[1]] |> filter(choice)
+
+husbands <- couples |>
+  mutate(race_ego=raceh, 
+         race_spouse=racew,
+         gender="husband") |>
+  select(race_ego, race_spouse, gender)
+wives <- couples |>
+  mutate(race_ego=racew, 
+         race_spouse=raceh,
+         gender="wife") |>
+  select(race_ego, race_spouse, gender)
+
+partner_choice <- bind_rows(husbands, wives) |>
+  mutate(race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White/Asian", "White/Indigenous",
+                                     "White/Black", "Black/Asian",
+                                     "Black/Indigenous", "Indigenous/Asian")))
+
+partner_choice |>
+  filter(str_detect(race_ego, "/")) |>
+  group_by(race_ego, race_spouse) |>
+  summarize(n = n()) |>
+  pivot_wider(id_cols = race_ego, names_from = race_spouse, values_from = n,
+              names_prefix = "n_") |>
+  ungroup() %>%
+  mutate(total = rowSums(select(., starts_with("n_")))) |>
+  pivot_longer(cols=starts_with("n_"), names_prefix="n_", names_to="race_spouse",
+               values_to = "n") |>
+  mutate(prop = n/total,
+         race_ego = as.character(race_ego),
+         spouse_multi = str_detect(race_spouse, "/"),
+         spouse_const1 = str_split(race_spouse, "/", simplify = TRUE)[,1],
+         spouse_const2 = str_split(race_spouse, "/", simplify = TRUE)[,2],
+         overlap = case_when(
+           race_ego == race_spouse ~ "Perfect overlap (endogamy)",
+           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial overlap",
+           spouse_multi & 
+             (str_detect(race_ego, spouse_const1) | 
+                str_detect(race_ego, spouse_const2)) ~ "Partial overlap",
+           TRUE ~ "No overlap"
+         ),
+         overlap = factor(overlap,
+                          levels=c("No overlap", "Partial overlap",
+                                   "Perfect overlap (endogamy)")),
+         race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White/Asian", "White/Indigenous",
+                                     "White/Black", "Black/Asian",
+                                     "Black/Indigenous", "Indigenous/Asian")),
+         race_ego = factor(race_ego,
+                           levels = c("White/Asian", "White/Indigenous", "White/Black",
+                                      "Black/Asian", "Black/Indigenous", "Indigenous/Asian"))) |>
+  ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
+  geom_col()+
+  facet_wrap(~race_ego)+
+  scale_fill_viridis_d(direction = -1, end=0.75)+
+  scale_y_continuous(labels = scales::percent)+
+  coord_flip()+
+  labs(x="race of other spouse", y="percent", fill = "identification overlap")+
+  theme_bw()
+```
+
+
+```{r}
+#| label: fig-odds-ratios-single
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively.The grey line indicates an odds equal to one, meaning this type of interracial marriage is as likely as endogamy.
+
+# the somewhat odd regular expression \\..*/ will identify all the names with a 
+# period followed by some characters followed by a forward slash. This will give
+# me all cases of a single race/multiple race marriage
+coef_short_sym |>
+  filter(str_detect(variable, "\\..*/")) |>
+  mutate(single_race = str_split(variable, "\\.", simplify=TRUE)[,1],
+         multiple_race = str_split(variable, "\\.", simplify=TRUE)[,2],
+         constituent = str_detect(multiple_race, single_race),
+         single_race = factor(single_race, 
+                            levels=c("Latino","Asian","Indigenous",
+                                     "Black","White")),
+         multiple_race = factor(multiple_race,
+                              levels=c("White/Asian","Black/Asian",
+                                       "White/Indigenous","Black/Indigenous",
+                                       "White/Black","Indigenous/Asian")),
+         constituent = factor(constituent, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap")),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se)) |>
+  ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
+  geom_linerange(linewidth=1.25, 
+                  aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                  aes(ymax=upper95, ymin=lower95))+
+  geom_point(size=2)+
+  geom_hline(yintercept=1, linewidth=1, color="grey30")+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="single race partner", 
+       y="odds of marriage with given single race partner relative to endogamy",
+       color = "identification overlap")+
+  theme_bw()
+```
+
+```{r}
+#| label: fig-odds-ratios-latino
+#| fig-cap: Odds of interracial marriage for Latinos with single and multiracial race partners. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+#| 
+coef_short_sym |>
+  filter(str_detect(variable, "Latino")) |>
+  mutate(
+    variable=str_replace(variable, "Latino",""),
+    variable=str_replace(variable, "\\.", ""),
+    type=case_when(
+      str_count(variable, "/")>0 ~ "Multiracial partner",
+      TRUE ~ "Monoracial partner"),
+    upper84=exp(coef+1.386*se),
+    upper95=exp(coef+1.96*se),
+    lower84=exp(coef-1.386*se),
+    lower95=exp(coef-1.96*se)) |>
+  filter(variable!="") |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=type))+
+  geom_hline(yintercept=1, linewidth=1, color="grey30")+
+  geom_point()+
+  geom_linerange(linewidth=1.25, 
+                  aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                  aes(ymax=upper95, ymin=lower95))+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="Race of non-Latino partner",
+       y="odds of intermarriage for Latino partners relative to endogamy",
+    color="non-latino partner")+
+  coord_flip()+
+  theme_bw()
+```
+
+```{r}
+#| label: fig-gender-asymmetric
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group, separately by the gender combination of the partners. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+#| 
+# before period is husband, after period is wife
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "/") & 
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         race_label=ifelse(str_detect(race_husband, "/"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep="")),
+         multiple_race=ifelse(str_detect(race_husband, "/"), race_husband,
+                            race_wife),
+         single_race=ifelse(str_detect(race_husband, "/"), race_wife,
+                            race_husband),
+         race_group=paste(single_race, ".", multiple_race, sep=""),
+         single_race=factor(single_race, 
+                            levels=c("Latino","Asian","Indigenous",
+                                     "Black","White")),
+         multiple_race=factor(multiple_race,
+                              levels=c("White/Asian","Black/Asian",
+                                       "White/Indigenous","Black/Indigenous",
+                                       "White/Black","Indigenous/Asian")),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se)) |>
+  arrange(multiple_race, single_race, race_label)
+
+temp |>
+  ggplot(aes(x=fct_inorder(race_label), y=exp(coef), color=single_race))+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=upper95, ymin=lower95))+
+  geom_point(size=2)+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_color_viridis_d(direction=-1, end=0.9)+
+  theme_bw()+
+  labs(color="Single race partner",
+       x="single race partner", 
+       y="odds of marriage with single race partner relative to multiracial endogamy")
+```
+
+```{r}
+#| label: fig-odds-ratios-multi
+#| fig-cap: Odds of interracial marriage with other multiracial groups for each multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+
+# the somewhat odd regular expression \\..*/ will identify all the names with a 
+# period followed by some characters followed by a forward slash. This will give
+# me all cases of a single race/multiple race marriage
+temp <- coef_full |>
+  filter(str_detect(variable, "/.*\\.*/")) |>
+  mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
+         race_cons1=str_split(race_ego, "/", simplify=TRUE)[,1],
+         race_cons2=str_split(race_ego, "/", simplify=TRUE)[,2],
+         overlap=str_detect(race_choice, race_cons1) | 
+           str_detect(race_choice, race_cons2),
+         overlap = factor(overlap, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap"))) |>
+  select(race_ego, race_choice, overlap, coef, se)
+         
+# this needs to be duplicated so that each possibility is both ego and choice.
+# easiest way to do this is to create a second one, flip the variables and 
+# bind them together
+temp2 <- temp
+temp <- temp2 |>
+  mutate(race_ego=temp$race_choice,
+         race_choice=temp$race_ego) |>
+  bind_rows(temp) |>
+  mutate(race_ego=factor(race_ego, 
+                         levels=c("White/Asian","Black/Asian",
+                                  "White/Indigenous","Black/Indigenous",
+                                  "White/Black","Indigenous/Asian")),
+         race_choice=factor(race_choice, 
+                         levels=c("White/Asian","Black/Asian",
+                                  "White/Indigenous","Black/Indigenous",
+                                  "White/Black","Indigenous/Asian")))
+
+
+ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  coord_flip()+
+  facet_wrap(~race_ego, ncol=2)+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="multiple race partner", 
+       y="odds of marriage with multiple race partner relative to endogamy",
+       color="identification overlap")+
+  theme_bw()
+```
+
 
 # Conclusions
