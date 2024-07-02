@@ -383,7 +383,7 @@ To get at potentially gender differences, @fig-gender-asymmetric displays a simi
 
 ```{r}
 #| label: fig-gender-asymmetric
-#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group, separately by the gender combination of the partners. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy. Some upper confidence intervals are truncated to maintain focus on point estimates.
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group, separately by the gender combination of the partners. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 #| 
 # before period is husband, after period is wife
 temp <- coef_short_asym |>
@@ -424,6 +424,104 @@ temp |>
   geom_point(size=2)+
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
+  scale_color_viridis_d(direction=-1, end=0.9)+
+  theme_bw()+
+  labs(color="Single race partner",
+       x="single race partner", 
+       y="odds of marriage with single race partner relative to multiracial endogamy")
+```
+
+```{r}
+#| label: fig-gender-asymmetric-focused
+#| fig-cap: Odds of interracial marriage with single race groups separately by gender for White/Asian, White/Black, White, and Black spouses. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
+#| 
+# before period is husband, after period is wife
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^Black\\.|\\.Black$") &
+           !str_detect(variable, "/") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "Black",
+         alt_race = ifelse(str_detect(race_husband, "Black"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "Black"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep="")))
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^Asian\\.|\\.Asian$") &
+           !str_detect(variable, "/") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "Asian",
+         alt_race = ifelse(str_detect(race_husband, "Asian"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "Asian"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^White/Black\\.|\\.White/Black$") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "White/Black",
+         alt_race = ifelse(str_detect(race_husband, "White/Black"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "White/Black"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^White/Asian\\.|\\.White/Asian$") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "White/Asian",
+         alt_race = ifelse(str_detect(race_husband, "White/Asian"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "White/Asian"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- temp |>
+  mutate(upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se),
+         ego_race = factor(ego_race,
+                           levels = c("White/Asian", "Asian", 
+                                      "White/Black", "Black")),
+         race_label = factor(race_label,
+                             levels = c("Indigenous Female", "Indigenous Male",
+                                        "Asian Female", "Asian Male",
+                                        "Black Female", "Black Male",
+                                        "White Female", "White Male")))
+
+temp |>
+  ggplot(aes(x=factor(race_label), y=exp(coef), color=alt_race))+
+  #geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=upper95, ymin=lower95))+
+  geom_point(size=2)+
+  coord_flip()+
+  facet_wrap(~ego_race, ncol=2)+
   scale_color_viridis_d(direction=-1, end=0.9)+
   theme_bw()+
   labs(color="Single race partner",
