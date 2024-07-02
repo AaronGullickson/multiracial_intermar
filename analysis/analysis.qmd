@@ -406,6 +406,7 @@ temp |>
                         levels = c("Latino","Asian","Indigenous","Black",
                                    "White"))) |>
   ggplot(aes(x = race1, y = exp(coef), color = race2))+
+  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
   geom_point(size = 2)+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=upper84, ymin=lower84))+
