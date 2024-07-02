@@ -347,7 +347,7 @@ fig-odds-ratios-latino takes a closer look at the results for Latinos.
 ```{r}
 #| label: fig-odds-ratios-latino
 #| fig-cap: Odds of interracial marriage with single and multiracial race groups for Latinos. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
-#| 
+
 coef_short_sym |>
   filter(str_detect(variable, "Latino")) |>
   mutate(
@@ -375,6 +375,48 @@ coef_short_sym |>
   coord_flip()+
   theme_bw()
   
+```
+
+```{r}
+#| label: fig-odds-ratios-latino2
+#| fig-cap: Odds of interracial marriage across all monoracial groups. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively.
+
+temp <- coef_short_sym |>
+  filter(!str_detect(variable, "/")) |> 
+  mutate(race1=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race2=str_split(variable, "\\.", simplify=TRUE)[,2])
+
+temp <- temp |>
+  mutate(race_temp = race1, 
+         race1 = race2, 
+         race2 = race_temp) |>
+  select(variable, coef, se, race1, race2) |>
+  bind_rows(temp) |>
+  mutate(upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se))
+  
+
+temp |>
+  filter(race1 != "Latino") |>
+  mutate(race1 = factor(race1, 
+                        levels = c("Black", "Indigenous", "Asian", "White")),
+         race2 = factor(race2, 
+                        levels = c("Latino","Asian","Indigenous","Black",
+                                   "White"))) |>
+  ggplot(aes(x = race1, y = exp(coef), color = race2))+
+  geom_point(size = 2)+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=upper95, ymin=lower95))+
+  scale_color_viridis_d(direction = -1, end = 0.9)+
+  labs(x = "race of other partner", 
+       y = "odds of intermarriage for focal partner relative to endogamy",
+       color = "race of focal partner")+
+  coord_flip()+
+  theme_bw()
 ```
 
 Aside from intermarriage with whites, Latino intermarriage is more likely to most non-Latino multiracial groups than non-Latino single race groups. 
