@@ -416,7 +416,7 @@ temp <- coef_short_asym |>
 
 temp |>
   ggplot(aes(x=fct_inorder(race_label), y=exp(coef), color=single_race))+
-  geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  #geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=upper84, ymin=lower84))+
   geom_linerange(linewidth=0.5, 
