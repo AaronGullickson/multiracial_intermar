@@ -59,9 +59,9 @@ wives <- couples |>
 partner_choice <- bind_rows(husbands, wives) |>
   mutate(race_spouse=factor(race_spouse, 
                             levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White/Black","White/Indigenous",
-                                     "White/Asian","Black/Indigenous",
-                                     "Black/Asian","Indigenous/Asian")))
+                                     "Latino","White-Black","White-Indigenous",
+                                     "White-Asian","Black-Indigenous",
+                                     "Black-Asian","Indigenous-Asian")))
 ```
 
 
@@ -69,10 +69,10 @@ partner_choice <- bind_rows(husbands, wives) |>
 #| label: fig-partner-color
 #| fig-cap: Distribution of other partner's race for multiracial respondents
 partner_choice |>
-  filter(str_detect(race_ego, "/")) |>
+  filter(str_detect(race_ego, "-")) |>
   mutate(race_ego=factor(race_ego, 
-                         levels=c("White/Asian","White/Indigenous","White/Black",
-                                  "Indigenous/Asian","Black/Asian","Black/Indigenous"))) |>
+                         levels=c("White-Asian","White-Indigenous","White-Black",
+                                  "Indigenous-Asian","Black-Asian","Black-Indigenous"))) |>
   ggplot(aes(x=fct_rev(race_spouse), y=after_stat(prop), group=race_ego, 
              fill=race_ego))+
   geom_bar(position="dodge")+
@@ -93,7 +93,7 @@ Lets look at these same numbers in a different way by panelizing the results for
 #| label: fig-partner-panel
 #| fig-cap: Distribution of partner's race for multiracial respondents, separately by panel
 partner_choice |>
-  filter(str_detect(race_ego, "/")) |>
+  filter(str_detect(race_ego, "-")) |>
   ggplot(aes(x=fct_rev(race_spouse), y=after_stat(prop), group=1))+
   geom_bar(position="dodge")+
   facet_wrap(~race_ego)+
@@ -134,7 +134,7 @@ I also want to try a panel model that adds some color, although its a little tri
 #| fig-cap: Distribution of partner's race for multiracial spouses, separately for each multiracial group.
 #| warning: false
 partner_choice |>
-  filter(str_detect(race_ego, "/")) |>
+  filter(str_detect(race_ego, "-")) |>
   group_by(race_ego, race_spouse) |>
   summarize(n = n()) |>
   pivot_wider(id_cols = race_ego, names_from = race_spouse, values_from = n,
@@ -145,9 +145,9 @@ partner_choice |>
                values_to = "n") |>
   mutate(prop = n/total,
          race_ego = as.character(race_ego),
-         spouse_multi = str_detect(race_spouse, "/"),
-         spouse_const1 = str_split(race_spouse, "/", simplify = TRUE)[,1],
-         spouse_const2 = str_split(race_spouse, "/", simplify = TRUE)[,2],
+         spouse_multi = str_detect(race_spouse, "-"),
+         spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
+         spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
          overlap = case_when(
            race_ego == race_spouse ~ "Perfect overlap (endogamy)",
            !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial overlap",
@@ -161,12 +161,12 @@ partner_choice |>
                                    "Perfect overlap (endogamy)")),
          race_spouse=factor(race_spouse, 
                             levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White/Black","White/Indigenous",
-                                     "White/Asian","Black/Indigenous",
-                                     "Black/Asian","Indigenous/Asian")),
+                                     "Latino","White-Black","White-Indigenous",
+                                     "White-Asian","Black-Indigenous",
+                                     "Black-Asian","Indigenous-Asian")),
          race_ego = factor(race_ego,
-                           levels = c("White/Asian", "White/Indigenous", "White/Black",
-                                      "Black/Asian", "Black/Indigenous", "Indigenous/Asian"))) |>
+                           levels = c("White-Asian", "White-Indigenous", "White-Black",
+                                      "Black-Asian", "Black-Indigenous", "Indigenous-Asian"))) |>
   ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
   geom_col()+
   facet_wrap(~race_ego)+
@@ -191,11 +191,11 @@ Ok, now lets move to the actual model results. The first thing we want to explor
 # period followed by some characters followed by a forward slash. This will give
 # me all cases of a single race/multiple race marriage
 temp <- coef_full |>
-  filter(str_detect(variable, "/.*\\.*/")) |>
+  filter(str_detect(variable, "-.*\\.*-")) |>
   mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
-         race_cons1=str_split(race_ego, "/", simplify=TRUE)[,1],
-         race_cons2=str_split(race_ego, "/", simplify=TRUE)[,2],
+         race_cons1=str_split(race_ego, "-", simplify=TRUE)[,1],
+         race_cons2=str_split(race_ego, "-", simplify=TRUE)[,2],
          overlap=str_detect(race_choice, race_cons1) | 
            str_detect(race_choice, race_cons2),
          overlap = factor(overlap, 
@@ -212,13 +212,13 @@ temp <- temp2 |>
          race_choice=temp$race_ego) |>
   bind_rows(temp) |>
   mutate(race_ego=factor(race_ego, 
-                         levels=c("White/Asian","Black/Asian",
-                                  "White/Indigenous","Black/Indigenous",
-                                  "White/Black","Indigenous/Asian")),
+                         levels=c("White-Asian","Black-Asian",
+                                  "White-Indigenous","Black-Indigenous",
+                                  "White-Black","Indigenous-Asian")),
          race_choice=factor(race_choice, 
-                         levels=c("White/Asian","Black/Asian",
-                                  "White/Indigenous","Black/Indigenous",
-                                  "White/Black","Indigenous/Asian")))
+                         levels=c("White-Asian","Black-Asian",
+                                  "White-Indigenous","Black-Indigenous",
+                                  "White-Black","Indigenous-Asian")))
 
 
 ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
@@ -251,14 +251,14 @@ To get another view of the results, lets line them all up from highest to lowest
 coef_full |>
   mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
-         race_cons1=str_split(race_ego, "/", simplify=TRUE)[,1],
-         race_cons2=str_split(race_ego, "/", simplify=TRUE)[,2],
+         race_cons1=str_split(race_ego, "-", simplify=TRUE)[,1],
+         race_cons2=str_split(race_ego, "-", simplify=TRUE)[,2],
          overlap=str_detect(race_choice, race_cons1) | 
            str_detect(race_choice, race_cons2),
          overlap = factor(overlap, 
                               levels = c(FALSE, TRUE),
                               labels = c("No overlap", "Partial overlap")),
-         variable=str_replace(variable, "\\.","+")) |>
+         variable=str_replace(variable, "\\.","/")) |>
   ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
@@ -297,7 +297,7 @@ To test this out, we tried an alternate model which reduced all of these specifi
 # period followed by some characters followed by a forward slash. This will give
 # me all cases of a single race/multiple race marriage
 coef_short_sym |>
-  filter(str_detect(variable, "\\..*/")) |>
+  filter(str_detect(variable, "\\..*-")) |>
   mutate(single_race=str_split(variable, "\\.", simplify=TRUE)[,1],
          multiple_race=str_split(variable, "\\.", simplify=TRUE)[,2],
          constituent=str_detect(multiple_race, single_race),
@@ -305,9 +305,9 @@ coef_short_sym |>
                             levels=c("Latino","Asian","Indigenous",
                                      "Black","White")),
          multiple_race=factor(multiple_race,
-                              levels=c("White/Asian","Black/Asian",
-                                       "White/Indigenous","Black/Indigenous",
-                                       "White/Black","Indigenous/Asian")),
+                              levels=c("White-Asian","Black-Asian",
+                                       "White-Indigenous","Black-Indigenous",
+                                       "White-Black","Indigenous-Asian")),
          constituent = factor(constituent, 
                               levels = c(FALSE, TRUE),
                               labels = c("No overlap", "Partial overlap")),
@@ -354,7 +354,7 @@ coef_short_sym |>
     variable=str_replace(variable, "Latino",""),
     variable=str_replace(variable, "\\.", ""),
     type=case_when(
-      str_count(variable, "/")>0 ~ "Multiracial partner",
+      str_count(variable, "-")>0 ~ "Multiracial partner",
       TRUE ~ "Monoracial partner"),
     upper84=exp(coef+1.386*se),
     upper95=exp(coef+1.96*se),
@@ -387,27 +387,27 @@ To get at potentially gender differences, @fig-gender-asymmetric displays a simi
 #| 
 # before period is husband, after period is wife
 temp <- coef_short_asym |>
-  filter(str_detect(variable, "/") & 
+  filter(str_detect(variable, "-") & 
            !str_detect(variable, "Multi/Multi|Latino")) |>
   mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
-         race_label=ifelse(str_detect(race_husband, "/"), 
+         race_label=ifelse(str_detect(race_husband, "-"), 
                            paste(race_wife, " Female", 
                                  sep=""),
                            paste(race_husband, " Male", 
                                  sep="")),
-         multiple_race=ifelse(str_detect(race_husband, "/"), race_husband,
+         multiple_race=ifelse(str_detect(race_husband, "-"), race_husband,
                             race_wife),
-         single_race=ifelse(str_detect(race_husband, "/"), race_wife,
+         single_race=ifelse(str_detect(race_husband, "-"), race_wife,
                             race_husband),
          race_group=paste(single_race, ".", multiple_race, sep=""),
          single_race=factor(single_race, 
                             levels=c("Latino","Asian","Indigenous",
                                      "Black","White")),
          multiple_race=factor(multiple_race,
-                              levels=c("White/Asian","Black/Asian",
-                                       "White/Indigenous","Black/Indigenous",
-                                       "White/Black","Indigenous/Asian")),
+                              levels=c("White-Asian","Black-Asian",
+                                       "White-Indigenous","Black-Indigenous",
+                                       "White-Black","Indigenous-Asian")),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
@@ -439,7 +439,7 @@ temp |>
 
 temp <- coef_short_asym |>
   filter(str_detect(variable, "^Black\\.|\\.Black$") &
-           !str_detect(variable, "/") &
+           !str_detect(variable, "-") &
            !str_detect(variable, "Multi/Multi|Latino")) |>
   mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
@@ -454,7 +454,7 @@ temp <- coef_short_asym |>
 
 temp <- coef_short_asym |>
   filter(str_detect(variable, "^Asian\\.|\\.Asian$") &
-           !str_detect(variable, "/") &
+           !str_detect(variable, "-") &
            !str_detect(variable, "Multi/Multi|Latino")) |>
   mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
@@ -469,14 +469,14 @@ temp <- coef_short_asym |>
   bind_rows(temp)
 
 temp <- coef_short_asym |>
-  filter(str_detect(variable, "^White/Black\\.|\\.White/Black$") &
+  filter(str_detect(variable, "^White-Black\\.|\\.White-Black$") &
            !str_detect(variable, "Multi/Multi|Latino")) |>
   mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
-         ego_race = "White/Black",
-         alt_race = ifelse(str_detect(race_husband, "White/Black"), race_wife,
+         ego_race = "White-Black",
+         alt_race = ifelse(str_detect(race_husband, "White-Black"), race_wife,
                             race_husband),
-         race_label=ifelse(str_detect(race_husband, "White/Black"), 
+         race_label=ifelse(str_detect(race_husband, "White-Black"), 
                            paste(race_wife, " Female", 
                                  sep=""),
                            paste(race_husband, " Male", 
@@ -484,14 +484,14 @@ temp <- coef_short_asym |>
   bind_rows(temp)
 
 temp <- coef_short_asym |>
-  filter(str_detect(variable, "^White/Asian\\.|\\.White/Asian$") &
+  filter(str_detect(variable, "^White-Asian\\.|\\.White-Asian$") &
            !str_detect(variable, "Multi/Multi|Latino")) |>
   mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
-         ego_race = "White/Asian",
-         alt_race = ifelse(str_detect(race_husband, "White/Asian"), race_wife,
+         ego_race = "White-Asian",
+         alt_race = ifelse(str_detect(race_husband, "White-Asian"), race_wife,
                             race_husband),
-         race_label=ifelse(str_detect(race_husband, "White/Asian"), 
+         race_label=ifelse(str_detect(race_husband, "White-Asian"), 
                            paste(race_wife, " Female", 
                                  sep=""),
                            paste(race_husband, " Male", 
@@ -504,8 +504,8 @@ temp <- temp |>
          lower84=exp(coef-1.386*se),
          lower95=exp(coef-1.96*se),
          ego_race = factor(ego_race,
-                           levels = c("White/Asian", "Asian", 
-                                      "White/Black", "Black")),
+                           levels = c("White-Asian", "Asian", 
+                                      "White-Black", "Black")),
          race_label = factor(race_label,
                              levels = c("Indigenous Female", "Indigenous Male",
                                         "Asian Female", "Asian Male",
@@ -543,8 +543,9 @@ We don't care as much about the monoracial-to-monoracial comparisons, but lets g
 #| fig-cap: Odds of interracial marriage between single race groups. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 
 coef_short_sym |>
-  filter(!str_detect(variable, "/")) |> 
-  mutate(variable=str_replace(variable, "\\.","+"),
+  filter(!str_detect(variable, "-")) |> 
+  filter(!str_detect(variable, "Multi/Multi")) |>
+  mutate(variable=str_replace(variable, "\\.","/"),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
@@ -567,7 +568,8 @@ coef_short_sym |>
 #| fig-cap: Odds of interracial marriage across all monoracial groups. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 
 temp <- coef_short_sym |>
-  filter(!str_detect(variable, "/")) |> 
+  filter(!str_detect(variable, "-")) |> 
+  filter(!str_detect(variable, "Multi/Multi")) |>
   mutate(race1=str_split(variable, "\\.", simplify=TRUE)[,1],
          race2=str_split(variable, "\\.", simplify=TRUE)[,2])
 
@@ -620,7 +622,7 @@ For a better comparison across all cases, lets do a megaplot to get everything o
 #| fig-height: 10
 
 coef_short_sym |>
-  mutate(variable=str_replace(variable, "\\.","+"),
+  mutate(variable=str_replace(variable, "\\.","/"),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),

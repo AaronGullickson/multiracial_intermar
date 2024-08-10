@@ -13,6 +13,14 @@ timestamp()
 library(here)
 source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
+sessionInfo()
+```
+
+```{r}
+#| label: de-authorize google drive
+
+# this should anyone to access the data
+drive_deauth()
 ```
 
 # Introduction
@@ -64,20 +72,20 @@ code_race <- function(raced, hispand) {
     # really multiethnic Asian
     ((raced>=400 & raced<=679) | raced %in% c(869, 887)) ~ "Asian",
     # Biracial groups
-    raced==801 ~ "White/Black",
-    (raced>=810 & raced<=819) ~ "White/Asian",
-    (raced>=831 & raced<=838) ~ "Black/Asian",
+    raced==801 ~ "White-Black",
+    (raced>=810 & raced<=819) ~ "White-Asian",
+    (raced>=831 & raced<=838) ~ "Black-Asian",
     # for all part Indigenous groups we need to get the part AIAN and part PI
-    raced==802 | (raced>=820 & raced<=825) ~ "White/Indigenous",
-    raced==830 | (raced>=840 & raced<=842) ~ "Black/Indigenous",
-    (raced>=850 & raced<=854) | (raced>=860 & raced<=868) ~ "Indigenous/Asian",
+    raced==802 | (raced>=820 & raced<=825) ~ "White-Indigenous",
+    raced==830 | (raced>=840 & raced<=842) ~ "Black-Indigenous",
+    (raced>=850 & raced<=854) | (raced>=860 & raced<=868) ~ "Asian-Indigenous",
     TRUE ~ NA_character_
   )
   
   race <- factor(race, 
                  levels=c("White","Black","Indigenous","Asian", "Latino",
-                          "White/Black","White/Indigenous","White/Asian",
-                          "Black/Indigenous","Black/Asian","Indigenous/Asian"))
+                          "White-Black","White-Indigenous","White-Asian",
+                          "Black-Indigenous","Black-Asian","Asian-Indigenous"))
   
   return(race)
 }
@@ -276,7 +284,7 @@ tibble(variable=acs_names, start=acs_start, end=acs_end) |>
 
 
 
-Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted. To access the data, you will need to first authenticate with google interactively using `googledrive::drive_auth()`. 
+Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted.
 
 
 
@@ -531,15 +539,15 @@ I have also found that fitting the fullest model of multiracial-to-multiracial i
 #| label: create-fake-union-multi
 
 unions_multi <- unions |>
-  filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
+  filter(str_detect(raceh, "-") & str_detect(racew, "-")) |>
   mutate(raceh=fct_drop(raceh), racew=fct_drop(racew))
 
 male_alt_multi <- male_alt |>
-  filter(str_detect(raceh, "/")) |>
+  filter(str_detect(raceh, "-")) |>
   mutate(raceh=fct_drop(raceh))
 
 female_alt_multi <- female_alt |>
-  filter(str_detect(racew, "/")) |>
+  filter(str_detect(racew, "-")) |>
   mutate(racew=fct_drop(racew))
 
 mar_markets_multi <- replicate(n_samples,

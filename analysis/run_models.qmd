@@ -98,7 +98,7 @@ add_vars <- function(market) {
   # now collapse multiracial/multiracial cases to two cases:
   #  - multi/multi, no shared ancestry
   #  - multi/multi, shared ancestry
-  market$race_exog_short_sym <- ifelse(str_count(market$race_exog_full_sym, "/")==2,
+  market$race_exog_short_sym <- ifelse(str_count(market$race_exog_full_sym, "-")==2,
                                        "Multi/Multi, no shared ancestry", 
                                        as.character(market$race_exog_full_sym))
  
@@ -107,7 +107,7 @@ add_vars <- function(market) {
   groups <- str_split(market$race_exog_full_sym, "\\.")
   constituent1 <- sapply(groups, function(x) {return(x[1])})
   constituent2 <- sapply(groups, function(x) {return(x[2])})
-  temp <- str_split(constituent1, "/")
+  temp <- str_split(constituent1, "-")
   constituent1.1 <- sapply(temp, function(x) {return(x[1])})
   constituent1.2 <- sapply(temp, function(x) {return(x[2])})
   market$race_exog_short_sym <- ifelse(market$race_exog_short_sym=="Multi/Multi, no shared ancestry" & 
@@ -123,7 +123,7 @@ add_vars <- function(market) {
   market$race_exog_short_asym <- createExogamyTerms(market$raceh, market$racew, 
                                                     symmetric=FALSE)
   # replace with multi/multi coding where needed
-  market$race_exog_short_asym <- ifelse(str_count(market$race_exog_short_asym, "/")==2,
+  market$race_exog_short_asym <- ifelse(str_count(market$race_exog_short_asym, "-")==2,
                                         as.character(market$race_exog_short_sym), 
                                         as.character(market$race_exog_short_asym))
   market$race_exog_short_asym <- relevel(factor(market$race_exog_short_asym), 
@@ -197,13 +197,13 @@ Finally lets check the shared ancestry coding.
 
 # for non multiracial-to-multiracial marriage it should always be zero
 mar_markets[[1]] |>
-  filter(!(str_detect(raceh, "/") & str_detect(racew, "/"))) |>
+  filter(!(str_detect(raceh, "-") & str_detect(racew, "-"))) |>
   summarize(prop_noshared=mean(race_exog_short_sym=="Multi/Multi, no shared ancestry"),
             prop_shared=mean(race_exog_short_sym=="Multi/Multi, shared ancestry"))
 
 # for multiracial-to-multiracial marriage, lets check each combo
 mar_markets[[1]] |>
-  filter(str_detect(raceh, "/") & str_detect(racew, "/")) |>
+  filter(str_detect(raceh, "-") & str_detect(racew, "-")) |>
   group_by(raceh, racew) |>
   summarize(prop_noshared=mean(race_exog_short_sym=="Multi/Multi, no shared ancestry"),
             prop_shared=mean(race_exog_short_sym=="Multi/Multi, shared ancestry")) |>
