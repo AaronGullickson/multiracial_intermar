@@ -61,7 +61,7 @@ partner_choice <- bind_rows(husbands, wives) |>
                             levels=c("White","Black","Indigenous","Asian",
                                      "Latino","White-Black","White-Indigenous",
                                      "White-Asian","Black-Indigenous",
-                                     "Black-Asian","Indigenous-Asian")))
+                                     "Black-Asian","Asian-Indigenous")))
 ```
 
 
@@ -72,7 +72,7 @@ partner_choice |>
   filter(str_detect(race_ego, "-")) |>
   mutate(race_ego=factor(race_ego, 
                          levels=c("White-Asian","White-Indigenous","White-Black",
-                                  "Indigenous-Asian","Black-Asian","Black-Indigenous"))) |>
+                                  "Asian-Indigenous","Black-Asian","Black-Indigenous"))) |>
   ggplot(aes(x=fct_rev(race_spouse), y=after_stat(prop), group=race_ego, 
              fill=race_ego))+
   geom_bar(position="dodge")+
@@ -163,10 +163,10 @@ partner_choice |>
                             levels=c("White","Black","Indigenous","Asian",
                                      "Latino","White-Black","White-Indigenous",
                                      "White-Asian","Black-Indigenous",
-                                     "Black-Asian","Indigenous-Asian")),
+                                     "Black-Asian","Asian-Indigenous")),
          race_ego = factor(race_ego,
                            levels = c("White-Asian", "White-Indigenous", "White-Black",
-                                      "Black-Asian", "Black-Indigenous", "Indigenous-Asian"))) |>
+                                      "Black-Asian", "Black-Indigenous", "Asian-Indigenous"))) |>
   ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
   geom_col()+
   facet_wrap(~race_ego)+
@@ -214,11 +214,11 @@ temp <- temp2 |>
   mutate(race_ego=factor(race_ego, 
                          levels=c("White-Asian","Black-Asian",
                                   "White-Indigenous","Black-Indigenous",
-                                  "White-Black","Indigenous-Asian")),
+                                  "White-Black","Asian-Indigenous")),
          race_choice=factor(race_choice, 
                          levels=c("White-Asian","Black-Asian",
                                   "White-Indigenous","Black-Indigenous",
-                                  "White-Black","Indigenous-Asian")))
+                                  "White-Black","Asian-Indigenous")))
 
 
 ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
@@ -307,7 +307,7 @@ coef_short_sym |>
          multiple_race=factor(multiple_race,
                               levels=c("White-Asian","Black-Asian",
                                        "White-Indigenous","Black-Indigenous",
-                                       "White-Black","Indigenous-Asian")),
+                                       "White-Black","Asian-Indigenous")),
          constituent = factor(constituent, 
                               levels = c(FALSE, TRUE),
                               labels = c("No overlap", "Partial overlap")),
@@ -407,7 +407,7 @@ temp <- coef_short_asym |>
          multiple_race=factor(multiple_race,
                               levels=c("White-Asian","Black-Asian",
                                        "White-Indigenous","Black-Indigenous",
-                                       "White-Black","Indigenous-Asian")),
+                                       "White-Black","Asian-Indigenous")),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
