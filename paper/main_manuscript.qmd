@@ -106,16 +106,15 @@ partner_choice |>
          spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
          spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
          overlap = case_when(
-           race_ego == race_spouse ~ "Exact overlap (endogamy)",
-           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial overlap",
+           race_ego == race_spouse ~ "Exact",
+           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial",
            spouse_multi & 
              (str_detect(race_ego, spouse_const1) | 
-                str_detect(race_ego, spouse_const2)) ~ "Partial overlap",
-           TRUE ~ "No overlap"
+                str_detect(race_ego, spouse_const2)) ~ "Partial",
+           TRUE ~ "None"
          ),
          overlap = factor(overlap,
-                          levels=c("No overlap", "Partial overlap",
-                                   "Exact overlap (endogamy)")),
+                          levels=c("None", "Partial", "Exact")),
          race_spouse=factor(race_spouse, 
                             levels=c("White","Black","Indigenous","Asian",
                                      "Latino","White-Asian", "White-Indigenous",
@@ -130,7 +129,7 @@ partner_choice |>
   scale_fill_viridis_d(direction = -1, end=0.75)+
   scale_y_continuous(labels = scales::percent)+
   coord_flip()+
-  labs(x="race of other spouse", y="percent", fill = "identification overlap")+
+  labs(x="race of other spouse", y="percent", fill = "overlap in racial identification")+
   theme_bw()
 ```
 
@@ -152,7 +151,7 @@ temp <- coef_full |>
            str_detect(race_choice, race_cons2),
          overlap = factor(overlap, 
                               levels = c(FALSE, TRUE),
-                              labels = c("No overlap", "Partial overlap"))) |>
+                              labels = c("None", "Partial"))) |>
   select(race_ego, race_choice, overlap, coef, se)
          
 # this needs to be duplicated so that each possibility is both ego and choice.
@@ -185,7 +184,7 @@ ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="multiple race partner", 
        y="odds of marriage with multiple race partner relative to endogamy",
-       color="identification overlap")+
+       color="overlap in racial identification")+
   theme_bw()
 ```
 
@@ -210,7 +209,7 @@ coef_short_sym |>
                                        "White-Black","Asian-Indigenous")),
          constituent = factor(constituent, 
                               levels = c(FALSE, TRUE),
-                              labels = c("No overlap", "Partial overlap")),
+                              labels = c("None", "Partial")),
          upper84=exp(coef+1.386*se),
          upper95=exp(coef+1.96*se),
          lower84=exp(coef-1.386*se),
@@ -227,7 +226,7 @@ coef_short_sym |>
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x="single race partner", 
        y="odds of marriage with given single race partner relative to endogamy",
-       color = "identification overlap")+
+       color = "overlap in racial identification")+
   theme_bw()
 ```
 
