@@ -572,8 +572,10 @@ summary(mar_markets_multi[[1]]$racew)
 
 ```{r}
 #| label: save-data
+save(unions, male_alt, female_alt,
+     file = here("data", "data_constructed", "unions_alts.RData"))
 save(mar_markets, mar_markets_multi, 
-     file=here("data","data_constructed","markets.RData"))
+     file = here("data", "data_constructed", "markets.RData"))
 ```
 
 ```{r}
