@@ -41,9 +41,61 @@ coef_multi <- coef_short_sym |>
 # Basic Table of Sample Sizes
 
 ```{r}
+#| label: tbl-race-counts
+#| tbl-cap: Number of spouses and alternate spouses by sex and race from American Community Survey Data, 2010-2019.
 
+race_order <- c("White", "Black", "Asian", "Indigenous", "Latino", 
+                "White-Indigenous", "White-Asian", "White-Black",
+                "Black-Indigenous", "Black-Asian", "Asian-Indigenous")
 
+unions <- unions |>
+  mutate(raceh = factor(raceh, race_order),
+         racew = factor(racew, race_order))
 
+male_alt <- male_alt |>
+  mutate(raceh = factor(raceh, race_order))
+
+female_alt <- female_alt |>
+  mutate(racew = factor(racew, race_order))
+
+tbl_counts <- unions |> 
+  count(raceh) |> 
+  rename(race = raceh, n_union_h = n)
+tbl_counts <- unions |> 
+  count(racew) |> 
+  rename(race = racew, n_union_w = n) |>
+  full_join(tbl_counts)
+tbl_counts <- male_alt |> 
+  count(raceh) |> 
+  rename(race = raceh, n_alt_h =n) |>
+  full_join(tbl_counts)
+tbl_counts <- female_alt |> 
+  count(racew) |>
+  rename(race = racew, n_alt_w =n) |>
+  full_join(tbl_counts) |>
+  select(race, n_union_w, n_union_h, n_alt_w, n_alt_h)
+
+tbl_counts |>
+  gt(rowname_col = "race") |>
+  fmt_integer(starts_with("n_")) |>
+  cols_label(
+    race = "Race",
+    n_union_w = "Wife",
+    n_union_h = "Husband",
+    n_alt_w = "Women",
+    n_alt_h = "Men"
+  ) |>
+  cols_align(race, align = "left") |>
+  tab_spanner(
+    label = "Marriages",
+    columns = starts_with("n_union_")
+  ) |>
+  tab_spanner(
+    label = "Alternates",
+    columns = starts_with("n_alt_")
+  ) |>
+  grand_summary_rows(fns = list(list(label = "Total", fn = "sum")),
+                     fmt = ~ fmt_integer(.))
 ```
 
 # Raw differences in partner selection
