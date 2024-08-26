@@ -9,10 +9,16 @@ bibliography: ../bibliography/project.bib
 csl: ../bibliography/chicago-parenthetical.csl
 format:
   aog-article-pdf:
-    keep-tex: true
-    include-in-header: 
-      text: |
-        \usepackage{dcolumn}
+    keep-tex: false
+    mainfont: Baskerville 
+    sansfont: Futura-Medium
+    fontsize: 12pt   
+    geometry: margin=1in
+    fig-height: 4     # smaller fig heights make floating easier
+    fig-width: 7.5    # set to the (full width - margins) of letter   
+    fig-pos: "!t"
+    colorlinks: true
+    urlcolor: red
 #  submittable-pdf:
 #     keep-tex: false
 #     fig-pos: "!t"
@@ -30,6 +36,8 @@ source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
 load(here("data","data_constructed","models.RData"))
 load(here("data","data_constructed","markets.RData"))
+load(here("data","data_constructed","unions_alts.RData"))
+
 ```
 
 ```{r}
@@ -55,15 +63,63 @@ coef_multi <- coef_short_sym |>
   filter(str_detect(variable, "Multi/Multi"))
 ```
 
-# Introduction
+```{r}
+#| label: tbl-race-counts
+#| tbl-cap: Number of spouses and alternate spouses by sex and race from American Community Survey Data, 2010-2019.
 
-This quarto doc is for writing the manuscript. This is a test citation [@alba1990].
+race_order <- c("White", "Black", "Asian", "Indigenous", "Latino", 
+                "White-Indigenous", "White-Asian", "White-Black",
+                "Black-Indigenous", "Black-Asian", "Asian-Indigenous")
 
-# Background
+unions <- unions |>
+  mutate(raceh = factor(raceh, race_order),
+         racew = factor(racew, race_order))
 
-# Data and Methods
+male_alt <- male_alt |>
+  mutate(raceh = factor(raceh, race_order))
 
-# Results
+female_alt <- female_alt |>
+  mutate(racew = factor(racew, race_order))
+
+tbl_counts <- unions |> 
+  count(raceh) |> 
+  rename(race = raceh, n_union_h = n)
+tbl_counts <- unions |> 
+  count(racew) |> 
+  rename(race = racew, n_union_w = n) |>
+  full_join(tbl_counts)
+tbl_counts <- male_alt |> 
+  count(raceh) |> 
+  rename(race = raceh, n_alt_h =n) |>
+  full_join(tbl_counts)
+tbl_counts <- female_alt |> 
+  count(racew) |>
+  rename(race = racew, n_alt_w =n) |>
+  full_join(tbl_counts) |>
+  select(race, n_union_w, n_union_h, n_alt_w, n_alt_h)
+
+tbl_counts |>
+  gt(rowname_col = "race") |>
+  fmt_integer(starts_with("n_")) |>
+  cols_label(
+    race = "Race",
+    n_union_w = "Wife",
+    n_union_h = "Husband",
+    n_alt_w = "Women",
+    n_alt_h = "Men"
+  ) |>
+  cols_align(race, align = "left") |>
+  tab_spanner(
+    label = "Marriages",
+    columns = starts_with("n_union_")
+  ) |>
+  tab_spanner(
+    label = "Alternates",
+    columns = starts_with("n_alt_")
+  ) |>
+  grand_summary_rows(fns = list(list(label = "Total", fn = "sum")),
+                     fmt = ~ fmt_integer(.))
+```
 
 ```{r}
 #| label: fig-partner-choice-panel-color
@@ -411,5 +467,3 @@ temp |>
        y="odds of marriage with single race partner relative to endogamy")
 ```
 
-
-# Conclusions
