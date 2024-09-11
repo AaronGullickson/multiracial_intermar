@@ -20,13 +20,13 @@ format:
     fig-pos: "!t"
     colorlinks: true
     urlcolor: red
+  submittable-docx: default
 #  submittable-pdf:
 #     keep-tex: false
 #     fig-pos: "!t"
 #     include-in-header: 
 #       text: |
 #         \usepackage{dcolumn}
-  submittable-docx: default
 ---
 
 ```{r}
