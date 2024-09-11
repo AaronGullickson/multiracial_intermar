@@ -2,6 +2,7 @@
 title: "Supplementary Materials for Blurring the Marriage Market: Contemporary Patterns of Multiracial Marriage"
 format:
   pdf:
+    geometry: margin=0.5in
     keep-tex: false
     fig-pos: "!t"
     include-in-header: 
