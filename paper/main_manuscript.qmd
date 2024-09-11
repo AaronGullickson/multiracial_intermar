@@ -7,7 +7,7 @@ keywords: [Race, Multracial, Interracial, Assortative Mating, Intermarriage]
 #thanks: Thanks to everyone for checking this out.
 reference-section-title: References
 bibliography: ../bibliography/project.bib
-csl: ../bibliography/demography.csl
+csl: ../bibliography/chicago-parenthetical.csl
 format:
   aog-article-pdf:
     keep-tex: false
