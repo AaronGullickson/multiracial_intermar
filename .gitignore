@@ -9,6 +9,7 @@
 # Constructed files
 #*.html
 *.pdf
+*.docx
 *.log
 *.RData
 # Ignore all the junk created by LaTeX
