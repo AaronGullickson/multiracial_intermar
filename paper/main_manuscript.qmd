@@ -11,7 +11,7 @@ csl: ../bibliography/chicago-parenthetical.csl
 format:
   aog-article-pdf:
     keep-tex: false
-    mainfont: Baskerville 
+    #mainfont: Baskerville 
     sansfont: Futura-Medium
     fontsize: 12pt   
     geometry: margin=1in
