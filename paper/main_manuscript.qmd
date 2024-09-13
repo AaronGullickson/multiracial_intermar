@@ -21,12 +21,13 @@ format:
     colorlinks: true
     urlcolor: red
   submittable-docx: default
-#  submittable-pdf:
-#     keep-tex: false
-#     fig-pos: "!t"
-#     include-in-header: 
-#       text: |
-#         \usepackage{dcolumn}
+  submittable-pdf:
+     keep-tex: false
+     titlepage: true
+     endnotes: false
+     fig-pos: "!t"
+     fig-height: 4     # smaller fig heights make floating easier
+     fig-width: 7.5    # set to the (full width - margins) of letter   
 ---
 
 ```{r}
