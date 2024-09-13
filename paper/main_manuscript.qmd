@@ -1,5 +1,5 @@
 ---
-title: "Blurring the Marriage Market: Contemporary Patterns of Multiracial Marriage"
+title: "Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage"
 shorttitle: "Blurring the Marriage Market"
 shortauthors: Gullickson and Bratter
 abstract: Research on interracial marriage has only begun to incorporate the growing mixed-race population. Using the 2010-2019 pooled American Community Survey, we  explore the likelihood of a range of pairings relative to racial endogamy for multiracial people, while accounting for group size and controls for education, age, and immigration status. A distinguishing feature of marriage for multiracial individuals is the possibility of partial overlap in racial identification - having one component race in common with one’s partner.  We find that racial endogamy for many multiracial individuals is relatively quite high, once adjusting for group size, and that partial overlap increases the likelihood of an exogamous union. Furthermore, partial overlap in racial identification between multiracial and monoracial partners reveals the importance of racial classification regimes determining how multiracial individuals are treated on the marriage market. We find no evidence of a general affinity amongst multiracial individuals who do not share racial ancestry nor do we find that multiracial individuals’ partner choices are less affected by race than monoracial individuals. These patterns have implications for the significance of established racial boundaries and the on-going churning of racial categories even as those categories become more ancestrally complex.
@@ -402,7 +402,7 @@ These estimates are also consistent with our predictions based on racial classif
 
 Part-Asian groups have intermarriage patterns that reflect an “in-between” racial regime. The results for Black-Asian and Asian-Indigenous individuals are somewhat imprecise due to smaller sample sizes, but are generally consistent with the expectations of the Black and Indigenous classification regimes, respectively. White-Asian individuals, for whom we have less clear expectations, are the most likely of any multiracial group to partner with both monoracial component groups. They are slightly more likely to marry White partners than Asian partners, but the difference is not statistically significant.
 
-## Multiracial and Monoracial to Latino Intermarriage
+## Latinos and Multiracial Intermarriage
 
 Unexpectedly, we observe that all six multiracial groups have a substantial likelihood of intermarriage with Latinos. In many cases, these odds are close to or even higher than the odds of marrying a monoracial group with a partial overlap in racial identification. This finding may be explained by broader patterns of Latino intermarriage. We illustrate these patterns in @fig-odds-ratios-latino, which shows the overall odds of interracial marriage for Latinos to all other groups, relative to endogamy.
 
