@@ -222,7 +222,7 @@ code_generation <- function(bpl, age, year, yr_usa) {
 
 # Read in the data
 
-The data are ACS data from 2016-2021, extracted via IPUMS. To keep each extract small, I extract each year separately and then combined them together when I read them in. They are fixed-width files identical in structure. Below, I show all variables and their position in the files. This is for 2021, but the structure is identical for all years.
+The data are ACS data from 2010-2019, extracted via IPUMS. Below, I show all variables and their position in the files. 
 
 ```
   Variable                         Columns        Len   2010    2011    2012    2013    2014    2015    2016    2017    2018    2019    
@@ -233,60 +233,41 @@ The data are ACS data from 2016-2021, extracted via IPUMS. To keep each extract 
   HHWT                         H  32-41          10     X       X       X       X       X       X       X       X       X       X       
   CLUSTER                      H  42-54          13     X       X       X       X       X       X       X       X       X       X       
   STATEFIP                     H  55-56           2     X       X       X       X       X       X       X       X       X       X       
-  MET2013                      H  57-61           5     X       X       X       X       X       X       X       X       X       X       
-  STRATA                       H  62-73          12     X       X       X       X       X       X       X       X       X       X       
-  GQ                           H  74              1     X       X       X       X       X       X       X       X       X       X       
-  PERNUM                       P  75-78           4     X       X       X       X       X       X       X       X       X       X       
-  PERWT                        P  79-88          10     X       X       X       X       X       X       X       X       X       X       
-  SEX                          P  89              1     X       X       X       X       X       X       X       X       X       X       
-  AGE                          P  90-92           3     X       X       X       X       X       X       X       X       X       X       
-  MARST                        P  93              1     X       X       X       X       X       X       X       X       X       X       
-  MARRNO                       P  94              1     X       X       X       X       X       X       X       X       X       X       
-  YRMARR                       P  95-98           4     X       X       X       X       X       X       X       X       X       X       
-  RACE                         P  99              1     X       X       X       X       X       X       X       X       X       X       
-  RACED                        P 100-102          3     X       X       X       X       X       X       X       X       X       X       
-  HISPAN                       P 103              1     X       X       X       X       X       X       X       X       X       X       
-  HISPAND                      P 104-106          3     X       X       X       X       X       X       X       X       X       X       
-  BPL                          P 107-109          3     X       X       X       X       X       X       X       X       X       X       
-  BPLD                         P 110-114          5     X       X       X       X       X       X       X       X       X       X       
-  YRIMMIG                      P 115-118          4     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGE                     P 119-120          2     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGED                    P 121-124          4     X       X       X       X       X       X       X       X       X       X       
-  EDUC                         P 125-126          2     X       X       X       X       X       X       X       X       X       X       
-  EDUCD                        P 127-129          3     X       X       X       X       X       X       X       X       X       X       
-  PERNUM_SP                    P 130-133          4     X       X       X       X       X       X       X       X       X       X       
-  SEX_SP                       P 134              1     X       X       X       X       X       X       X       X       X       X       
-  AGE_SP                       P 135-137          3     X       X       X       X       X       X       X       X       X       X       
-  RACED_SP                     P 138-140          3     X       X       X       X       X       X       X       X       X       X       
-  HISPAND_SP                   P 141-143          3     X       X       X       X       X       X       X       X       X       X       
-  BPLD_SP                      P 144-148          5     X       X       X       X       X       X       X       X       X       X       
-  YRIMMIG_SP                   P 149-152          4     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGED_SP                 P 153-156          4     X       X       X       X       X       X       X       X       X       X       
-  EDUCD_SP                     P 157-159          3     X       X       X       X       X       X       X       X       X       X    
+  COUNTYFIP                    H  57-59           3     X       X       X       X       X       X       X       X       X       X       
+  PUMA                         H  60-64           5     X       X       X       X       X       X       X       X       X       X       
+  MET2013                      H  65-69           5     X       X       X       X       X       X       X       X       X       X       
+  STRATA                       H  70-81          12     X       X       X       X       X       X       X       X       X       X       
+  GQ                           H  82              1     X       X       X       X       X       X       X       X       X       X       
+  PERNUM                       P  83-86           4     X       X       X       X       X       X       X       X       X       X       
+  PERWT                        P  87-96          10     X       X       X       X       X       X       X       X       X       X       
+  SEX                          P  97              1     X       X       X       X       X       X       X       X       X       X       
+  AGE                          P  98-100          3     X       X       X       X       X       X       X       X       X       X       
+  MARST                        P 101              1     X       X       X       X       X       X       X       X       X       X       
+  MARRNO                       P 102              1     X       X       X       X       X       X       X       X       X       X       
+  YRMARR                       P 103-106          4     X       X       X       X       X       X       X       X       X       X       
+  RACE                         P 107              1     X       X       X       X       X       X       X       X       X       X       
+  RACED                        P 108-110          3     X       X       X       X       X       X       X       X       X       X       
+  HISPAN                       P 111              1     X       X       X       X       X       X       X       X       X       X       
+  HISPAND                      P 112-114          3     X       X       X       X       X       X       X       X       X       X       
+  BPL                          P 115-117          3     X       X       X       X       X       X       X       X       X       X       
+  BPLD                         P 118-122          5     X       X       X       X       X       X       X       X       X       X       
+  YRIMMIG                      P 123-126          4     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGE                     P 127-128          2     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGED                    P 129-132          4     X       X       X       X       X       X       X       X       X       X       
+  EDUC                         P 133-134          2     X       X       X       X       X       X       X       X       X       X       
+  EDUCD                        P 135-137          3     X       X       X       X       X       X       X       X       X       X       
+  PERNUM_SP                    P 138-141          4     X       X       X       X       X       X       X       X       X       X       
+  SEX_SP                       P 142              1     X       X       X       X       X       X       X       X       X       X       
+  AGE_SP                       P 143-145          3     X       X       X       X       X       X       X       X       X       X       
+  RACED_SP                     P 146-148          3     X       X       X       X       X       X       X       X       X       X       
+  HISPAND_SP                   P 149-151          3     X       X       X       X       X       X       X       X       X       X       
+  BPLD_SP                      P 152-156          5     X       X       X       X       X       X       X       X       X       X       
+  YRIMMIG_SP                   P 157-160          4     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGED_SP                 P 161-164          4     X       X       X       X       X       X       X       X       X       X       
+  EDUCD_SP                     P 165-167          3     X       X       X       X       X       X       X       X       X       X       
 ```
-
-
-Below, I create the starting and ending indices as well as the variable names for the variables that I will pull from the fixed-width data. These numbers should correspond to those shown above. I capitalize all variables from the original data to distinguish my constructed variables (always lower case) from variables directly in the original data.
-
-```{r}
-#| label: create-cols-info
-acs_start <- c(1,11,32,55,57,75,89,90,93,94,95,100,104,110,115,121,127,130,134,135,138,141,144,149,153,157,57)
-acs_end   <- c(4,18,41,56,61,78,89,92,93,94,98,102,106,114,118,124,129,133,134,137,140,143,148,152,156,159,61)
-acs_names <- c("YEAR","SERIAL","HHWT","STATEFIP","METAREA","PERNUM",
-               "SEX","AGE","MARST","MARRNO","YRMARR","RACED",
-               "HISPAND","BPLD","YRIMMIG","LANGUAGED","EDUCD","PERNUM_SP",
-               "SEX_SP","AGE_SP","RACED_SP","HISPAND_SP","BPLD_SP",
-               "YRIMMIG_SP","LANGUAGED_SP","EDUCD_SP","MET2013")
-tibble(variable=acs_names, start=acs_start, end=acs_end) |>
-  gt()
-```
-
-
-
 
 Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted.
-
-
 
 ```{r}
 #| label: read-data
@@ -294,12 +275,40 @@ Now, I am ready to read the data in. Because the dataset is very large, the data
 # where the downloaded data will live (temporarily)
 file_path <- here("data","data_raw","acs.dat.gz")
 
-drive_download(as_id("1RPggOQwVuVBoabwljuTr_ncNSbIvKKvU"), path=file_path)
+# download the data file
+drive_download(as_id("15jz02cevyTvLvGoyivrhQ5AU_lN8Z6Xu"), path=file_path)
 
 acs <- read_fwf(file_path,
-                col_positions = fwf_positions(start = acs_start,
-                                              end   = acs_end,
-                                              col_names = acs_names),
+                col_positions = fwf_cols(
+                  YEAR = c(1, 4),
+                  SERIAL = c(11, 18),
+                  HHWT = c(32, 41),
+                  STATEFIP = c(55, 56),
+                  COUNTYFIP = c(57, 59),
+                  PUMA = c(60, 64),
+                  MET2013 = c(65, 69),
+                  PERNUM = c(83, 86),
+                  SEX = 97,
+                  AGE = c(98, 100),
+                  MARST = 101,
+                  MARRNO = 102,
+                  YRMARR = c(103, 106),
+                  RACED = c(108, 110),
+                  HISPAND = c(112, 114),
+                  BPLD = c(118, 122),
+                  YRIMMIG = c(123, 126),
+                  LANGUAGED = c(129, 132),
+                  EDUCD = c(135, 137),
+                  PERNUM_SP = c(138, 141),
+                  SEX_SP = 142,
+                  AGE_SP = c(143, 145),
+                  RACED_SP = c(146, 148),
+                  HISPAND_SP = c(149, 151),
+                  BPLD_SP = c(152, 156),
+                  YRIMMIG_SP = c(157, 160),
+                  LANGUAGED_SP = c(161, 164),
+                  EDUCD_SP = c(165, 167)
+                ),
                 col_types = cols(.default = "i", HHWT="d"), 
                 progress = FALSE)
 
@@ -308,6 +317,13 @@ file.remove(file_path)
 ```
 
 # Code variables
+
+```{r}
+#| label: county-met-correspondence
+table(acs$COUNTYFIP != 0, acs$MET2013 != 0)
+```
+
+The table above shows the cases where county and/or metro area are identifiable in the full data. We have considerably more cases where metro area is identifiable than county is identifiable.
 
 I recode, create, and clean all of the variables that I need in one `mutate` call. Embedded comments should provide more details. I will check my coding below. 
 
@@ -339,15 +355,18 @@ acs <- acs |>
     lang = code_language(LANGUAGED),
     lang_sp = code_language(LANGUAGED_SP),
     ## marriage market id ##
-    # I am going to do marriage markets by state and year. No need to restrict
-    # to metro areas really as the differences are very small and this lets
-    # me maximize sample size
+    # we do marriage market with a cascading logic. First, we check for 
+    # met2013. If this is identifiable, then we assign the metro area. Second,
+    # for cases without met2013, we look for county and if identiable, then
+    # we assign it. Third, if we have neither metro area or county, we assign
+    # PUMA
+    mar_market = case_when(
+      MET2013 != 0 ~ paste("M", MET2013, YEAR, sep = "."),
+      COUNTYFIP != 0 ~ paste("C", STATEFIP, COUNTYFIP, YEAR, sep = "."),
+      TRUE ~ paste("P", STATEFIP, PUMA, YEAR, sep = ".")
+    ),
+    # a simpler alternative would be to use state
     #mar_market = paste(STATEFIP, YEAR, sep=""),
-    # an alternate marriage market formulation would be to use met2013 where 
-    # available and state otherwise
-    mar_market = ifelse(MET2013 == 0, 
-                        paste(STATEFIP, YEAR, sep=""), 
-                        paste(MET2013, YEAR, sep=""))
     ## marriage duration ##
     dur_mar = ifelse(YRMARR==0, NA, YEAR - YRMARR),
     ## country of birth of respondent and spouse - see code_bpl for details ##
@@ -410,6 +429,13 @@ summary(acs$dur_mar)
 # check immigrant generation
 table(acs$bpl>1, acs$immig_gen, exclude=NULL)
 table(acs$bpl_sp>1, acs$immig_gen_sp, exclude=NULL)
+
+# check marriage market
+acs |>
+  mutate(mar_market_type = str_sub(mar_market, 1, 1)) |>
+  group_by(mar_market_type) |>
+  summarize(n = n()) |>
+  mutate(percent = 100 * n/sum(n))
 
 options(max.print=99999)
 ```
