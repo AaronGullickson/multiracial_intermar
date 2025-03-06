@@ -36,9 +36,9 @@ I set up a few key parameters right at the top of the document
 ```{r}
 #| label: set-params
 set.seed(39)
-years_mar <- 5  # limit on the duration of marriages that will be identified
-n_samples <- 3  # number of separate marriage markets to construct
-n_fakes   <- 7  # number of fake unions to generate for each real one
+years_mar <- 5   # limit on the duration of marriages that will be identified
+n_samples <- 10  # number of separate marriage markets to construct
+n_fakes   <- 7   # number of fake unions to generate for each real one
 ```
 
 Next, I set up several functions that will be useful for coding the data. Since I have to repeat the same coding for several variables on both partners in a union, it makes sense to put that coding into a function to minimize code and the risk of error.
