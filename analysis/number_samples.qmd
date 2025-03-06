@@ -1,0 +1,30 @@
+---
+title: "Number of Samples Analysis"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(here)
+source(here("utils","check_packages.R"))
+source(here("utils","functions.R"))
+load(here("data","data_constructed","models.RData"))
+model_short_sym_imp3 <- model_short_sym
+load(here("data","data_constructed_imp5","models.RData"))
+model_short_sym_imp5 <- model_short_sym
+load(here("data","data_constructed_imp10","models.RData"))
+model_short_sym_imp10 <- model_short_sym
+```
+
+```{r}
+#| label: tbl-full-models
+#| tbl-cap: Models of marriage formation using different number of separate samples pooled into a final model that incorporates within and between model variance.
+#| results: asis
+htmlreg(lapply(list(model_short_sym_imp3, model_short_sym_imp5, 
+                    model_short_sym_imp10), convertModel),
+        digits=3,
+        custom.model.names = c("m = 3", "m = 5", "m = 10"),
+        caption=NULL,
+        caption.above=TRUE)
+```
