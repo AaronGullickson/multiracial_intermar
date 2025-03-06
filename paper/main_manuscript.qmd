@@ -12,7 +12,7 @@ format:
   aog-article-pdf:
     keep-tex: false
     #mainfont: Baskerville 
-    sansfont: Futura-Medium
+    #sansfont: Futura-Medium
     fontsize: 12pt   
     geometry: margin=1in
     fig-height: 4     # smaller fig heights make floating easier
@@ -20,14 +20,14 @@ format:
     fig-pos: "!t"
     colorlinks: true
     urlcolor: red
-  submittable-docx: default
-  submittable-pdf:
-     keep-tex: false
-     titlepage: true
-     endnotes: false
-     fig-pos: "!t"
-     fig-height: 4     # smaller fig heights make floating easier
-     fig-width: 7.5    # set to the (full width - margins) of letter   
+  #submittable-docx: default
+  #submittable-pdf:
+  #   keep-tex: false
+  #   titlepage: true
+  #   endnotes: false
+  #   fig-pos: "!t"
+  #   fig-height: 4     # smaller fig heights make floating easier
+  #   fig-width: 7.5    # set to the (full width - margins) of letter   
 ---
 
 ```{r}
