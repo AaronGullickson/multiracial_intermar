@@ -1,4 +1,4 @@
-Description: Revision of Multiracial Intermarriage Revision 2010-2019 (forgot pernum of spouse)
+Description: Revision of (Revision of Multiracial Intermarriage Revision 2010-2019 (add PUMA and COUNTYFIPS variables))
 Samples selected:
       2010 ACS
       2011 ACS
@@ -20,36 +20,38 @@ Case Selection:               Yes
   HHWT                         H  32-41          10     X       X       X       X       X       X       X       X       X       X       
   CLUSTER                      H  42-54          13     X       X       X       X       X       X       X       X       X       X       
   STATEFIP                     H  55-56           2     X       X       X       X       X       X       X       X       X       X       
-  MET2013                      H  57-61           5     X       X       X       X       X       X       X       X       X       X       
-  STRATA                       H  62-73          12     X       X       X       X       X       X       X       X       X       X       
-  GQ                           H  74              1     X       X       X       X       X       X       X       X       X       X       
-  PERNUM                       P  75-78           4     X       X       X       X       X       X       X       X       X       X       
-  PERWT                        P  79-88          10     X       X       X       X       X       X       X       X       X       X       
-  SEX                          P  89              1     X       X       X       X       X       X       X       X       X       X       
-  AGE                          P  90-92           3     X       X       X       X       X       X       X       X       X       X       
-  MARST                        P  93              1     X       X       X       X       X       X       X       X       X       X       
-  MARRNO                       P  94              1     X       X       X       X       X       X       X       X       X       X       
-  YRMARR                       P  95-98           4     X       X       X       X       X       X       X       X       X       X       
-  RACE                         P  99              1     X       X       X       X       X       X       X       X       X       X       
-  RACED                        P 100-102          3     X       X       X       X       X       X       X       X       X       X       
-  HISPAN                       P 103              1     X       X       X       X       X       X       X       X       X       X       
-  HISPAND                      P 104-106          3     X       X       X       X       X       X       X       X       X       X       
-  BPL                          P 107-109          3     X       X       X       X       X       X       X       X       X       X       
-  BPLD                         P 110-114          5     X       X       X       X       X       X       X       X       X       X       
-  YRIMMIG                      P 115-118          4     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGE                     P 119-120          2     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGED                    P 121-124          4     X       X       X       X       X       X       X       X       X       X       
-  EDUC                         P 125-126          2     X       X       X       X       X       X       X       X       X       X       
-  EDUCD                        P 127-129          3     X       X       X       X       X       X       X       X       X       X       
-  PERNUM_SP                    P 130-133          4     X       X       X       X       X       X       X       X       X       X       
-  SEX_SP                       P 134              1     X       X       X       X       X       X       X       X       X       X       
-  AGE_SP                       P 135-137          3     X       X       X       X       X       X       X       X       X       X       
-  RACED_SP                     P 138-140          3     X       X       X       X       X       X       X       X       X       X       
-  HISPAND_SP                   P 141-143          3     X       X       X       X       X       X       X       X       X       X       
-  BPLD_SP                      P 144-148          5     X       X       X       X       X       X       X       X       X       X       
-  YRIMMIG_SP                   P 149-152          4     X       X       X       X       X       X       X       X       X       X       
-  LANGUAGED_SP                 P 153-156          4     X       X       X       X       X       X       X       X       X       X       
-  EDUCD_SP                     P 157-159          3     X       X       X       X       X       X       X       X       X       X       
+  COUNTYFIP                    H  57-59           3     X       X       X       X       X       X       X       X       X       X       
+  PUMA                         H  60-64           5     X       X       X       X       X       X       X       X       X       X       
+  MET2013                      H  65-69           5     X       X       X       X       X       X       X       X       X       X       
+  STRATA                       H  70-81          12     X       X       X       X       X       X       X       X       X       X       
+  GQ                           H  82              1     X       X       X       X       X       X       X       X       X       X       
+  PERNUM                       P  83-86           4     X       X       X       X       X       X       X       X       X       X       
+  PERWT                        P  87-96          10     X       X       X       X       X       X       X       X       X       X       
+  SEX                          P  97              1     X       X       X       X       X       X       X       X       X       X       
+  AGE                          P  98-100          3     X       X       X       X       X       X       X       X       X       X       
+  MARST                        P 101              1     X       X       X       X       X       X       X       X       X       X       
+  MARRNO                       P 102              1     X       X       X       X       X       X       X       X       X       X       
+  YRMARR                       P 103-106          4     X       X       X       X       X       X       X       X       X       X       
+  RACE                         P 107              1     X       X       X       X       X       X       X       X       X       X       
+  RACED                        P 108-110          3     X       X       X       X       X       X       X       X       X       X       
+  HISPAN                       P 111              1     X       X       X       X       X       X       X       X       X       X       
+  HISPAND                      P 112-114          3     X       X       X       X       X       X       X       X       X       X       
+  BPL                          P 115-117          3     X       X       X       X       X       X       X       X       X       X       
+  BPLD                         P 118-122          5     X       X       X       X       X       X       X       X       X       X       
+  YRIMMIG                      P 123-126          4     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGE                     P 127-128          2     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGED                    P 129-132          4     X       X       X       X       X       X       X       X       X       X       
+  EDUC                         P 133-134          2     X       X       X       X       X       X       X       X       X       X       
+  EDUCD                        P 135-137          3     X       X       X       X       X       X       X       X       X       X       
+  PERNUM_SP                    P 138-141          4     X       X       X       X       X       X       X       X       X       X       
+  SEX_SP                       P 142              1     X       X       X       X       X       X       X       X       X       X       
+  AGE_SP                       P 143-145          3     X       X       X       X       X       X       X       X       X       X       
+  RACED_SP                     P 146-148          3     X       X       X       X       X       X       X       X       X       X       
+  HISPAND_SP                   P 149-151          3     X       X       X       X       X       X       X       X       X       X       
+  BPLD_SP                      P 152-156          5     X       X       X       X       X       X       X       X       X       X       
+  YRIMMIG_SP                   P 157-160          4     X       X       X       X       X       X       X       X       X       X       
+  LANGUAGED_SP                 P 161-164          4     X       X       X       X       X       X       X       X       X       X       
+  EDUCD_SP                     P 165-167          3     X       X       X       X       X       X       X       X       X       X       
 
 Variable Availability Key:
 All Years X - available in this sample
@@ -209,8 +211,18 @@ YEAR                Census year
 2019                2019
 2020                2020
 2021                2021
+2022                2022
+2023                2023
 
 SAMPLE              IPUMS sample identifier
+202304              2019-2023, PRCS 5-year
+202303              2019-2023, ACS 5-year
+202302              2023 PRCS
+202301              2023 ACS
+202204              2018-2022, PRCS 5-year
+202203              2018-2022, ACS 5-year
+202202              2022 PRCS
+202201              2022 ACS
 202104              2017-2021, PRCS 5-year
 202103              2017-2021, ACS 5-year
 202102              2021 PRCS
@@ -323,6 +335,7 @@ SAMPLE              IPUMS sample identifier
 197001              1970 Form 1 State
 196002              1960 5%
 196001              1960 1%
+195002              1950 100% database
 195001              1950 1%
 194002              1940 100% database
 194001              1940 1%
@@ -418,9 +431,10 @@ STATEFIP            State (FIPS code)
 97                  Military/Mil. Reservation
 99                  State not identified
 
-MET2013             Metropolitan area (2013 OMB delineations)
+MET2013             Metropolitan area (2013 delineations, identifiable areas only)
 00000               Not in identifiable area
 10420               Akron, OH
+10540               Albany, OR
 10580               Albany-Schenectady-Troy, NY
 10740               Albuquerque, NM
 10780               Alexandria, LA
@@ -444,6 +458,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 12940               Baton Rouge, LA
 12980               Battle Creek, MI
 13140               Beaumont-Port Arthur, TX
+13220               Beckley, WV
 13380               Bellingham, WA
 13460               Bend-Redmond, OR
 13740               Billings, MT
@@ -461,6 +476,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 15380               Buffalo-Cheektowaga-Niagara Falls, NY
 15500               Burlington, NC
 15540               Burlington-South Burlington, VT
+15680               California-Lexington Park, MD
 15940               Canton-Massillon, OH
 15980               Cape Coral-Fort Myers, FL
 16580               Champaign-Urbana, IL
@@ -469,10 +485,12 @@ MET2013             Metropolitan area (2013 OMB delineations)
 16740               Charlotte-Concord-Gastonia, NC-SC
 16820               Charlottesville, VA
 16860               Chattanooga, TN-GA
+16940               Cheyenne, WY
 16980               Chicago-Naperville-Elgin, IL-IN-WI
 17020               Chico, CA
 17140               Cincinnati, OH-KY-IN
 17300               Clarksville, TN-KY
+17420               Cleveland, TN
 17460               Cleveland-Elyria, OH
 17660               Coeur d'Alene, ID
 17780               College Station-Bryan, TX
@@ -481,6 +499,8 @@ MET2013             Metropolitan area (2013 OMB delineations)
 17900               Columbia, SC
 18140               Columbus, OH
 18580               Corpus Christi, TX
+18700               Corvallis, OR
+18880               Crestview-Fort Walton Beach-Destin, FL
 19100               Dallas-Fort Worth-Arlington, TX
 19300               Daphne-Fairhope-Foley, AL
 19340               Davenport-Moline-Rock Island, IA-IL
@@ -491,6 +511,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 19740               Denver-Aurora-Lakewood, CO
 19780               Des Moines-West Des Moines, IA
 19820               Detroit-Warren-Dearborn, MI
+20020               Dothan, AL
 20100               Dover, DE
 20500               Durham-Chapel Hill, NC
 20700               East Stroudsburg, PA
@@ -546,7 +567,9 @@ MET2013             Metropolitan area (2013 OMB delineations)
 27340               Jacksonville, NC
 27500               Janesville-Beloit, WI
 27620               Jefferson City, MO
+27740               Johnson City, TN
 27780               Johnstown, PA
+27860               Jonesboro, AR
 27900               Joplin, MO
 28020               Kalamazoo-Portage, MI
 28100               Kankakee, IL
@@ -567,6 +590,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 29740               Las Cruces, NM
 29820               Las Vegas-Henderson-Paradise, NV
 29940               Lawrence, KS
+30020               Lawton, OK
 30140               Lebanon, PA
 30340               Lewiston-Auburn, ME
 30620               Lima, OH
@@ -578,6 +602,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 31340               Lynchburg, VA
 31460               Madera, CA
 31700               Manchester-Nashua, NH
+31860               Mankato-North Mankato, MN
 31900               Mansfield, OH
 32420               Mayagüez, PR
 32580               McAllen-Edinburg-Mission, TX
@@ -595,6 +620,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 33780               Monroe, MI
 33860               Montgomery, AL
 34060               Morgantown, WV
+34580               Mount Vernon-Anacortes, WA
 34620               Muncie, IN
 34740               Muskegon, MI
 34820               Myrtle Beach-Conway-North Myrtle Beach, SC-NC
@@ -653,6 +679,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 41100               St. George, UT
 41140               St. Joseph, MO-KS
 41180               St. Louis, MO-IL
+41420               Salem, OR
 41500               Salinas, CA
 41540               Salisbury, MD-DE
 41620               Salt Lake City, UT
@@ -686,10 +713,12 @@ MET2013             Metropolitan area (2013 OMB delineations)
 45220               Tallahassee, FL
 45300               Tampa-St. Petersburg-Clearwater, FL
 45460               Terre Haute, IN
+45540               The Villages, FL
 45780               Toledo, OH
 45820               Topeka, KS
 45940               Trenton, NJ
 46060               Tucson, AZ
+46140               Tulsa, OK
 46220               Tuscaloosa, AL
 46340               Tyler, TX
 46520               Urban Honolulu, HI
@@ -700,6 +729,7 @@ MET2013             Metropolitan area (2013 OMB delineations)
 47260               Virginia Beach-Norfolk-Newport News, VA-NC
 47300               Visalia-Porterville, CA
 47380               Waco, TX
+47580               Warner Robins, GA
 47900               Washington-Arlington-Alexandria, DC-VA-MD-WV
 48140               Wausau, WI
 48300               Wenatchee, WA
@@ -729,6 +759,7 @@ GQ                  Group quarters status
 SEX                 Sex
 1                   Male
 2                   Female
+9                   Missing/blank
 
 AGE                 Age
 000                 Less than 1 year old
@@ -858,9 +889,17 @@ AGE                 Age
 124                 124
 125                 125
 126                 126
+127                 127
+128                 128
 129                 129
 130                 130
+131                 131
+132                 132
+133                 133
+134                 134
 135                 135
+140                 140
+999                 Missing
 
 MARST               Marital status
 1                   Married, spouse present
@@ -869,6 +908,7 @@ MARST               Marital status
 4                   Divorced
 5                   Widowed
 6                   Never married/single
+9                   Blank, missing
 
 MARRNO              Times married
 0                   Not Applicable
@@ -936,6 +976,12 @@ RACED               Race [detailed version]
 328                 Hopi
 329                 Central American Indian
 330                 Spanish American Indian
+340                 Aztec
+341                 Inca
+342                 Maya
+343                 Mixtec
+344                 Taino
+345                 Tarasco (Purepecha)
 350                 Delaware
 351                 Latin American Indian
 352                 Puget Sound Salish
@@ -949,6 +995,8 @@ RACED               Race [detailed version]
 360                 Mexican American Indian
 361                 Other Amer. Indian tribe (2000,ACS)
 362                 2+ Amer. Indian tribes (2000,ACS)
+363                 American Indian alone, not specified
+364                 All other Latin American Indian alone
                     Alaskan Native:
 370                 Alaskan Athabaskan
 371                 Aleut
@@ -957,6 +1005,8 @@ RACED               Race [detailed version]
 374                 Inupiat
 375                 Yup'ik
 379                 Other Alaska Native tribe(s) (2000,ACS)
+380                 Alaska Native alone, not specified
+381                 Alaska Native tribes and villages alone
 398                 Both Am. Ind. and Alaska Native (2000,ACS)
 399                 Tribe not specified
                     Asian or Pacific Islander:
@@ -979,6 +1029,10 @@ RACED               Race [detailed version]
 651                 Asian only (CPS)
 652                 Pacific Islander only (CPS)
 653                 Asian or Pacific Islander, n.s. (1990 Internal Census files)
+656                 Mien
+657                 Sikh
+658                 Kazakh
+659                 Uzbek
 660                 Cambodian
 661                 Hmong
 662                 Laotian
@@ -1012,10 +1066,13 @@ RACED               Race [detailed version]
 687                 Palauan
 688                 Other Micronesian (1990)
 689                 1+ other Micronesian races (2000,ACS)
+690                 Chuukese
+691                 Guamanian
+692                 Marshallese
                     Melanesian region:
-690                 Fijian
-691                 Other Melanesian (1990)
-692                 1+ other Melanesian races (2000,ACS)
+695                 Fijian
+696                 Other Melanesian (1990)
+697                 1+ other Melanesian races (2000,ACS)
                     Pacific Islanders from two or more PI regions:
 698                 2+ PI races from 2+ PI regions
 699                 Pacific Islander, n.s.
@@ -1105,12 +1162,15 @@ RACED               Race [detailed version]
 922                 White, Asian write_in, other race write_in (2000 1%)
 923                 Other White, Asian race(s), other race write_in (2000 1%)
 925                 White, PI, other race write_in
+926                 White and Japanese and Native Hawaiian and Pacific Islander
+927                 White and Asian and Native Hawaiian and Pacific Islander
 930                 Black, AIAN, Asian
 931                 Black, AIAN, PI
 932                 Black, AIAN, other race write_in
 933                 Black, Asian, PI
 934                 Black, Asian, other race write_in
 935                 Black, PI, other race write_in
+936                 Black and Native Hawaiian and Other Pacific Islander
 940                 AIAN, Asian, PI
 941                 AIAN, Asian, other race write_in
 942                 AIAN, PI, other race write_in
@@ -1149,6 +1209,7 @@ RACED               Race [detailed version]
 990                 White, Black, AIAN, Asian, PI, other race write_in
 991                 White race; Some other race; Black or African American race and/or American Indian and Alaska Native race and/or Asian groups and/or Native Hawaiian and Other Pacific Islander groups
 996                 2+ races, n.e.c. (CPS)
+997                 Unknown
 
 HISPAN              Hispanic origin [general version]
 0                   Not Hispanic
@@ -1407,6 +1468,7 @@ BPL                 Birthplace [general version]
 800                 Antarctica, ns/nec
 900                 Abroad (unknown) or at sea
 950                 Other n.e.c.
+997                 Unknown
 999                 Missing/blank
 
 BPLD                Birthplace [detailed version]
@@ -1417,6 +1479,7 @@ BPLD                Birthplace [detailed version]
 00500               Arkansas
 00600               California
 00800               Colorado
+00810               Colorado Territory
 00900               Connecticut
 01000               Delaware
 01100               District of Columbia
@@ -1436,11 +1499,15 @@ BPLD                Birthplace [detailed version]
 02500               Massachusetts
 02600               Michigan
 02700               Minnesota
+02710               Minnesota Territory
 02800               Mississippi
 02900               Missouri
 03000               Montana
+03010               Montana Territory
 03100               Nebraska
+03110               Nebraska Territory
 03200               Nevada
+03210               Nevada Territory
 03300               New Hampshire
 03400               New Jersey
 03500               New Mexico
@@ -1464,6 +1531,7 @@ BPLD                Birthplace [detailed version]
 05000               Vermont
 05100               Virginia
 05300               Washington
+05310               Washington Territory
 05400               West Virginia
 05500               Wisconsin
 05600               Wyoming
@@ -1981,6 +2049,7 @@ BPLD                Birthplace [detailed version]
 90022               At sea or abroad (U.S. citizen)
                     Other unknowns:
 95000               Other n.e.c.
+99700               Unknown
 99900               Missing/blank
 
 YRIMMIG             Year of immigration
@@ -2129,16 +2198,16 @@ YRIMMIG             Year of immigration
 1931                1931 (2005 - 2011 ACS: 1931-1932)
 1932                1932 (2012 - 2016 ACS 1-yr & 2016 5-yr files: 1932-1934)
 1933                1933 (2005 - 2011 ACS: 1933-1934)
-1934                1934 (2020 - 2021 ACS: 1934 or earlier)
-1935                1935 (1970 PUMS: 1935-1944; 2012 - 2016 ACS 1-yr & 2016 5-yr files: 1935-1936; 2017 - 2021 ACS: 1935-1938)
+1934                1934 (2020 - 2022: 1934 or earlier)
+1935                1935 (1970 PUMS: 1935-1944; 2012 - 2016 ACS 1-yr & 2016 5-yr files: 1935-1936; 2017 - 2022 ACS: 1935-1938)
 1936                1936
 1937                1937 (2012 - 2016 ACS 1-yr & 2016 5-yr files: 1937-1938)
-1938                1938
-1939                1939 (2018 - 2019 ACS: 1939-1940; 2020 - 2021 ACS: 1939-1942)
+1938                1938 (2023 ACS - Onward: 1938 or earlier)
+1939                1939 (2018 - 2019 ACS: 1939-1940; 2020 ACS - Onward: 1939-1942)
 1940                1940
 1941                1941 (2017 - 2019 ACS: 1941-1942)
 1942                1942
-1943                1943 (2012 - 2016 ACS 1-yr & 2016 5-yr files & 2017 - 2021 ACS: 1943-1944)
+1943                1943 (2012 - 2016 ACS 1-yr & 2016 5-yr files & 2017 ACS - Onward: 1943-1944)
 1944                1944
 1945                1945 (1970 PUMS: 1945-1949)
 1946                1946
@@ -2216,6 +2285,9 @@ YRIMMIG             Year of immigration
 2018                2018
 2019                2019
 2020                2020
+2021                2021
+2022                2022
+2023                2023
 0996                Not reported
 
 LANGUAGE            Language spoken [general version]
@@ -2850,6 +2922,7 @@ EDUC                Educational attainment [general version]
 09                  3 years of college
 10                  4 years of college
 11                  5+ years of college
+99                  Missing
 
 EDUCD               Educational attainment [detailed version]
 000                 N/A or no schooling
@@ -2900,6 +2973,7 @@ EDUCD               Educational attainment [detailed version]
 SEX_SP              Sex [of Spouse's location in household]
 1                   Male
 2                   Female
+9                   Missing/blank
 
 AGE_SP              Age [of Spouse's location in household]
 000                 Less than 1 year old
@@ -3029,9 +3103,17 @@ AGE_SP              Age [of Spouse's location in household]
 124                 124
 125                 125
 126                 126
+127                 127
+128                 128
 129                 129
 130                 130
+131                 131
+132                 132
+133                 133
+134                 134
 135                 135
+140                 140
+999                 Missing
 
 RACED_SP            Race [of Spouse's location in household; detailed version]
                     ONE MAJOR RACE GROUP
@@ -3073,6 +3155,12 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 328                 Hopi
 329                 Central American Indian
 330                 Spanish American Indian
+340                 Aztec
+341                 Inca
+342                 Maya
+343                 Mixtec
+344                 Taino
+345                 Tarasco (Purepecha)
 350                 Delaware
 351                 Latin American Indian
 352                 Puget Sound Salish
@@ -3086,6 +3174,8 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 360                 Mexican American Indian
 361                 Other Amer. Indian tribe (2000,ACS)
 362                 2+ Amer. Indian tribes (2000,ACS)
+363                 American Indian alone, not specified
+364                 All other Latin American Indian alone
                     Alaskan Native:
 370                 Alaskan Athabaskan
 371                 Aleut
@@ -3094,6 +3184,8 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 374                 Inupiat
 375                 Yup'ik
 379                 Other Alaska Native tribe(s) (2000,ACS)
+380                 Alaska Native alone, not specified
+381                 Alaska Native tribes and villages alone
 398                 Both Am. Ind. and Alaska Native (2000,ACS)
 399                 Tribe not specified
                     Asian or Pacific Islander:
@@ -3116,6 +3208,10 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 651                 Asian only (CPS)
 652                 Pacific Islander only (CPS)
 653                 Asian or Pacific Islander, n.s. (1990 Internal Census files)
+656                 Mien
+657                 Sikh
+658                 Kazakh
+659                 Uzbek
 660                 Cambodian
 661                 Hmong
 662                 Laotian
@@ -3149,10 +3245,13 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 687                 Palauan
 688                 Other Micronesian (1990)
 689                 1+ other Micronesian races (2000,ACS)
+690                 Chuukese
+691                 Guamanian
+692                 Marshallese
                     Melanesian region:
-690                 Fijian
-691                 Other Melanesian (1990)
-692                 1+ other Melanesian races (2000,ACS)
+695                 Fijian
+696                 Other Melanesian (1990)
+697                 1+ other Melanesian races (2000,ACS)
                     Pacific Islanders from two or more PI regions:
 698                 2+ PI races from 2+ PI regions
 699                 Pacific Islander, n.s.
@@ -3242,12 +3341,15 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 922                 White, Asian write_in, other race write_in (2000 1%)
 923                 Other White, Asian race(s), other race write_in (2000 1%)
 925                 White, PI, other race write_in
+926                 White and Japanese and Native Hawaiian and Pacific Islander
+927                 White and Asian and Native Hawaiian and Pacific Islander
 930                 Black, AIAN, Asian
 931                 Black, AIAN, PI
 932                 Black, AIAN, other race write_in
 933                 Black, Asian, PI
 934                 Black, Asian, other race write_in
 935                 Black, PI, other race write_in
+936                 Black and Native Hawaiian and Other Pacific Islander
 940                 AIAN, Asian, PI
 941                 AIAN, Asian, other race write_in
 942                 AIAN, PI, other race write_in
@@ -3286,6 +3388,7 @@ RACED_SP            Race [of Spouse's location in household; detailed version]
 990                 White, Black, AIAN, Asian, PI, other race write_in
 991                 White race; Some other race; Black or African American race and/or American Indian and Alaska Native race and/or Asian groups and/or Native Hawaiian and Other Pacific Islander groups
 996                 2+ races, n.e.c. (CPS)
+997                 Unknown
 
 HISPAND_SP          Hispanic origin [of Spouse's location in household; detailed version]
 000                 Not Hispanic
@@ -3356,6 +3459,7 @@ BPLD_SP             Birthplace [of Spouse's location in household; detailed vers
 00500               Arkansas
 00600               California
 00800               Colorado
+00810               Colorado Territory
 00900               Connecticut
 01000               Delaware
 01100               District of Columbia
@@ -3375,11 +3479,15 @@ BPLD_SP             Birthplace [of Spouse's location in household; detailed vers
 02500               Massachusetts
 02600               Michigan
 02700               Minnesota
+02710               Minnesota Territory
 02800               Mississippi
 02900               Missouri
 03000               Montana
+03010               Montana Territory
 03100               Nebraska
+03110               Nebraska Territory
 03200               Nevada
+03210               Nevada Territory
 03300               New Hampshire
 03400               New Jersey
 03500               New Mexico
@@ -3403,6 +3511,7 @@ BPLD_SP             Birthplace [of Spouse's location in household; detailed vers
 05000               Vermont
 05100               Virginia
 05300               Washington
+05310               Washington Territory
 05400               West Virginia
 05500               Wisconsin
 05600               Wyoming
@@ -3920,6 +4029,7 @@ BPLD_SP             Birthplace [of Spouse's location in household; detailed vers
 90022               At sea or abroad (U.S. citizen)
                     Other unknowns:
 95000               Other n.e.c.
+99700               Unknown
 99900               Missing/blank
 
 YRIMMIG_SP          Year of immigration [of Spouse's location in household]
@@ -4068,16 +4178,16 @@ YRIMMIG_SP          Year of immigration [of Spouse's location in household]
 1931                1931 (2005 - 2011 ACS: 1931-1932)
 1932                1932 (2012 - 2016 ACS 1-yr & 2016 5-yr files: 1932-1934)
 1933                1933 (2005 - 2011 ACS: 1933-1934)
-1934                1934 (2020 - 2021 ACS: 1934 or earlier)
-1935                1935 (1970 PUMS: 1935-1944; 2012 - 2016 ACS 1-yr & 2016 5-yr files: 1935-1936; 2017 - 2021 ACS: 1935-1938)
+1934                1934 (2020 - 2022: 1934 or earlier)
+1935                1935 (1970 PUMS: 1935-1944; 2012 - 2016 ACS 1-yr & 2016 5-yr files: 1935-1936; 2017 - 2022 ACS: 1935-1938)
 1936                1936
 1937                1937 (2012 - 2016 ACS 1-yr & 2016 5-yr files: 1937-1938)
-1938                1938
-1939                1939 (2018 - 2019 ACS: 1939-1940; 2020 - 2021 ACS: 1939-1942)
+1938                1938 (2023 ACS - Onward: 1938 or earlier)
+1939                1939 (2018 - 2019 ACS: 1939-1940; 2020 ACS - Onward: 1939-1942)
 1940                1940
 1941                1941 (2017 - 2019 ACS: 1941-1942)
 1942                1942
-1943                1943 (2012 - 2016 ACS 1-yr & 2016 5-yr files & 2017 - 2021 ACS: 1943-1944)
+1943                1943 (2012 - 2016 ACS 1-yr & 2016 5-yr files & 2017 ACS - Onward: 1943-1944)
 1944                1944
 1945                1945 (1970 PUMS: 1945-1949)
 1946                1946
@@ -4155,6 +4265,9 @@ YRIMMIG_SP          Year of immigration [of Spouse's location in household]
 2018                2018
 2019                2019
 2020                2020
+2021                2021
+2022                2022
+2023                2023
 0996                Not reported
 
 LANGUAGED_SP        Language spoken [of Spouse's location in household; detailed version]

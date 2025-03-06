@@ -38,7 +38,7 @@ coef_multi <- coef_short_sym |>
   filter(str_detect(variable, "Multi/Multi"))
 ```
 
-# Basic Table of Sample Sizes
+# Basic Sample Information
 
 ```{r}
 #| label: tbl-race-counts
@@ -96,6 +96,28 @@ tbl_counts |>
   ) |>
   grand_summary_rows(fns = list(list(label = "Total", fn = "sum")),
                      fmt = ~ fmt_integer(.))
+```
+
+
+```{r}
+#| label: tbl-market-type
+#| tbl-cap: Distribution of marriage market type for all alternate partners
+
+male_alt |>
+  bind_rows(female_alt) |>
+  mutate(market_type = factor(str_sub(mar_market, 1, 1),
+                              levels = c("M", "C", "P"),
+                              labels = c("Metro Area", "County", "PUMA"))) |>
+  group_by(market_type) |>
+  summarize(n = n()) |>
+  ungroup() |>
+  mutate(prop = n / sum(n)) |>
+  gt() |>
+  cols_label(market_type ~ "Type of marriage market",
+             n ~ "N",
+             prop ~ "Percent") |>
+  fmt_number(n, decimals = 0) |>
+  fmt_percent(prop, decimals = 1)
 ```
 
 # Raw differences in partner selection
