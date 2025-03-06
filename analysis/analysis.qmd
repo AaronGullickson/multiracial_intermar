@@ -701,7 +701,7 @@ For a better comparison across all cases, lets do a megaplot to get everything o
 
 ```{r}
 #| label: fig-megaplot
-#| fig-cap: Later
+#| fig-cap: Odds of interracial marriage across all cases from the full model. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively.
 #| fig-height: 10
 
 coef_short_sym |>
@@ -735,11 +735,11 @@ coef_short_sym |>
 
 ```{r}
 #| label: tbl-full-models
-#| tbl-cap: test
+#| tbl-cap: Model predicting union formation
 #| results: asis
 htmlreg(lapply(list(model_full_sym_multi, model_short_sym_multi,
                       model_short_sym, model_short_asym), convertModel),
         digits=3,
-        caption="Model predicting union formation",
+        caption=NULL,
         caption.above=TRUE)
 ```
