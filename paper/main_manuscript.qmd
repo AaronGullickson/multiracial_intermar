@@ -10,7 +10,7 @@ bibliography: ../bibliography/project.bib
 csl: ../bibliography/chicago-parenthetical.csl
 format:
   aog-article-pdf:
-    keep-tex: false
+    keep-tex: true 
     #mainfont: Baskerville 
     #sansfont: Futura-Medium
     fontsize: 12pt   
@@ -295,11 +295,7 @@ Results are presented graphically by the relative odds, or odds ratio, of a give
 #| label: fig-odds-ratios-multi
 #| fig-cap: Odds of interracial marriage with other multiracial groups for each multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates the case of an odds equal to one, meaning this type of intermarriage is as likely as endogamy.
 
-# the somewhat odd regular expression \\..*/ will identify all the names with a 
-# period followed by some characters followed by a forward slash. This will give
-# me all cases of a single race/multiple race marriage
-temp <- coef_full |>
-  filter(str_detect(variable, "-.*\\.*-")) |>
+coef_full |>
   mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
          race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
          race_cons1=str_split(race_ego, "-", simplify=TRUE)[,1],
@@ -308,28 +304,21 @@ temp <- coef_full |>
            str_detect(race_choice, race_cons2),
          overlap = factor(overlap, 
                               levels = c(FALSE, TRUE),
-                              labels = c("None", "Partial"))) |>
-  select(race_ego, race_choice, overlap, coef, se)
-         
-# this needs to be duplicated so that each possibility is both ego and choice.
-# easiest way to do this is to create a second one, flip the variables and 
-# bind them together
-temp2 <- temp
-temp <- temp2 |>
-  mutate(race_ego=temp$race_choice,
-         race_choice=temp$race_ego) |>
-  bind_rows(temp) |>
-  mutate(race_ego=factor(race_ego, 
-                         levels=c("White-Asian","Black-Asian",
-                                  "White-Indigenous","Black-Indigenous",
-                                  "White-Black","Asian-Indigenous")),
-         race_choice=factor(race_choice, 
-                         levels=c("White-Asian","Black-Asian",
-                                  "White-Indigenous","Black-Indigenous",
-                                  "White-Black","Asian-Indigenous")))
-
-
-ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
+                              labels = c("No overlap", "Partial overlap")),
+         variable=str_replace(variable, "\\.","/")) |>
+  mutate(variable = if_else(str_count(variable, "White") == 2, 
+                            str_replace_all(variable, "White", "**White**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Black") == 2, 
+                            str_replace_all(variable, "Black", "**Black**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Indigenous") == 2, 
+                            str_replace_all(variable, "Indigenous", "**Indigenous**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Asian") == 2, 
+                            str_replace_all(variable, "Asian", "**Asian**"), 
+                            variable)) |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
   geom_linerange(linewidth=1.25, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
   geom_linerange(linewidth=0.5, 
@@ -337,12 +326,12 @@ ggplot(temp, aes(x=race_choice, y=exp(coef), color=overlap))+
   geom_point(size=2)+
   geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
   coord_flip()+
-  facet_wrap(~race_ego, ncol=2)+
   scale_color_viridis_d(direction=-1, end=0.75)+
-  labs(x="multiple race partner", 
-       y="odds of marriage with multiple race partner relative to endogamy",
-       color="overlap in racial identification")+
-  theme_bw()
+  labs(x=NULL, 
+       y="odds of exogamous marriage with multiple race partner relative to multiracial endogamy",
+       color="partial overlap")+
+  theme_bw()+
+  theme(axis.text.y = element_markdown())
 ```
 
 Second, we find that the odds of multiracial-to-multiracial exogamy are generally higher when the two multiracial groups under consideration have a partial overlap in racial identification. For each focal group, there is one other multiracial group with no overlap (e.g. the Black-Indigenous group has no overlap with the White-Asian group). In five of the six cases, the non-overlapping groups have the lowest odds of exogamy among all choices. In the sole exception to this pattern, that of Asian/Indigenous spouses, the non-overlapping choice is still statistically tied for the lowest odds. Thus, we find that partial overlap in racial identification increases the odds of a union, although such unions are still far less likely than an exact match.
