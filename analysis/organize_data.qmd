@@ -37,7 +37,7 @@ I set up a few key parameters right at the top of the document
 #| label: set-params
 set.seed(39)
 years_mar <- 5   # limit on the duration of marriages that will be identified
-n_samples <- 10  # number of separate marriage markets to construct
+n_samples <- 5  # number of separate marriage markets to construct
 n_fakes   <- 7   # number of fake unions to generate for each real one
 ```
 
