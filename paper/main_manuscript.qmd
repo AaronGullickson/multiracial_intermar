@@ -20,7 +20,7 @@ format:
     fig-pos: "!t"
     colorlinks: true
     urlcolor: red
-  #submittable-docx: default
+  submittable-docx: default
   submittable-pdf:
      keep-tex: true
      titlepage: true
@@ -369,7 +369,7 @@ Given these findings, we estimate a more parsimonious model that collapses each 
 
 ```{r}
 #| label: fig-odds-ratios-single
-#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively.The grey line indicates an odds equal to one, meaning this type of interracial marriage is as likely as endogamy.
+#| fig-cap: Odds of interracial marriage with single race groups for each multiracial group. 83.4% and 95% confidence intervals are shown for each estimate with thick and thin bars, respectively. The grey line indicates an odds equal to one, meaning this type of interracial marriage is as likely as endogamy.
 
 # the somewhat odd regular expression \\..*- will identify all the names with a 
 # period followed by some characters followed by a dash. This will give
