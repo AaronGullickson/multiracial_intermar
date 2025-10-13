@@ -267,15 +267,17 @@ The data are ACS data from 2010-2019, extracted via IPUMS. Below, I show all var
   EDUCD_SP                     P 165-167          3     X       X       X       X       X       X       X       X       X       X       
 ```
 
-Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted.
+Now, I am ready to read the data in. Because the dataset is very large, the data are currently stored on Google Drive and accessed using the `googledrive` library. A local copy is downloaded, read in, and then deleted.^[IPUMS does not allow for redistribution of data and so this link will only work for co-authors with access to the google drive. However, the codebook available in `data/data_raw/usa_00139.cbk.txt` provides a description which others can use to construct an identical IPUMS extract.] 
 
 ```{r}
 #| label: read-data
 
 # where the downloaded data will live (temporarily)
+# if using a local file for replication, replace with file location
 file_path <- here("data","data_raw","acs.dat.gz")
 
 # download the data file
+# if using a local file for replication, comment this line out
 drive_download(as_id("15jz02cevyTvLvGoyivrhQ5AU_lN8Z6Xu"), path=file_path)
 
 acs <- read_fwf(file_path,
