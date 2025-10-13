@@ -4,7 +4,7 @@ shorttitle: "Blurring the Marriage Market"
 shortauthors: Gullickson and Bratter
 abstract: Research on interracial marriage has only begun to incorporate the growing mixed-race population. Using the 2010-2019 pooled American Community Survey, we  explore the likelihood of a range of spousal pairings relative to racial endogamy for multiracial people, while accounting for group size and controls for education, age, and immigration status. A distinguishing feature of marriage for multiracial individuals is the possibility of partial overlap in racial identification - having one component race in common with one’s partner.  We find that exact racial endogamy for many multiracial individuals is relatively quite high, once adjusting for group size, and that partial endogamy through overlap increases the likelihood of a union. Furthermore, partial overlap in racial identification between multiracial and monoracial partners reveals the importance of racial classification regimes determining how multiracial individuals are treated on the marriage market. We find no evidence of a general affinity amongst multiracial individuals who do not share racial ancestry nor do we find that multiracial individuals’ partner choices are less affected by race than monoracial individuals. These patterns have implications for the significance of established racial boundaries and the on-going churning of racial categories even as those categories become more ancestrally complex.
 keywords: [Race, Multracial, Interracial, Assortative Mating, Intermarriage]
-thanks: Replication materials for this article are available at [REDACTED FOR REVIEW].
+thanks: Replication materials for this article are available at https://github.com/AaronGullickson/multiracial_intermar.
 reference-section-title: References
 bibliography: ../bibliography/project.bib
 csl: ../bibliography/chicago-parenthetical.csl
@@ -20,14 +20,18 @@ format:
     fig-pos: "!t"
     colorlinks: true
     urlcolor: red
-  submittable-docx: default
-  submittable-pdf:
-     keep-tex: true
-     titlepage: true
-     endnotes: false
-     fig-pos: "!t"
-     fig-height: 4     # smaller fig heights make floating easier
-     fig-width: 7.5    # set to the (full width - margins) of letter   
+  submittable-docx:
+    keep-md: true
+    fig-format: pdf
+    fig-height: 4     # smaller fig heights make floating easier
+    fig-width: 7.5    # set to the (full width - margins) of letter 
+  #submittable-pdf:
+  #   keep-tex: true
+  #   titlepage: true
+  #   endnotes: false
+  #   fig-pos: "!t"
+  #   fig-height: 4     # smaller fig heights make floating easier
+  #   fig-width: 7.5    # set to the (full width - margins) of letter   
 ---
 
 ```{r}
