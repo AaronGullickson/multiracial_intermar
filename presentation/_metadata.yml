@@ -1,7 +1,7 @@
 format:
   revealjs:
     theme: blood
-    chalkboard: true
+    chalkboard: false
     preview-links: true
     incremental: true
     smaller: false
@@ -9,4 +9,4 @@ format:
     fig-align: center
     highlight-style: arrow
     code-line-numbers: false
-    self-contained: false
+    self-contained: true
