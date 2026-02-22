@@ -1,7 +1,8 @@
 ---
-title: "Presentation"
-subtitle: "A Thing I Did"
+title: "Blurring the Marriage Market?"
+subtitle: "Contemporary Patterns of Multiracial Marriage"
 ---
+
 
 ```{r}
 #| label: setup
@@ -9,8 +10,276 @@ subtitle: "A Thing I Did"
 library(here)
 source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
+library(gghighlight)
+load(here("data","data_constructed","models.RData"))
+load(here("data","data_constructed","markets.RData"))
 ```
+
+```{r}
+#| label: set-theme
+
+theme_myslides <- theme_bw()+
+  theme(plot.title = element_text(size=24, hjust=0),
+        plot.title.position = "panel",
+        plot.subtitle = element_text(size=16, hjust=0),
+        plot.caption = element_text(size=14, hjust=1, vjust=1),
+        plot.caption.position = "panel",
+        text = element_text(colour="#131516"),
+        axis.title = element_text(size=16),
+        #axis.line = element_line(colour="#131516", size = 1),
+        #axis.ticks = element_line(colour="#131516", size = 1),
+        axis.text = element_text(size=14),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14),
+        strip.text = element_text(size = 12),
+        #panel.grid.major.x= element_blank(),
+        panel.grid.minor = element_blank(), 
+        #panel.border = element_rect(fill=NA, colour=NA),
+        panel.background = element_rect(fill = "#F4F4F2",colour = NA),
+        plot.background = element_rect(fill = "#F4F4F2",colour = NA),
+        legend.background = element_rect(fill = "#F4F4F2",colour = NA),
+        legend.key = element_rect(fill = "#F4F4F2",colour = NA), 
+        legend.position = "bottom")
+theme_set(theme_myslides)
+```
+
+```{r}
+my_palette <- c(
+  "#1F4E79",  # slate blue (anchor)
+  "#B06C2B",  # muted amber
+  "#6B2C3E",  # burgundy
+  "#2C5D63",  # deep teal
+  "#8C8C8C"   # neutral gray (useful for reference group)
+)
+```
+
+```{r}
+#| label: create-coef-table
+get_coefs <- function(x) {
+  temp <- coef(x)[,c(1,2)]
+  return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
+}
+
+coef_short_sym <- get_coefs(model_short_sym) |>
+  filter(str_detect(variable, "race_exog")) |>
+  mutate(variable=str_replace(variable, "race_exog_short_sym",""))
+
+coef_short_asym <- get_coefs(model_short_asym) |>
+  filter(str_detect(variable, "race_exog_short_asym")) |>
+  mutate(variable=str_replace(variable, "race_exog_short_asym",""))
+
+coef_full <- get_coefs(model_full_sym_multi) |>
+  filter(str_detect(variable, "race_exog_full")) |>
+  mutate(variable=str_replace(variable, "race_exog_full_sym",""))
+
+coef_multi <- coef_short_sym |>
+  filter(str_detect(variable, "Multi/Multi"))
+```
+
+## In Memoriam
+
+:::: {.columns}
+
+::: {.column .fragment .fade-in .slowfade}
+
+![Richard Alba](alba.png)
+
+:::
+
+::: {.column .fragment .fade-in .slowfade}
+
+![Eugene Hammel](hammel.png)
+
+:::
+
+::::
+
 
 ## Test Slide
 
 This document is for a quarto presentation.
+
+- Bullet Point 1
+- Bullet Point 2
+- Bullet Point 3
+  - subpoint 1
+    - subsubpoint
+
+1. Item 1
+2. Item 2
+  1. subitem 1
+  
+## Multiracial-to-Multiracial Intermarriage
+
+```{r}
+#| label: multi-multi-fig
+
+plot_multi_multi <- coef_full |>
+  mutate(race_ego=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_choice=str_split(variable, "\\.", simplify=TRUE)[,2],
+         race_cons1=str_split(race_ego, "-", simplify=TRUE)[,1],
+         race_cons2=str_split(race_ego, "-", simplify=TRUE)[,2],
+         overlap=str_detect(race_choice, race_cons1) | 
+           str_detect(race_choice, race_cons2),
+         overlap = factor(overlap, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("No overlap", "Partial overlap")),
+         variable=str_replace(variable, "\\.","/")) |>
+  mutate(variable = if_else(str_count(variable, "White") == 2, 
+                            str_replace_all(variable, "White", "**White**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Black") == 2, 
+                            str_replace_all(variable, "Black", "**Black**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Indigenous") == 2, 
+                            str_replace_all(variable, "Indigenous", "**Indigenous**"), 
+                            variable),
+         variable = if_else(str_count(variable, "Asian") == 2, 
+                            str_replace_all(variable, "Asian", "**Asian**"), 
+                            variable)) |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  coord_flip()+
+  scale_color_manual(values = my_palette)+
+  ylim(0, 1)+
+  labs(x=NULL, 
+       y="odds of exogamous marriage with multiple race\npartner relative to multiracial endogamy",
+       color="overlap in racial identification")+
+  theme(axis.text.y = element_markdown())
+
+plot_multi_multi
+```
+
+## Multiracial-to-Multiracial Intermarriage
+
+```{r}
+#| label: multi-multi-hl-no-overlap-fig
+
+plot_multi_multi+
+  gghighlight(overlap == "No overlap", use_direct_label = FALSE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
+```
+
+## Multiracial-to-Multiracial Intermarriage
+
+```{r}
+#| label: multi-multi-hl-overlap-fig
+
+plot_multi_multi+
+  gghighlight(overlap == "Partial overlap", use_direct_label = FALSE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
+```
+
+
+## Another Figure
+
+```{r}
+#| label: odds-ratios-single-fig
+
+# the somewhat odd regular expression \\..*- will identify all the names with a 
+# period followed by some characters followed by a dash. This will give
+# me all cases of a single race/multiple race marriage
+coef_short_sym |>
+  filter(str_detect(variable, "\\..*-")) |>
+  mutate(single_race = str_split(variable, "\\.", simplify=TRUE)[,1],
+         multiple_race = str_split(variable, "\\.", simplify=TRUE)[,2],
+         constituent = str_detect(multiple_race, single_race),
+         single_race = factor(single_race, 
+                            levels=c("Latino","Asian","Indigenous",
+                                     "Black","White")),
+         multiple_race = factor(multiple_race,
+                              levels=c("White-Asian","Black-Asian",
+                                       "White-Indigenous","Black-Indigenous",
+                                       "White-Black","Asian-Indigenous")),
+         constituent = factor(constituent, 
+                              levels = c(FALSE, TRUE),
+                              labels = c("None", "Partial")),
+         upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se)) |>
+  ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
+  geom_linerange(linewidth=1.25, 
+                  aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=0.5, 
+                  aes(ymax=upper95, ymin=lower95))+
+  geom_point(size=2)+
+  coord_flip()+
+  facet_wrap(~multiple_race, ncol=2)+
+  scale_color_manual(values = my_palette)+
+  ylim(0, 1)+
+  labs(x=NULL, 
+       y="odds of marriage with given single race partner relative to endogamy",
+       color = "overlap in racial identification")
+```
+
+## Test Figure
+
+```{r}
+#| label: partner-choice-panel-color-fig
+
+couples <- mar_markets[[1]] |> filter(choice)
+
+husbands <- couples |>
+  mutate(race_ego=raceh, 
+         race_spouse=racew,
+         gender="husband") |>
+  select(race_ego, race_spouse, gender)
+wives <- couples |>
+  mutate(race_ego=racew, 
+         race_spouse=raceh,
+         gender="wife") |>
+  select(race_ego, race_spouse, gender)
+
+partner_choice <- bind_rows(husbands, wives) |>
+  mutate(race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White-Asian", "White-Indigenous",
+                                     "White-Black", "Black-Asian",
+                                     "Black-Indigenous", "Asian-Indigenous")))
+
+partner_choice |>
+  filter(str_detect(race_ego, "-")) |>
+  group_by(race_ego, race_spouse) |>
+  summarize(n = n()) |>
+  pivot_wider(id_cols = race_ego, names_from = race_spouse, values_from = n,
+              names_prefix = "n_") |>
+  ungroup() %>%
+  mutate(total = rowSums(select(., starts_with("n_")))) |>
+  pivot_longer(cols=starts_with("n_"), names_prefix="n_", names_to="race_spouse",
+               values_to = "n") |>
+  mutate(prop = n/total,
+         race_ego = as.character(race_ego),
+         spouse_multi = str_detect(race_spouse, "-"),
+         spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
+         spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
+         overlap = case_when(
+           race_ego == race_spouse ~ "Exact",
+           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial",
+           spouse_multi & 
+             (str_detect(race_ego, spouse_const1) | 
+                str_detect(race_ego, spouse_const2)) ~ "Partial",
+           TRUE ~ "None"
+         ),
+         overlap = factor(overlap,
+                          levels=c("None", "Partial", "Exact")),
+         race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White-Asian", "White-Indigenous",
+                                     "White-Black", "Black-Asian",
+                                     "Black-Indigenous", "Asian-Indigenous")),
+         race_ego = factor(race_ego,
+                           levels = c("White-Asian", "White-Indigenous", "White-Black",
+                                      "Black-Asian", "Black-Indigenous", "Asian-Indigenous"))) |>
+  ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
+  geom_col()+
+  facet_wrap(~race_ego)+
+  scale_fill_manual(values = my_palette)+
+  scale_y_continuous(labels = scales::percent)+
+  coord_flip()+
+  labs(x=NULL, y="percent", fill = "overlap in racial identification")
+```
