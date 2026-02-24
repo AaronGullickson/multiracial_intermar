@@ -13,6 +13,7 @@ source(here("utils","functions.R"))
 library(gghighlight)
 load(here("data","data_constructed","models.RData"))
 load(here("data","data_constructed","markets.RData"))
+load(here("data", "data_constructed", "exogamy_trends.RData"))
 ```
 
 ```{r}
@@ -95,6 +96,24 @@ coef_multi <- coef_short_sym |>
 
 ::::
 
+
+
+## The Biracial Baby Boom
+
+```{r}
+
+exogamy_trend |>
+  ggplot(aes(x = year, y = exogamy))+
+  geom_ribbon(aes(ymin = exogamy - 1.96 * exogamy_se,
+                  ymax = exogamy + 1.96 * exogamy_se),
+              color = "grey", alpha = 0.5)+
+  geom_line()+
+  geom_point()+
+  scale_y_continuous(labels = scales::percent)+
+  scale_x_continuous(breaks = seq(1960, 2020, 10))+
+  labs(y = "Percent of married couples\nthat are of mixed race",
+       caption = "Notes: Census and ACS Data. Age weighted to match joint age distribution of newlywed couples.")
+```
 
 ## Test Slide
 
