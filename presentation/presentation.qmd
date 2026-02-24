@@ -108,6 +108,108 @@ This document is for a quarto presentation.
 1. Item 1
 2. Item 2
   1. subitem 1
+
+
+## Distribution of Partner Race for Multiracial Spouses
+
+```{r}
+#| label: partner-choice-panel-color-fig
+
+couples <- mar_markets[[1]] |> filter(choice)
+
+husbands <- couples |>
+  mutate(race_ego=raceh, 
+         race_spouse=racew,
+         gender="husband") |>
+  select(race_ego, race_spouse, gender)
+wives <- couples |>
+  mutate(race_ego=racew, 
+         race_spouse=raceh,
+         gender="wife") |>
+  select(race_ego, race_spouse, gender)
+
+partner_choice <- bind_rows(husbands, wives) |>
+  mutate(race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White-Asian", "White-Indigenous",
+                                     "White-Black", "Black-Asian",
+                                     "Black-Indigenous", "Asian-Indigenous")))
+
+
+plot_partner_choice <- partner_choice |>
+  filter(str_detect(race_ego, "-")) |>
+  count(race_ego, race_spouse) |>
+  group_by(race_ego) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup() |>
+  mutate(race_ego = as.character(race_ego),
+         spouse_multi = str_detect(race_spouse, "-"),
+         spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
+         spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
+         overlap = case_when(
+           race_ego == race_spouse ~ "Exact",
+           (str_detect(race_ego, spouse_const1) | 
+                str_detect(race_ego, spouse_const2)) ~ "Partial",
+           TRUE ~ "None"
+         ),
+         overlap = factor(overlap,
+                          levels=c("None", "Partial", "Exact")),
+         race_spouse=factor(race_spouse, 
+                            levels=c("White","Black","Indigenous","Asian",
+                                     "Latino","White-Asian", "White-Indigenous",
+                                     "White-Black", "Black-Asian",
+                                     "Black-Indigenous", "Asian-Indigenous")),
+         race_ego = factor(race_ego,
+                           levels = c("White-Asian", "White-Indigenous", "White-Black",
+                                      "Black-Asian", "Black-Indigenous", "Asian-Indigenous"))) |>
+  ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
+  geom_col()+
+  facet_wrap(~race_ego)+
+  scale_fill_manual(values = my_palette)+
+  scale_y_continuous(labels = scales::percent)+
+  coord_flip()+
+  labs(x=NULL, y="percent", fill = "overlap in racial identification")+
+  theme(axis.text = element_text(size = 10))
+
+plot_partner_choice
+```
+  
+## Distribution of Partner Race for Multiracial Spouses
+
+```{r}
+#| label: partner-choice-panel-color-fig-hl-exact
+
+plot_partner_choice+
+  gghighlight(overlap == "Exact", 
+              use_direct_label = FALSE, calculate_per_facet = TRUE,
+              unhighlighted_params = list(fill = NULL, alpha = 0.2))
+
+```
+
+## Distribution of Partner Race for Multiracial Spouses
+
+```{r}
+#| label: partner-choice-panel-color-fig-hl-partial
+
+plot_partner_choice+
+  gghighlight(overlap == "Partial", 
+              use_direct_label = FALSE, calculate_per_facet = TRUE,
+              unhighlighted_params = list(fill = NULL, alpha = 0.2))
+
+``` 
+ 
+## Distribution of Partner Race for Multiracial Spouses
+
+```{r}
+#| label: partner-choice-panel-color-fig-hl-white
+
+plot_partner_choice+
+  gghighlight(race_spouse == "White", 
+              use_direct_label = FALSE, calculate_per_facet = TRUE,
+              unhighlighted_params = list(fill = NULL, alpha = 0.2))
+
+```
+  
   
 ## Multiracial-to-Multiracial Intermarriage
 
@@ -174,8 +276,7 @@ plot_multi_multi+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
-
-## Another Figure
+## Multiracial-to-Monoracial Intermarriage
 
 ```{r}
 #| label: odds-ratios-single-fig
@@ -183,7 +284,7 @@ plot_multi_multi+
 # the somewhat odd regular expression \\..*- will identify all the names with a 
 # period followed by some characters followed by a dash. This will give
 # me all cases of a single race/multiple race marriage
-coef_short_sym |>
+plot_multi_mono <- coef_short_sym |>
   filter(str_detect(variable, "\\..*-")) |>
   mutate(single_race = str_split(variable, "\\.", simplify=TRUE)[,1],
          multiple_race = str_split(variable, "\\.", simplify=TRUE)[,2],
@@ -193,8 +294,8 @@ coef_short_sym |>
                                      "Black","White")),
          multiple_race = factor(multiple_race,
                               levels=c("White-Asian","Black-Asian",
-                                       "White-Indigenous","Black-Indigenous",
-                                       "White-Black","Asian-Indigenous")),
+                                       "White-Black","Black-Indigenous",
+                                       "White-Indigenous","Asian-Indigenous")),
          constituent = factor(constituent, 
                               levels = c(FALSE, TRUE),
                               labels = c("None", "Partial")),
@@ -215,71 +316,57 @@ coef_short_sym |>
   labs(x=NULL, 
        y="odds of marriage with given single race partner relative to endogamy",
        color = "overlap in racial identification")
+
+plot_multi_mono
 ```
 
-## Test Figure
+## Multiracial-to-Monoracial Intermarriage
 
 ```{r}
-#| label: partner-choice-panel-color-fig
+#| label: odds-ratios-single-fig-hl-latino
 
-couples <- mar_markets[[1]] |> filter(choice)
+plot_multi_mono+
+  gghighlight(single_race == "Latino", use_direct_label = FALSE, 
+              calculate_per_facet = TRUE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
+```
 
-husbands <- couples |>
-  mutate(race_ego=raceh, 
-         race_spouse=racew,
-         gender="husband") |>
-  select(race_ego, race_spouse, gender)
-wives <- couples |>
-  mutate(race_ego=racew, 
-         race_spouse=raceh,
-         gender="wife") |>
-  select(race_ego, race_spouse, gender)
+## Multiracial-to-Monoracial Intermarriage
 
-partner_choice <- bind_rows(husbands, wives) |>
-  mutate(race_spouse=factor(race_spouse, 
-                            levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White-Asian", "White-Indigenous",
-                                     "White-Black", "Black-Asian",
-                                     "Black-Indigenous", "Asian-Indigenous")))
+```{r}
+#| label: odds-ratios-single-fig-hl-wa-wb
 
-partner_choice |>
-  filter(str_detect(race_ego, "-")) |>
-  group_by(race_ego, race_spouse) |>
-  summarize(n = n()) |>
-  pivot_wider(id_cols = race_ego, names_from = race_spouse, values_from = n,
-              names_prefix = "n_") |>
-  ungroup() %>%
-  mutate(total = rowSums(select(., starts_with("n_")))) |>
-  pivot_longer(cols=starts_with("n_"), names_prefix="n_", names_to="race_spouse",
-               values_to = "n") |>
-  mutate(prop = n/total,
-         race_ego = as.character(race_ego),
-         spouse_multi = str_detect(race_spouse, "-"),
-         spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
-         spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
-         overlap = case_when(
-           race_ego == race_spouse ~ "Exact",
-           !spouse_multi & str_detect(race_ego, race_spouse) ~ "Partial",
-           spouse_multi & 
-             (str_detect(race_ego, spouse_const1) | 
-                str_detect(race_ego, spouse_const2)) ~ "Partial",
-           TRUE ~ "None"
-         ),
-         overlap = factor(overlap,
-                          levels=c("None", "Partial", "Exact")),
-         race_spouse=factor(race_spouse, 
-                            levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White-Asian", "White-Indigenous",
-                                     "White-Black", "Black-Asian",
-                                     "Black-Indigenous", "Asian-Indigenous")),
-         race_ego = factor(race_ego,
-                           levels = c("White-Asian", "White-Indigenous", "White-Black",
-                                      "Black-Asian", "Black-Indigenous", "Asian-Indigenous"))) |>
-  ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
-  geom_col()+
-  facet_wrap(~race_ego)+
-  scale_fill_manual(values = my_palette)+
-  scale_y_continuous(labels = scales::percent)+
-  coord_flip()+
-  labs(x=NULL, y="percent", fill = "overlap in racial identification")
+plot_multi_mono+
+  gghighlight((multiple_race == "White-Asian" | multiple_race == "White-Black") &
+                single_race != "Latino", 
+              use_direct_label = FALSE, 
+              calculate_per_facet = TRUE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
+```
+
+## Multiracial-to-Monoracial Intermarriage
+
+```{r}
+#| label: odds-ratios-single-fig-hl-wi
+
+plot_multi_mono+
+  gghighlight((multiple_race == "White-Indigenous") &
+                single_race != "Latino", 
+              use_direct_label = FALSE, 
+              calculate_per_facet = TRUE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
+```
+
+
+## Multiracial-to-Monoracial Intermarriage
+
+```{r}
+#| label: odds-ratios-single-fig-hl-non-white
+
+plot_multi_mono+
+  gghighlight(!str_detect(multiple_race, "White") &
+                single_race != "Latino", 
+              use_direct_label = FALSE, 
+              calculate_per_facet = TRUE,
+              unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
