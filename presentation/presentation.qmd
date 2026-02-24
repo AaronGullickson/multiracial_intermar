@@ -119,19 +119,17 @@ exogamy_trend |>
        caption = "Notes: Census and ACS Data. Age weighted to match joint age distribution of newlywed couples.")
 ```
 
-## Test Slide
+## New Eve and the Mulatto Vanguard
 
-This document is for a quarto presentation.
+- The ever present hope that mixing will usher in a post-racial future
 
-- Bullet Point 1
-- Bullet Point 2
-- Bullet Point 3
-  - subpoint 1
-    - subsubpoint
+## The Biracial Focus
 
-1. Item 1
-2. Item 2
-  1. subitem 1
+- Focus on the experience of "first generation" biracial individuals masks the complexity of the future (and present)
+
+## A Hypothetical Family Tree
+
+- Discuss three generation case of White/Asian Mixing
 
 ## Two-Group Simulation Can Produce Surprising Results
 
@@ -165,6 +163,17 @@ plot_sim+
 ```
 
 
+## Who do Multiracial Individuals Marry?
+
+- Tells us about the likelihood of future
+
+- Two columns
+  - The concept of partial overlap
+  - Regimes of classification
+
+## Data Sources
+
+- discuss data and limitations
 
 ## Distribution of Partner Race for Multiracial Spouses
 
@@ -230,6 +239,7 @@ plot_partner_choice <- partner_choice |>
 plot_partner_choice
 ```
   
+
 ## Distribution of Partner Race for Multiracial Spouses
 
 ```{r}
@@ -265,7 +275,9 @@ plot_partner_choice+
               unhighlighted_params = list(fill = NULL, alpha = 0.2))
 
 ```
-  
+
+## Modeling Partner Choice
+
   
 ## Multiracial-to-Multiracial Intermarriage
 
@@ -451,3 +463,6 @@ plot_multi_mono+
               calculate_per_facet = TRUE,
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
+
+
+## Conclusions
