@@ -195,13 +195,3 @@ $border-radius: 10px;
 .reveal .slides section .fragment.slowfade {
   transition: opacity 2.5s ease-in-out !important;
 }
-
-
-// remove empty figure captions
-/* In your revealjs custom.css */
-.reveal .slide figcaption:empty,
-.reveal .slide p.caption:empty {
-  display: none;
-  margin: 0;
-  padding: 0;
-}
