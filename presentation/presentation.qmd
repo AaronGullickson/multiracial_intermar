@@ -55,6 +55,7 @@ my_palette <- c(
 
 ```{r}
 #| label: create-coef-table
+
 get_coefs <- function(x) {
   temp <- coef(x)[,c(1,2)]
   return(tibble(variable=rownames(temp), coef=temp[,1], se=temp[,2]))
@@ -256,6 +257,7 @@ plot_multi_multi <- coef_full |>
 plot_multi_multi
 ```
 
+
 ## Multiracial-to-Multiracial Intermarriage
 
 ```{r}
@@ -275,6 +277,30 @@ plot_multi_multi+
   gghighlight(overlap == "Partial overlap", use_direct_label = FALSE,
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
+
+
+## Simplified Multiracial-to-Multiracial Parameters
+
+```{r}
+#| label: multi-multi-fig-simplified
+
+coef_short_sym |>
+  filter(str_detect(variable, "Multi/Multi")) |>
+  mutate(variable = str_remove(variable, "Multi/Multi, ")) |>
+  ggplot(aes(x=variable, y=exp(coef), color = variable))+
+  geom_linerange(linewidth=1.25, 
+                 aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
+  geom_linerange(linewidth=0.5, 
+                 aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
+  geom_point(size=2)+
+  coord_flip()+
+  scale_color_manual(values = my_palette)+
+  ylim(0, 1)+
+  labs(x=NULL, 
+       y="odds of exogamous marriage with multiple race\npartner relative to multiracial endogamy")+
+  theme(legend.position = "none")
+```
+
 
 ## Multiracial-to-Monoracial Intermarriage
 
