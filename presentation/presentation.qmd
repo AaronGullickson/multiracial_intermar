@@ -45,6 +45,8 @@ theme_set(theme_myslides)
 ```
 
 ```{r}
+#| label: define-color-palette
+
 my_palette <- c(
   "#1F4E79",  # slate blue (anchor)
   "#B06C2B",  # muted amber
@@ -101,6 +103,7 @@ coef_multi <- coef_short_sym |>
 ## The Biracial Baby Boom
 
 ```{r}
+#| label: exogamy-trend-fig
 
 exogamy_trend |>
   ggplot(aes(x = year, y = exogamy))+
@@ -316,7 +319,7 @@ coef_short_sym |>
   scale_color_manual(values = my_palette)+
   ylim(0, 1)+
   labs(x=NULL, 
-       y="odds of exogamous marriage with multiple race\npartner relative to multiracial endogamy")+
+       y="odds of exogamous marriage with multiple race partner relative to multiracial endogamy")+
   theme(legend.position = "none")
 ```
 
