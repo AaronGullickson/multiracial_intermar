@@ -1,6 +1,9 @@
 ---
 title: "Blurring the Marriage Market?"
 subtitle: "Contemporary Patterns of Multiracial Marriage"
+fig-height: 7
+fig-width: 12.5
+fig-format: svg
 ---
 
 
@@ -28,16 +31,17 @@ theme_myslides <- theme_bw()+
         plot.caption = element_text(size=14, hjust=1, vjust=1),
         plot.caption.position = "panel",
         text = element_text(colour="#131516"),
-        axis.title = element_text(size=16),
+        axis.title = element_text(size=20),
         #axis.line = element_line(colour="#131516", size = 1),
         #axis.ticks = element_line(colour="#131516", size = 1),
-        axis.text = element_text(size=14),
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14),
-        strip.text = element_text(size = 12),
+        axis.text = element_text(size=18),
+        legend.title = element_text(size=20),
+        legend.text = element_text(size=18),
+        strip.text = element_text(size = 18),
+        #strip.background = element_rect(size = 2, fill = "grey", color = "black"),
         #panel.grid.major.x= element_blank(),
         panel.grid.minor = element_blank(), 
-        #panel.border = element_rect(fill=NA, colour=NA),
+        #panel.border = element_rect(linewidth = 2),
         panel.background = element_rect(fill = "#F4F4F2",colour = NA),
         plot.background = element_rect(fill = "#F4F4F2",colour = NA),
         legend.background = element_rect(fill = "#F4F4F2",colour = NA),
@@ -108,15 +112,15 @@ coef_multi <- coef_short_sym |>
 
 exogamy_trend |>
   ggplot(aes(x = year, y = exogamy))+
-  geom_ribbon(aes(ymin = exogamy - 1.96 * exogamy_se,
-                  ymax = exogamy + 1.96 * exogamy_se),
-              color = "grey", alpha = 0.5)+
-  geom_line()+
-  geom_point()+
+  #geom_ribbon(aes(ymin = exogamy - 1.96 * exogamy_se,
+  #                ymax = exogamy + 1.96 * exogamy_se),
+  #            color = "grey", alpha = 0.5)+
+  geom_line(linewidth = 1.5)+
+  geom_point(size = 3)+
   scale_y_continuous(labels = scales::percent)+
   scale_x_continuous(breaks = seq(1960, 2020, 10))+
-  labs(y = "Percent of married couples\nthat are of mixed race",
-       caption = "Notes: Census and ACS Data. Age weighted to match joint age distribution of newlywed couples.")
+  labs(y = "Percent of married couples that\nidentify differently by race",
+       caption = "Notes: Census and ACS data. Age weighted to match joint age distribution of newlywed couples.")
 ```
 
 ## Who do Multiracial Individuals Marry? {.smaller}
@@ -219,8 +223,7 @@ plot_sim <- total_pop_group |>
   geom_area(color = NA)+
   scale_fill_manual(values = my_palette)+
   scale_y_continuous(labels = scales::percent)+
-  labs(y = NULL,
-       caption = "Simulation assumes high rate of intermarriage, but decline in multiracial classification in later generations")
+  labs(y = NULL)
 
 plot_sim
 ```
@@ -387,7 +390,7 @@ plot_partner_choice <- partner_choice |>
   scale_y_continuous(labels = scales::percent)+
   coord_flip()+
   labs(x=NULL, y="percent", fill = "overlap in racial identification")+
-  theme(axis.text = element_text(size = 10))
+  theme(axis.text = element_text(size = 16))
 
 plot_partner_choice
 ```
@@ -492,11 +495,11 @@ plot_multi_multi <- coef_full |>
                             str_replace_all(variable, "Asian", "**Asian**"), 
                             variable)) |>
   ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=overlap))+
-  geom_linerange(linewidth=1.25, 
+  geom_linerange(linewidth=2.5, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
-  geom_linerange(linewidth=0.5, 
+  geom_linerange(linewidth=1, 
                  aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
-  geom_point(size=2)+
+  geom_point(size=4)+
   coord_flip()+
   scale_color_manual(values = my_palette)+
   ylim(0, 1)+
@@ -543,11 +546,11 @@ coef_short_sym |>
   filter(str_detect(variable, "Multi/Multi")) |>
   mutate(variable = str_remove(variable, "Multi/Multi, ")) |>
   ggplot(aes(x=variable, y=exp(coef), color = variable))+
-  geom_linerange(linewidth=1.25, 
+  geom_linerange(linewidth=2.5, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
-  geom_linerange(linewidth=0.5, 
+  geom_linerange(linewidth=1, 
                  aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
-  geom_point(size=2)+
+  geom_point(size=4)+
   coord_flip()+
   scale_color_manual(values = my_palette)+
   ylim(0, 1)+
@@ -587,11 +590,11 @@ plot_multi_mono <- coef_short_sym |>
          lower84=exp(coef-1.386*se),
          lower95=exp(coef-1.96*se)) |>
   ggplot(aes(x=single_race, y=exp(coef), color=constituent))+
-  geom_linerange(linewidth=1.25, 
+  geom_linerange(linewidth=2.5, 
                   aes(ymax=upper84, ymin=lower84))+
-  geom_linerange(linewidth=0.5, 
+  geom_linerange(linewidth=1, 
                   aes(ymax=upper95, ymin=lower95))+
-  geom_point(size=2)+
+  geom_point(size=4)+
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
   scale_color_manual(values = my_palette)+
