@@ -12,7 +12,7 @@ source(here("utils","check_packages.R"))
 source(here("utils","functions.R"))
 library(gghighlight)
 load(here("data","data_constructed","models.RData"))
-load(here("data","data_constructed","markets.RData"))
+load(here("data","data_constructed","partner_choice.RData"))
 load(here("data", "data_constructed", "exogamy_trends.RData"))
 load(here("data", "data_constructed", "sim_data.RData"))
 ```
@@ -100,7 +100,6 @@ coef_multi <- coef_short_sym |>
 ::::
 
 
-
 ## The Biracial Baby Boom
 
 ```{r}
@@ -119,19 +118,67 @@ exogamy_trend |>
        caption = "Notes: Census and ACS Data. Age weighted to match joint age distribution of newlywed couples.")
 ```
 
-## New Eve and the Mulatto Vanguard
+## Who do Multiracial Individuals Marry? {.smaller}
 
-- The ever present hope that mixing will usher in a post-racial future
+:::: {.columns}
 
-## The Biracial Focus
+::: {.column .fragment}
 
-- Focus on the experience of "first generation" biracial individuals masks the complexity of the future (and present)
+### Future racial composition
+
+![New Eve](new_eve.jpg)
+
+:::
+
+::: {.column .fragment}
+
+### Current racial boundaries
+
+![The Kravitz-Bonet Family](kravitz.jpg)
+
+:::
+
+::::
+
+::: {.notes}
+
+- Tells us about the likelihood of future
+
+- Two columns
+  - The concept of partial overlap
+  - Regimes of classification
+  
+:::
+
+## Multiraciality and Post-Racialism {.smaller}
+
+:::: {.columns}
+
+::: {.column width = "40%"}
+
+*"The greatest hope for the immediate future lies in a lessening of the contrast between Negroes and whites... In a race of octoroons, living among whites, the color question would probably disappear."*
+
+![Franz Boas](boas.jpg)
+
+:::
+
+::: {.column width = "60%"}
+
+- Multiracial individuals have long been seen as the vanguard of a post-racial future. 
+- Both popular and scholarly work focuses almost exclusively on the experience of first generation "biracial" individuals.
+- Mixed race identity is treated as an absorbing state. The empirical evidence suggests otherwise:
+  - Bratter (2007) shows that the children of multiracial parents are often identified by the single race shared with the other parent.
+  - For mixed-race individuals with a deeper *generational locus*, multiracial ancestry may "fold back" into single race identification and classification.
+
+:::
+
+::::
 
 ## A Hypothetical Family Tree
 
 - Discuss three generation case of White/Asian Mixing
 
-## Two-Group Simulation Can Produce Surprising Results
+## Two-Group Simulation Can Produce Surprising Results {.smaller}
 
 ```{r}
 #| label: sim-groups-fig
@@ -162,71 +209,98 @@ plot_sim+
               unhighlighted_params = list(fill = NULL, alpha = 0.3))
 ```
 
+## Concept of Partial Endogamy {.smaller}
 
-## Who do Multiracial Individuals Marry?
+:::: {.columns}
 
-- Tells us about the likelihood of future
+::: {.column width = "30%"}
 
-- Two columns
-  - The concept of partial overlap
-  - Regimes of classification
+![Exact Match](kravitz_bonet.jpg)
+
+![Partial Overlap](kravitz_gusman.png)
+
+:::
+
+::: {.column width = "70%"}
+
+### What does "endogamy" mean for individuals of mixed race?
+
+- A person might prefer a partner who shares the same racial mixture as themselves, leading to an *exact* match.
+- But what if a Black-White individual marries a White person? Is this endogamy or exogamy?
+- We consider this case of a *partial overlap* in racial identification to indicate *partial endogamy*.
+- We expect partial endogamy to increase the likelihood of partnership but not as much as an *exact* match, adjusting for group sizes.
+
+:::
+
+
+::::
+
+## Not All Partial Endogamy is Equal {.smaller}
+
+:::: {.columns}
+
+::: {.column width = "30%"}
+
+![](obamas.png)
+
+![](kravitz_gusman.png)
+
+:::
+
+::: {.column width = "70%"}
+
+- *Regimes of racial classification* have long determined the racial classification of mixed race individuals.
+  - **The One Drop Rule**: Black ancestry dominates.
+  - **The Vanishing Indian**: Indigenous ancestry recedes.
+  - White ancestry falls somewhere in the middle of these extremes. 
+  - Greater flexibility/less historical precedent for the racial classification of Asian and Latino ancestry.
+- We expect these regimes to affect the likelihood of partnership for multiracial individuals because it reflects how they are viewed as potential partners.
+ 
+  
+:::
+  
+::::
+
+::: {.notes}
+
+- For example, we expect that White-Black individuals will be more likely to marry Black partners than White partners, adjusting for group size.
+
+:::
+
+## Other Possible Patterns {.smaller}
+
+:::: {.columns}
+
+::: {.column .fragment}
+
+### Shared Experience
+
+It is possible that the *shared experience of being multiracial* itself contributes to partner formation, regardless of specific ancestry. 
+
+In this case, we would expect that multiracial individuals have higher likelihood of marriage with one another, irrespective of ancestry combination. 
+
+:::
+
+::: {.column .fragment}
+
+### Transcendent Pattern
+
+We might also expect a *transcendent pattern* in which multiracial individuals are more likely to marry individuals of any racial identification (single or multiple), consistent with a "post-racial" vision of multiraciality.
+
+:::
+
+::::
 
 ## Data Sources
 
 - discuss data and limitations
 
-## Distribution of Partner Race for Multiracial Spouses
+## Race of Partner for Multiracial Spouses
 
 ```{r}
 #| label: partner-choice-panel-color-fig
 
-couples <- mar_markets[[1]] |> filter(choice)
-
-husbands <- couples |>
-  mutate(race_ego=raceh, 
-         race_spouse=racew,
-         gender="husband") |>
-  select(race_ego, race_spouse, gender)
-wives <- couples |>
-  mutate(race_ego=racew, 
-         race_spouse=raceh,
-         gender="wife") |>
-  select(race_ego, race_spouse, gender)
-
-partner_choice <- bind_rows(husbands, wives) |>
-  mutate(race_spouse=factor(race_spouse, 
-                            levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White-Asian", "White-Indigenous",
-                                     "White-Black", "Black-Asian",
-                                     "Black-Indigenous", "Asian-Indigenous")))
-
-
 plot_partner_choice <- partner_choice |>
-  filter(str_detect(race_ego, "-")) |>
-  count(race_ego, race_spouse) |>
-  group_by(race_ego) |>
-  mutate(prop = n / sum(n)) |>
-  ungroup() |>
-  mutate(race_ego = as.character(race_ego),
-         spouse_multi = str_detect(race_spouse, "-"),
-         spouse_const1 = str_split(race_spouse, "-", simplify = TRUE)[,1],
-         spouse_const2 = str_split(race_spouse, "-", simplify = TRUE)[,2],
-         overlap = case_when(
-           race_ego == race_spouse ~ "Exact",
-           (str_detect(race_ego, spouse_const1) | 
-                str_detect(race_ego, spouse_const2)) ~ "Partial",
-           TRUE ~ "None"
-         ),
-         overlap = factor(overlap,
-                          levels=c("None", "Partial", "Exact")),
-         race_spouse=factor(race_spouse, 
-                            levels=c("White","Black","Indigenous","Asian",
-                                     "Latino","White-Asian", "White-Indigenous",
-                                     "White-Black", "Black-Asian",
-                                     "Black-Indigenous", "Asian-Indigenous")),
-         race_ego = factor(race_ego,
-                           levels = c("White-Asian", "White-Indigenous", "White-Black",
-                                      "Black-Asian", "Black-Indigenous", "Asian-Indigenous"))) |>
   ggplot(aes(x = fct_rev(race_spouse), y = prop, fill=overlap))+
   geom_col()+
   facet_wrap(~race_ego)+
@@ -240,7 +314,7 @@ plot_partner_choice
 ```
   
 
-## Distribution of Partner Race for Multiracial Spouses
+## Race of Partner for Multiracial Spouses
 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-exact
@@ -252,7 +326,7 @@ plot_partner_choice+
 
 ```
 
-## Distribution of Partner Race for Multiracial Spouses
+## Race of Partner for Multiracial Spouses
 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-partial
@@ -264,7 +338,7 @@ plot_partner_choice+
 
 ``` 
  
-## Distribution of Partner Race for Multiracial Spouses
+## Race of Partner for Multiracial Spouses
 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-white
