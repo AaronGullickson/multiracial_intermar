@@ -203,14 +203,8 @@ $border-radius: 10px;
   transition: opacity 2.5s ease-in-out !important;
 }
 
-/* Center captions for plain images */
-figure {
-  display: table;
-  margin: 0 auto; /* centers the whole figure */
-  text-align: center; /* centers the caption */
-}
-
 figcaption {
   //margin-top: 0.5em; /* some space above caption */
   text-align: center;
+  color: $secondary;
 }
