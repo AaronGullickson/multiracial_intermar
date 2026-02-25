@@ -55,8 +55,8 @@ theme_set(theme_myslides)
 
 my_palette <- c(
   "#384f7d",  
-  "#a29319",  
   "#a04755",
+  "#a29319",  
   "#008478"
 )
 ```
