@@ -54,11 +54,10 @@ theme_set(theme_myslides)
 #| label: define-color-palette
 
 my_palette <- c(
-  "#1F4E79",  # slate blue (anchor)
-  "#B06C2B",  # muted amber
-  "#6B2C3E",  # burgundy
-  "#2C5D63",  # deep teal
-  "#8C8C8C"   # neutral gray (useful for reference group)
+  "#384f7d",  
+  "#a29319",  
+  "#a04755",
+  "#008478"
 )
 ```
 
@@ -546,11 +545,11 @@ coef_short_sym |>
   filter(str_detect(variable, "Multi/Multi")) |>
   mutate(variable = str_remove(variable, "Multi/Multi, ")) |>
   ggplot(aes(x=variable, y=exp(coef), color = variable))+
-  geom_linerange(linewidth=2.5, 
+  geom_linerange(linewidth=3, 
                  aes(ymax=exp(coef+1.386*se), ymin=exp(coef-1.386*se)))+
-  geom_linerange(linewidth=1, 
+  geom_linerange(linewidth=1.5, 
                  aes(ymax=exp(coef+1.96*se), ymin=exp(coef-1.96*se)))+
-  geom_point(size=4)+
+  geom_point(size=6)+
   coord_flip()+
   scale_color_manual(values = my_palette)+
   ylim(0, 1)+
