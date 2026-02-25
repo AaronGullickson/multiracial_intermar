@@ -202,7 +202,9 @@ G2 --> Or(?):::green
 ```
 
 
-## Two-Group Simulation Can Produce Surprising Results {.smaller}
+## Simulation Produces Surprising Results {.smaller}
+
+::: {.r-stack}
 
 ```{r}
 #| label: sim-groups-fig
@@ -223,7 +225,7 @@ plot_sim <- total_pop_group |>
 plot_sim
 ```
 
-## Two-Group Simulation Can Produce Surprising Results
+::: {.fragment}
 
 ```{r}
 #| label: sim-groups-fig-hl-mixed
@@ -232,6 +234,10 @@ plot_sim+
   gghighlight(group == "Mixed" | group == "Minority", use_direct_label = FALSE,
               unhighlighted_params = list(fill = NULL, alpha = 0.3))
 ```
+
+:::
+
+:::
 
 ## Concept of Partial Endogamy {.smaller}
 
@@ -368,6 +374,8 @@ tbl_counts |>
 
 ## Race of Partner for Multiracial Spouses
 
+::: {.r-stack}
+
 ```{r}
 #| label: partner-choice-panel-color-fig
 
@@ -383,9 +391,8 @@ plot_partner_choice <- partner_choice |>
 
 plot_partner_choice
 ```
-  
 
-## Race of Partner for Multiracial Spouses
+::: {.fragment}
 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-exact
@@ -397,7 +404,9 @@ plot_partner_choice+
 
 ```
 
-## Race of Partner for Multiracial Spouses
+:::
+
+::: {.fragment}
 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-partial
@@ -409,8 +418,10 @@ plot_partner_choice+
 
 ``` 
  
-## Race of Partner for Multiracial Spouses
+:::
 
+::: {.fragment}
+ 
 ```{r}
 #| label: partner-choice-panel-color-fig-hl-white
 
@@ -420,6 +431,10 @@ plot_partner_choice+
               unhighlighted_params = list(fill = NULL, alpha = 0.2))
 
 ```
+
+:::
+
+:::
 
 ## Modeling Partner Choice {.smaller}
 
@@ -447,6 +462,8 @@ plot_partner_choice+
 ::::
 
 ## Multiracial-to-Multiracial Intermarriage
+
+::: {.r-stack}
 
 ```{r}
 #| label: multi-multi-fig
@@ -491,8 +508,7 @@ plot_multi_multi <- coef_full |>
 plot_multi_multi
 ```
 
-
-## Multiracial-to-Multiracial Intermarriage
+::: {.fragment}
 
 ```{r}
 #| label: multi-multi-hl-no-overlap-fig
@@ -502,7 +518,9 @@ plot_multi_multi+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
-## Multiracial-to-Multiracial Intermarriage
+:::
+
+::: {.fragment}
 
 ```{r}
 #| label: multi-multi-hl-overlap-fig
@@ -512,6 +530,9 @@ plot_multi_multi+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
+:::
+
+:::
 
 ## Simplified Multiracial-to-Multiracial Model
 
@@ -537,6 +558,8 @@ coef_short_sym |>
 
 
 ## Multiracial-to-Monoracial Intermarriage
+
+::: {.r-stack}
 
 ```{r}
 #| label: odds-ratios-single-fig
@@ -580,7 +603,7 @@ plot_multi_mono <- coef_short_sym |>
 plot_multi_mono
 ```
 
-## Multiracial-to-Monoracial Intermarriage
+::: {.fragment}
 
 ```{r}
 #| label: odds-ratios-single-fig-hl-latino
@@ -591,7 +614,9 @@ plot_multi_mono+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
-## Multiracial-to-Monoracial Intermarriage
+:::
+
+::: {.fragment}
 
 ```{r}
 #| label: odds-ratios-single-fig-hl-wa-wb
@@ -604,7 +629,9 @@ plot_multi_mono+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
-## Multiracial-to-Monoracial Intermarriage
+:::
+
+::: {.fragment}
 
 ```{r}
 #| label: odds-ratios-single-fig-hl-wi
@@ -617,8 +644,9 @@ plot_multi_mono+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
+:::
 
-## Multiracial-to-Monoracial Intermarriage
+::: {.fragment}
 
 ```{r}
 #| label: odds-ratios-single-fig-hl-non-white
@@ -631,6 +659,9 @@ plot_multi_mono+
               unhighlighted_params = list(colour = NULL, alpha = 0.2))
 ```
 
+:::
+
+:::
 
 ## Conclusions {.smaller}
 
