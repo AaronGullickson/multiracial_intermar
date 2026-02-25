@@ -15,6 +15,7 @@ load(here("data","data_constructed","models.RData"))
 load(here("data","data_constructed","partner_choice.RData"))
 load(here("data", "data_constructed", "exogamy_trends.RData"))
 load(here("data", "data_constructed", "sim_data.RData"))
+load(here("data", "data_constructed", "tbl_counts.RData"))
 ```
 
 ```{r}
@@ -316,9 +317,54 @@ We might also expect a *transcendent pattern* in which multiracial individuals a
 
 ::::
 
-## Data Sources
+## Data Sources {.smaller}
 
-- discuss data and limitations
+- American Community Survey (ACS) data from 2010-2019. 
+- All opposite sex couples who were married in the last five years. 
+- We use five large panethnic racial categories to sustain sample size for the analysis:
+  - White
+  - Black
+  - Asian
+  - Indigenous (American Indian, Alaska Native, and Pacific Islander)
+  - Latino (identified via Hispanicity question)
+
+::: {.callout-caution .fragment .fade-up}
+Due to the combined question format of the ACS, we cannot identify multiracial individuals of part-Latino ancestry. 
+:::
+
+## Sample Size by Race
+
+```{r}
+#| label: sample-size-tbl
+
+tbl_counts |>
+  gt(rowname_col = "race") |>
+  fmt_integer(starts_with("n_")) |>
+  cols_label(
+    race = "Race",
+    n_union_w = "Wife",
+    n_union_h = "Husband",
+    n_alt_w = "Women",
+    n_alt_h = "Men"
+  ) |>
+  cols_align(race, align = "left") |>
+  tab_spanner(
+    label = "Marriages",
+    columns = starts_with("n_union_")
+  ) |>
+  tab_spanner(
+    label = "Alternates",
+    columns = starts_with("n_alt_")
+  ) |>
+  grand_summary_rows(fns = list(list(label = "Total", fn = "sum")),
+                     fmt = ~ fmt_integer(.)) |>
+  tab_options(table.background.color = "#F4F4F2", 
+              table.font.size = px(18),
+              heading.title.font.size = px(24),
+              heading.subtitle.font.size = px(20))
+```
+
+
 
 ## Race of Partner for Multiracial Spouses
 
@@ -445,7 +491,7 @@ plot_multi_multi+
 ```
 
 
-## Simplified Multiracial-to-Multiracial Parameters
+## Simplified Multiracial-to-Multiracial Model
 
 ```{r}
 #| label: multi-multi-fig-simplified
@@ -463,7 +509,7 @@ coef_short_sym |>
   scale_color_manual(values = my_palette)+
   ylim(0, 1)+
   labs(x=NULL, 
-       y="odds of exogamous marriage with multiple race partner relative to multiracial endogamy")+
+       y="odds of exogamous marriage with multiple race partner\nrelative to multiracial endogamy")+
   theme(legend.position = "none")
 ```
 
