@@ -632,4 +632,15 @@ plot_multi_mono+
 ```
 
 
-## Conclusions
+## Conclusions {.smaller}
+
+- A high level of endogamy exists among multiracial individuals, masked by small group sizes.
+- Partial overlap in racial identification increases the likelihood of partnering, but patterned by historical racial regimes.
+  - Shared Black ancestry matters most.
+  - Shared Indigenous ancestry matters least.
+  - Shared White and Asian ancestry are somewhere in-between.
+- No evidence of a postracial or transcendent pattern in partner choices.
+- Despite a high level of endogamy, multiracial individuals are most likely to marry single-race individuals because of the small size of groups.
+  - Inhibits formation of a sense of group identity.
+  - part-White multiracial individuals are most likely to marry White partners, suggesting that multiracial identity may "fold" back into single race categories in the next generation.
+  
