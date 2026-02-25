@@ -174,9 +174,32 @@ exogamy_trend |>
 
 ::::
 
-## A Hypothetical Family Tree
+## A Multigenerational Process
 
-- Discuss three generation case of White/Asian Mixing
+```{mermaid}
+flowchart LR
+
+%% Colors %%
+
+classDef blue fill:#1F4E79,stroke:#000,color:#fff
+classDef green fill:#6B2C3E,stroke:#000,color:#fff
+
+%% GENERATION 4 %%
+Fa1(White Man):::green --> G31(Interracial Marriage):::blue
+Mo1(Asian Woman):::green --> G31
+
+Fa2(White Man):::green --> G32(Same Race Marriage):::blue
+Mo2(White Woman):::green --> G32
+
+
+%% GENERATION 3 %%	
+G31 --> Fa(White-Asian Man):::green --> G2("Interracial (?) Marriage"):::blue
+G32 --> Mo(White Woman):::green --> G2
+
+%% GENERATION 2 %%
+G2 --> Or(?):::green
+```
+
 
 ## Two-Group Simulation Can Produce Surprising Results {.smaller}
 
@@ -275,9 +298,9 @@ plot_sim+
 
 ### Shared Experience
 
-It is possible that the *shared experience of being multiracial* itself contributes to partner formation, regardless of specific ancestry. 
+![](bonet_momoa.png)
 
-In this case, we would expect that multiracial individuals have higher likelihood of marriage with one another, irrespective of ancestry combination. 
+It is possible that the *shared experience of being multiracial* itself contributes to partner formation, regardless of specific ancestry.
 
 :::
 
@@ -285,7 +308,9 @@ In this case, we would expect that multiracial individuals have higher likelihoo
 
 ### Transcendent Pattern
 
-We might also expect a *transcendent pattern* in which multiracial individuals are more likely to marry individuals of any racial identification (single or multiple), consistent with a "post-racial" vision of multiraciality.
+![](legend_teigen.jpg)
+
+We might also expect a *transcendent pattern* in which multiracial individuals are more likely to cross racial boundaries in marriage generally.
 
 :::
 

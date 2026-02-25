@@ -2,3 +2,5 @@ format:
   aog-present-revealjs:
     chalkboard: false
     self-contained: true
+    mermaid:
+      theme: default
