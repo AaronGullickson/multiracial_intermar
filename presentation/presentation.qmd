@@ -644,3 +644,40 @@ plot_multi_mono+
   - Inhibits formation of a sense of group identity.
   - part-White multiracial individuals are most likely to marry White partners, suggesting that multiracial identity may "fold" back into single race categories in the next generation.
   
+___
+
+:::: {.columns}
+
+::: {.column width = "20%"}
+
+![](thank_you.gif)
+
+:::
+
+::: {.column width = "80%"}
+
+::: {.nonincremental}
+- Thank you for your time and questions!
+- Check out the paper forthcoming in *Demography*!
+:::
+
+:::
+
+::::
+
+:::: {.columns}
+
+::: {.column}
+
+![Preprint of Article](preprint_link.png)
+
+:::
+
+::: {.column}
+
+![Replication Package](replication_link.png)
+
+:::
+
+::::
+  
