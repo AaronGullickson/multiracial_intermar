@@ -421,9 +421,31 @@ plot_partner_choice+
 
 ```
 
-## Modeling Partner Choice
+## Modeling Partner Choice {.smaller}
 
-  
+:::: {.columns}
+
+::: {.column width = "30%"}
+
+![](why_him.png)
+
+:::
+
+::: {.column width = "70%"}
+
+- For one randomly determined partner in a union, we randomly sample 7 alternate partners from a pool of possible alternates within the same geographic area.
+- For each available choice set, we then use a **conditional logit model** to predict the actual union by a variety of shared characteristics of the (potential) partners:
+  - racial combination (endogamy is the reference)
+  - age difference of partners
+  - educational distance
+  - sharing a primary language
+  - sharing a birthplace
+- The model implicitly controls for group size differences in the local "marriage market."
+
+:::
+
+::::
+
 ## Multiracial-to-Multiracial Intermarriage
 
 ```{r}
