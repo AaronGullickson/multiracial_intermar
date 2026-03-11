@@ -300,8 +300,13 @@ partner_choice |>
   scale_fill_viridis_d(direction = -1, end=0.75)+
   scale_y_continuous(labels = scales::percent)+
   coord_flip()+
-  labs(x="race of other spouse", y="percent", fill = "overlap in racial identification")+
-  theme_bw()
+  labs(x="Race of Other Spouse", y=NULL, fill = "Overlap in racial identification")+
+  theme_bw()+
+  theme(legend.position = "bottom",
+        axis.text = element_text(color = "black"),
+        axis.title = element_text(color = "black", face = "bold"),
+        strip.text = element_text(color = "black", face = "bold"),
+        legend.text = element_text(color = "black"))
 ```
 
 @fig-partner-choice-panel-color also demonstrates that the probability of having a multiracial partner is relatively low across all six groups. However, the probability of having a multiracial partner rises substantially for each multiracial group when that multiracial partner is an exact match in terms of racial identification. This finding suggests some degree of exact endogamous preference for multiracial individuals.
@@ -331,7 +336,7 @@ coef_full |>
            str_detect(race_choice, race_cons2),
          overlap = factor(overlap, 
                               levels = c(FALSE, TRUE),
-                              labels = c("No overlap", "Partial overlap")),
+                              labels = c("None", "Partial")),
          variable=str_replace(variable, "\\.","/")) |>
   mutate(variable = if_else(str_count(variable, "White") == 2, 
                             str_replace_all(variable, "White", "**White**"), 
@@ -355,10 +360,15 @@ coef_full |>
   coord_flip()+
   scale_color_viridis_d(direction=-1, end=0.75)+
   labs(x=NULL, 
-       y="odds of exogamous marriage with multiple race partner relative to multiracial endogamy",
-       color="partial overlap")+
+       y="Odds of Exogamous Marriage with Multiple-Race\nPartner Relative to Multiracial Endogamy",
+       color="Overlap in racial identification")+
   theme_bw()+
-  theme(axis.text.y = element_markdown())
+  theme(axis.text.y = element_markdown())+
+  theme(legend.position = "bottom",
+        axis.text = element_text(color = "black"), 
+        axis.title = element_text(color = "black", face = "bold"),
+        strip.text = element_text(color = "black"),
+        legend.text = element_text(color = "black"))
 ```
 
 Second, we find that the odds of multiracial-to-multiracial exogamy are generally higher when the two multiracial groups under consideration are partially endogamous. As @fig-odds-ratios-multi shows, the lowest odds of intermarriage were for the three cases in which partners had no shared racial identification in common (e.g. the Black-Indigenous group has no overlap with the White-Asian group). Thus, we find that “partial endogamy” as measured by a partial overlap in racial identification increases the odds of a union, although such unions are still far less likely than an exact match.
@@ -407,10 +417,15 @@ coef_short_sym |>
   coord_flip()+
   facet_wrap(~multiple_race, ncol=2)+
   scale_color_viridis_d(direction=-1, end=0.75)+
-  labs(x="single race partner", 
-       y="odds of marriage with given single race partner relative to endogamy",
-       color = "overlap in racial identification")+
-  theme_bw()
+  labs(x="Single-Race Partner", 
+       y="Odds of Marriage with Given Single-Race Partner Relative to Endogamy",
+       color = "Overlap in racial identification")+
+  theme_bw()+
+  theme(legend.position = "bottom", 
+        axis.title = element_text(color = "black", face = "bold"),
+        axis.text = element_text(color = "black"),
+        strip.text = element_text(color = "black", face = "bold"),
+        legend.text = element_text(color = "black"))
 ```
 
 @fig-odds-ratios-multi also distinguishes between monoracial groups that are constituent of a given multiracial category and those that are not. Putting aside for the moment the results for Latino partners, the odds of interracial marriage are generally higher when the monoracial group is constituent of the multiracial category, indicating that partial overlap in racial identification increases the likelihood of union formation.
@@ -448,11 +463,16 @@ coef_short_sym |>
   geom_linerange(linewidth=0.5, 
                   aes(ymax=upper95, ymin=lower95))+
   scale_color_viridis_d(direction=-1, end=0.75)+
-  labs(x="Race of non-Latino partner",
-       y="odds of intermarriage for Latino partners relative to endogamy",
-    color="non-Latino partner")+
+  labs(x="Race of non-Latino Partner",
+       y="Odds of Intermarriage for Latino Partners Relative to Endogamy",
+    color="Non-Latino partner")+
   coord_flip()+
-  theme_bw()
+  theme_bw()+
+  theme(legend.position = "bottom", 
+        axis.title = element_text(color = "black", face = "bold"),
+        axis.text = element_text(color = "black"),
+        strip.text = element_text(color = "black", face = "bold"),
+        legend.text = element_text(color = "black"))
 ```
 
 The highest odds of interracial marriage for Latinos is with White partners. The odds here are 36.6% as high as those for Latino endogamy. This odds ratio is the largest of any of the racial exogamy terms we estimate in the models. The next three groups with the highest likelihood of interracial marriage with Latinos are the three part-White multiracial groups. At the other end of the spectrum, Latinos are the least likely to marry Black individuals and part-Black multiracial groups without White identification.
@@ -571,9 +591,14 @@ temp |>
   facet_wrap(~group, ncol=1)+
   scale_color_viridis_d(direction=-1, end=0.9)+
   theme_bw()+
-  labs(color="ego partner race",
-       x="other partner race and gender", 
-       y="odds of marriage with White partner relative to endogamy")
+  labs(color="Ego partner race",
+       x="Other Partner's Race and Gender", 
+       y="Odds of Marriage with White Partner Relative to Endogamy")+
+  theme(legend.position = "bottom", 
+        axis.title = element_text(color = "black", face = "bold"),
+        axis.text = element_text(color = "black"),
+        strip.text = element_text(color = "black", face = "bold"),
+        legend.text = element_text(color = "black"))
 ```
 
 In the case of White-Black partners, we observe the same basic gender asymmetry observed for Black partners. The results for monoracial Black partners show that the odds of a Black man/White woman pairing are substantially more likely than a Black woman/White man pairing. The overall odds of intermarriage with White partners are substantially higher for White-Black individuals than for Black individuals, but maintain the same basic gender asymmetry. White-Black man/White woman pairings are more likely than White-Black woman/White man pairings. These findings reinforce the earlier findings that the Black classification regime structures the marital choices and opportunities of part-Black individuals, whose marriage patterns more closely resemble those of single-race Black individuals than their other component race.
