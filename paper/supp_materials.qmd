@@ -1,5 +1,5 @@
 ---
-title: "Supplementary Materials for Blurring the Marriage Market: Contemporary Patterns of Multiracial Marriage"
+title: "Online Appendix for: Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage"
 format:
   pdf:
     geometry: margin=0.5in
@@ -9,6 +9,10 @@ format:
       text: |
         \usepackage{dcolumn}
         \usepackage{longtable}
+# this command adds an "S" prefix to all table and figure numbering
+header-includes:
+  - \renewcommand{\thetable}{A\arabic{table}}
+  - \renewcommand{\thefigure}{A\arabic{figure}}
 ---
 
 ```{r}
