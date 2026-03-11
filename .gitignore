@@ -19,3 +19,6 @@
 *.ent
 
 /.quarto/
+
+**/*.quarto_ipynb
+_submissions
