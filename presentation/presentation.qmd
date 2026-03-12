@@ -114,6 +114,7 @@ exogamy_trend |>
   #geom_ribbon(aes(ymin = exogamy - 1.96 * exogamy_se,
   #                ymax = exogamy + 1.96 * exogamy_se),
   #            color = "grey", alpha = 0.5)+
+  geom_area(fill = "grey")+
   geom_line(linewidth = 1.5)+
   geom_point(size = 3)+
   scale_y_continuous(labels = scales::percent)+
@@ -665,6 +666,8 @@ plot_multi_mono+
 
 :::
 
+
+
 ## Conclusions {.smaller}
 
 - A high level of endogamy exists among multiracial individuals, masked by small group sizes.
@@ -713,4 +716,140 @@ ___
 :::
 
 ::::
+
+## Latino Patterns of Intermarriage {visibility="uncounted"}
+
+```{r}
+#| label: latino-fig
+
+coef_short_sym |>
+  filter(str_detect(variable, "Latino")) |>
+  mutate(
+    variable=str_replace(variable, "Latino",""),
+    variable=str_replace(variable, "\\.", ""),
+    type=case_when(
+      str_count(variable, "-")>0 ~ "Multiracial partner",
+      TRUE ~ "Monoracial partner"),
+    upper84=exp(coef+1.386*se),
+    upper95=exp(coef+1.96*se),
+    lower84=exp(coef-1.386*se),
+    lower95=exp(coef-1.96*se)) |>
+  filter(variable!="") |>
+  ggplot(aes(x=reorder(variable, coef, max), y=exp(coef), color=type))+
+  geom_point(size = 4)+
+  geom_linerange(linewidth=2.5, 
+                  aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=1, 
+                  aes(ymax=upper95, ymin=lower95))+
+  scale_color_viridis_d(direction=-1, end=0.75)+
+  labs(x="Race of non-Latino partner",
+       y="odds of intermarriage for Latino partners relative to endogamy",
+    color="non-Latino partner")+
+  coord_flip()
+```
+
+## Gender-Specific Patterns {visibility="uncounted"}
+
+```{r}
+#| label: gender-pattern-fig
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^Black\\.|\\.Black$") &
+           !str_detect(variable, "-") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "Black",
+         alt_race = ifelse(str_detect(race_husband, "Black"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "Black"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep="")))
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^Asian\\.|\\.Asian$") &
+           !str_detect(variable, "-") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "Asian",
+         alt_race = ifelse(str_detect(race_husband, "Asian"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "Asian"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^White-Black\\.|\\.White-Black$") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "White-Black",
+         alt_race = ifelse(str_detect(race_husband, "White-Black"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "White-Black"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- coef_short_asym |>
+  filter(str_detect(variable, "^White-Asian\\.|\\.White-Asian$") &
+           !str_detect(variable, "Multi/Multi|Latino")) |>
+  mutate(race_husband=str_split(variable, "\\.", simplify=TRUE)[,1],
+         race_wife=str_split(variable, "\\.", simplify=TRUE)[,2],
+         ego_race = "White-Asian",
+         alt_race = ifelse(str_detect(race_husband, "White-Asian"), race_wife,
+                            race_husband),
+         race_label=ifelse(str_detect(race_husband, "White-Asian"), 
+                           paste(race_wife, " Female", 
+                                 sep=""),
+                           paste(race_husband, " Male", 
+                                 sep=""))) |>
+  bind_rows(temp)
+
+temp <- temp |>
+  filter(alt_race == "White") |>
+  mutate(
+    group = case_when(
+      ego_race %in% c("White-Asian", "Asian") ~ "Asian or White-Asian ego partner",
+      ego_race %in% c("White-Black", "Black") ~ "Black or White-Black ego partner"
+    ), 
+    group = factor(group,
+                   levels = c("Black or White-Black ego partner",
+                              "Asian or White-Asian ego partner")),
+    race_type = factor(str_detect(ego_race, "-"),
+                       levels = c(FALSE, TRUE),
+                       labels = c("Monoracial", "Multiracial"))
+  ) |>
+  select(variable, coef, se, group, race_type, race_label)
+
+temp <- temp |>
+  mutate(upper84=exp(coef+1.386*se),
+         upper95=exp(coef+1.96*se),
+         lower84=exp(coef-1.386*se),
+         lower95=exp(coef-1.96*se))
+
+temp |>
+  ggplot(aes(x=factor(race_label), y=exp(coef), color=race_type))+
+  #geom_hline(yintercept=1, linewidth=0.5, color="grey30")+
+  geom_linerange(linewidth=2.5, 
+                 aes(ymax=upper84, ymin=lower84))+
+  geom_linerange(linewidth=1, 
+                 aes(ymax=upper95, ymin=lower95))+
+  geom_point(size=4)+
+  coord_flip()+
+  facet_wrap(~group, ncol=1)+
+  scale_color_viridis_d(direction=-1, end=0.9)+
+  labs(color="ego partner race",
+       x="other partner race and gender", 
+       y="odds of marriage with White partner relative to endogamy")
+```
+
   
