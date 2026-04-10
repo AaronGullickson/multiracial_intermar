@@ -4,6 +4,12 @@ subtitle: "Contemporary Patterns of Multiracial Marriage"
 fig-height: 7
 fig-width: 12.5
 fig-format: svg
+format:
+  aog-present-revealjs:
+    chalkboard: false
+    self-contained: true
+    mermaid:
+      theme: default
 ---
 
 
