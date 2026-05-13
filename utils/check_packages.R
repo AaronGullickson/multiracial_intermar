@@ -13,7 +13,8 @@ packages = c(
   "ggplot2", "ggtext", # graphics
   "texreg","gt", # for table output
   "PNWColors",
-  "remotes","survival"
+  "remotes","survival",
+  "qrcode"
 )
 
 package.check <- lapply(packages, FUN = function(x) {

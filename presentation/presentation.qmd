@@ -451,7 +451,7 @@ plot_partner_choice+
 
 ::: {.column width = "30%"}
 
-![](why_him.png)
+![](her-arrested.gif)
 
 :::
 
@@ -700,7 +700,7 @@ ___
 
 ::: {.nonincremental}
 - Thank you for your time and questions!
-- Check out the paper forthcoming in *Demography*!
+- Check out the paper now out in *Demography*!
 :::
 
 :::
@@ -711,13 +711,32 @@ ___
 
 ::: {.column}
 
-![Preprint of Article](preprint_link.png)
+```{r}
+#| label: generate-article-qr
+
+generate_svg(qr_code("https://doi.org/10.1215/00703370-12530612"),
+             foreground = "#2C5D63",
+             background = "#F4F4F2",
+             filename = here("presentation", "article_qr.svg"))
+```
+
+![Article Link](article_qr.svg)
+
 
 :::
 
 ::: {.column}
 
-![Replication Package](replication_link.png)
+```{r}
+#| label: generate-rep-package-qr
+
+generate_svg(qr_code("https://github.com/AaronGullickson/multiracial_intermar"),
+             foreground = "#1F4E79",
+             background = "#F4F4F2",
+             filename = here("presentation", "rep_package_qr.svg"))
+```
+
+![Replication Package](rep_package_qr.svg)
 
 :::
 
@@ -746,8 +765,8 @@ coef_short_sym |>
   geom_linerange(linewidth=2.5, 
                   aes(ymax=upper84, ymin=lower84))+
   geom_linerange(linewidth=1, 
-                  aes(ymax=upper95, ymin=lower95))+
-  scale_color_viridis_d(direction=-1, end=0.75)+
+                 aes(ymax=upper95, ymin=lower95))+
+  scale_color_manual(values = my_palette)+
   labs(x="Race of non-Latino partner",
        y="odds of intermarriage for Latino partners relative to endogamy",
     color="non-Latino partner")+
@@ -852,7 +871,7 @@ temp |>
   geom_point(size=4)+
   coord_flip()+
   facet_wrap(~group, ncol=1)+
-  scale_color_viridis_d(direction=-1, end=0.9)+
+  scale_color_manual(values = my_palette)+
   labs(color="ego partner race",
        x="other partner race and gender", 
        y="odds of marriage with White partner relative to endogamy")
