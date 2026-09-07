@@ -10,7 +10,7 @@ The data used for this project are a subsample of the [IPUMS USA](https://usa.ip
 
 > Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Grace Cooper, Julia A. Rivera Drew, Stephanie Richards, Renae Rodgers, Jonathan Schroeder, and Kari C.W. Williams. IPUMS USA: Version 16.0 \[dataset\]. Minneapolis, MN: IPUMS, 2025. [https://doi.org/10.18128/D010.V16.0](https://doi.org/10.18128/D010.V16.0)]
 
-The data included with this project is intended only for replication purposes. Individuals are not to redistribute the data without permission. Contact [ipums@umn.edu] for redistribution requests. For all other uses of these data, please access data directly via [usa.ipums.org](#0).
+The data included with this project is intended only for replication purposes. Individuals are not to redistribute the data without permission. Contact [mailto:ipums@umn.edu] for redistribution requests. For all other uses of these data, please access data directly via [usa.ipums.org](https://usa.ipums.org).
 
 Because of the size of the data, they are housed separately from this repository on Google Drive. However, the `analysis/organize_data.qmd` code will download these data to read locally when it is rendered. Furthermore the codebook for the extract is included with the repository at at `data/data_raw/usa_00139.cbk.txt`.
 
