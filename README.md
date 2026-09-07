@@ -4,7 +4,7 @@ editor: visual
 
 # Replication Package for Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage
 
-This is a replication package for the article "Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage" by Aaron Gullickson and Jenifer Bratter published in *[Demography](https://read.dukeupress.edu/demography/article/63/2/643/409152/Blurring-the-Marriage-Market-Contemporary-Patterns)*.
+This is a replication package for the article "Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage" by Aaron Gullickson and Jenifer Bratter, now published in *[Demography](https://read.dukeupress.edu/demography/article/63/2/643/409152/Blurring-the-Marriage-Market-Contemporary-Patterns)*.
 
 The data used for this project are a subsample of the [IPUMS USA](https://usa.ipums.org/usa/) data. Any use of these data should be cited as follows:
 
