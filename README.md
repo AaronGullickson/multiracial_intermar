@@ -4,13 +4,13 @@ editor: visual
 
 # Replication Package for Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage
 
-This is a replication package for the article "Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage" by Aaron Gullickson and Jenifer Bratter, now published in *[Demography](https://read.dukeupress.edu/demography/article/63/2/643/409152/Blurring-the-Marriage-Market-Contemporary-Patterns)*.
+This is a replication package for the article "Blurring the Marriage Market? Contemporary Patterns of Multiracial Marriage" by Aaron Gullickson and Jenifer Bratter, now published in [*Demography*](https://read.dukeupress.edu/demography/article/63/2/643/409152/Blurring-the-Marriage-Market-Contemporary-Patterns).
 
 The data used for this project are a subsample of the [IPUMS USA](https://usa.ipums.org/usa/) data. Any use of these data should be cited as follows:
 
-> Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Grace Cooper, Julia A. Rivera Drew, Stephanie Richards, Renae Rodgers, Jonathan Schroeder, and Kari C.W. Williams. IPUMS USA: Version 16.0 dataset. Minneapolis, MN: IPUMS, 2025. [https://doi.org/10.18128/D010.V16.0](https://doi.org/10.18128/D010.V16.0)
+> Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Grace Cooper, Julia A. Rivera Drew, Stephanie Richards, Renae Rodgers, Jonathan Schroeder, and Kari C.W. Williams. IPUMS USA: Version 16.0 dataset. Minneapolis, MN: IPUMS, 2025. <https://doi.org/10.18128/D010.V16.0>
 
-The data included with this project is intended only for replication purposes. Individuals are not to redistribute the data without permission. Contact [ipums@umn.edu](mailto:ipums@umn.edu) for redistribution requests. For all other uses of these data, please access data directly via [usa.ipums.org](https://usa.ipums.org).
+The data included with this project is intended only for replication purposes. Individuals are not to redistribute the data without permission. Contact [ipums\@umn.edu](mailto:ipums@umn.edu) for redistribution requests. For all other uses of these data, please access data directly via [usa.ipums.org](https://usa.ipums.org).
 
 Because of the size of the data, they are housed separately from this repository on Google Drive. However, the `analysis/organize_data.qmd` code will download these data to read locally when it is rendered. Furthermore the codebook for the extract is included with the repository at at `data/data_raw/usa_00139.cbk.txt`.
 
@@ -25,3 +25,5 @@ Running the project as a quarto project should install the required packages via
 1.  `analysis/organize_data.qmd`
 2.  `analysis/run_models.qmd` Be aware that these models are computationally intensive and will take at least several hours to run and will require substantial RAM.
 3.  `analysis/analysis.qmd`
+
+The output of these quarto documents from our last run before publication are also available \[here\](<https://aarongullickson.github.io/multiracial_intermar/>).
