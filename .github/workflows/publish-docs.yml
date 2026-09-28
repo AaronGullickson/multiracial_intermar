@@ -32,7 +32,7 @@ jobs:
       - name: Upload rendered website
         uses: actions/upload-pages-artifact@v4
         with:
-          path: _docs
+          path: _products
 
       - name: Deploy to GitHub Pages
         id: deployment
